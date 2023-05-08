@@ -8,6 +8,8 @@ const Schema = mongoose.Schema;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.set('view engine', 'ejs');
+app.use(express.static('public'))
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true });
@@ -16,6 +18,15 @@ mongoose.connect(uri, { useNewUrlParser: true });
 const inputSchema = new Schema({
     input: { type: String, required: true },
 });
+
+// User Model
+const userSchema = new Schema({
+    ID: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+});
+
+const User = mongoose.model('User', userSchema);
 
 InputTest = mongoose.model('InputTest', inputSchema);
 
@@ -27,6 +38,11 @@ app.get('/', (req, res) => {
         <input type="submit" id="submit" value="Post Data">
     </form>
                     `)
+})
+
+// Get login page
+app.get('/login', (req, res) => {
+    res.render('login')
 })
 
 
