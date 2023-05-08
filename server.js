@@ -124,7 +124,10 @@ app.post('/signup', async (req, res) => {
         })
 
         newUser.save().then(async () => {
-            res.redirect('/success')
+            req.session.USER = await User.findOne({ name: req.body.name })
+            req.session.AUTH = true;
+            req.session.ROLE = 'User'
+            res.redirect('/members')
         })
     }
 });
@@ -138,10 +141,44 @@ app.get('/invalidFormData', (req, res) => {
 })
 
 
+// Middleware: Checks if the user is authenticated
+const checkAuth = (req, res, next) => {
+    if (!req.session.AUTH) {
+        if (req.session.FAIL_FORM) {
+            delete req.session.FAIL_FORM
+            return res.redirect('/authFail');
+        } else {
+            delete req.session.FAIL_FORM
+            return res.redirect('/members');
+        }
+    }
+    next();
+};
+
+
+// Get authentication failure page
+app.get('/authFail', (req, res) => {
+    res.render('authFailRoute', {
+        primaryUser: req.session.USER,
+        referer: req.headers.referer
+    })
+})
+
+
 // Get success
 app.get('/success', (req, res) => {
     res.send('Success')
 })
+
+
+// Get members page
+app.get('/members', checkAuth, (req, res) => {
+    res.render('members', {
+        primaryUser: req.session.USER,
+    })
+});
+
+
 
 app.post('/postInput', (req, res) => {
     const input = req.body.input;
