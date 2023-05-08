@@ -32,9 +32,18 @@ var sessionStore = MongoStore.create({
     }
 })
 
+// Set up sessions
+app.use(session({
+    secret: process.env.SESSION_KEY,
+    store: sessionStore,
+    saveUninitialized: false,
+    resave: true,
+    cookie: { maxAge: 60 * 60 * 1000 }
+}))
+
 
 // The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
-const nameSchema = Joi.string().regex(/^[a-zA-Z]+$/).required();
+const idSchema = Joi.string().regex(/^[a-zA-Z0-9]+$/).required();
 const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
@@ -46,7 +55,7 @@ const inputSchema = new Schema({
 
 // User Model
 const userSchema = new Schema({
-    ID: { type: String, required: true },
+    id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
 });
@@ -78,12 +87,12 @@ app.get('/signup', (req, res) => {
 
 // Post signup page data
 app.post('/signup', async (req, res) => {
-    const name = req.body.name;
+    const id = req.body.id;
     const email = req.body.email;
     let password = req.body.password;
 
-    if (nameSchema.validate(name).error != null) {
-        req.session.INVALID_FIELD = 'Name'
+    if (idSchema.validate(id).error != null) {
+        req.session.INVALID_FIELD = 'ID'
         res.redirect('/invalidFormData')
     } else if (emailSchema.validate(email).error != null) {
         req.session.INVALID_FIELD = 'Email'
@@ -95,10 +104,10 @@ app.post('/signup', async (req, res) => {
         password = await bcrypt.hash(req.body.password, saltRounds);
 
         // Check if the fields already exist in the database
-        const matchName = await User.findOne({ name: name })
+        const matchID = await User.findOne({ id: id })
         const matchEmail = await User.findOne({ email: email })
 
-        if (matchName != undefined) {
+        if (matchID != undefined) {
             req.session.MATCH = 'name';
             return res.redirect('/alreadyExists')
         }
@@ -109,16 +118,12 @@ app.post('/signup', async (req, res) => {
         }
 
         const newUser = new User({
-            name,
+            id,
             email,
-            password,
-            role: 'User'
+            password
         })
 
         newUser.save().then(async () => {
-            req.session.USER = await User.findOne({ name: req.body.name })
-            req.session.AUTH = true;
-            req.session.ROLE = 'User'
             res.redirect('/success')
         })
     }
@@ -126,7 +131,7 @@ app.post('/signup', async (req, res) => {
 
 // Get invalid form data page
 app.get('/invalidFormData', (req, res) => {
-    res.render('invalidFormDataRoute', {
+    res.render('invalidFormData', {
         invalidField: req.session.INVALID_FIELD,
         referer: req.headers.referer
     })
