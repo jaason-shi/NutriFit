@@ -141,6 +141,14 @@ app.get('/login', (req, res) => {
 })
 
 
+// Get change password page
+app.get('/changePassword', (req, res) => {
+    res.render('changePassword', {
+        primaryUser: req.session.USER
+    })
+})
+
+
 // Post login page
 app.post(('/login'), (req, res) => {
     const email = req.body.email;
