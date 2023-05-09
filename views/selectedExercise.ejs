@@ -8,7 +8,13 @@
     <h1>Selected Exercises</h1>
     <ul>
       <% exercise.forEach(item => { %>
-        <li><%= item.name %> (Target: <%= item.bodyPart %>, Equipment: <%= item.equipment %>)</li>
+        <li>
+          <%= item.name %> (Target: <%= item.bodyPart %>, Equipment: <%= item.equipment %>)
+          <form method="POST" action="/removeExercise">
+            <input type="hidden" name="item" value="<%= item._id %>">
+            <button type="submit">Remove</button>
+          </form>
+        </li>
       <% }) %>
     </ul>
     <a href="/exercise">Back to Filter</a>
