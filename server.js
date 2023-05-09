@@ -98,7 +98,6 @@ app.post('/signup', async (req, res) => {
         req.session.INVALID_FIELD = 'Password'
         res.redirect('/invalidFormData')
     } else if (idSchema.validate(answer).error != null) {
-        console.log(answer)
         req.session.INVALID_FIELD = 'Answer'
         res.redirect('/invalidFormData')
     } else {
@@ -162,7 +161,6 @@ app.post('/getEmail', async (req, res) => {
 
 // Get answer security question page
 app.get('/checkSecurity', (req, res) => {
-    console.log(req.session.USER)
     res.render('checkSecurity', {
         primaryUser: req.session.USER
     })
@@ -171,12 +169,9 @@ app.get('/checkSecurity', (req, res) => {
 // Post answer security question page
 app.post('/checkSecurity', (req, res) => {
     const answer = req.body.answer;
-    console.log(answer)
     if (answer == req.session.USER.answer) {
-        console.log("Correct")
         return res.redirect('/changePassword')
     } else {
-        console.log("Incorrect")
         return res.redirect('/incorrectAnswer')
     }
 })
@@ -202,7 +197,7 @@ app.post('/changePassword', async (req, res) => {
     password = await bcrypt.hash(req.body.password, saltRounds);
     console.log(password);
     await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
-    const user = User.findOne({ email: req.session.USER.email })
+    const user = await User.findOne({ email: req.session.USER.email })
     console.log(user)
     return res.redirect('changePassword')
 })
