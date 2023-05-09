@@ -168,6 +168,18 @@ app.get('/changePassword', (req, res) => {
     })
 })
 
+// Post change password page
+app.post('/changePassword', (req, res) => {
+    const answer = req.body.answer;
+    console.log(answer)
+    if (answer == req.session.USER.answer) {
+        console.log("Correct")
+    } else {
+        console.log("Incorrect")
+    }
+    return res.redirect('/changePassword')
+})
+
 
 // Post login page
 app.post(('/login'), (req, res) => {
