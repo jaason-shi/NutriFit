@@ -177,8 +177,17 @@ app.post('/checkSecurity', (req, res) => {
         return res.redirect('/changePassword')
     } else {
         console.log("Incorrect")
+        return res.redirect('/incorrectAnswer')
     }
     return res.redirect('/checkSecurity')
+})
+
+
+// Get incorrect answer page
+app.get('/incorrectAnswer', (req, res) => {
+    res.render('incorrectAnswer', {
+        referer: req.headers.referer
+    })
 })
 
 
