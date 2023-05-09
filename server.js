@@ -145,14 +145,14 @@ app.post(('/login'), (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const emailValidationResult = emailSchema.validate(email);
+    const emailValidationResult = idSchema.validate(email);
     const passwordValidationResult = passwordSchema.validate(password);
 
     User.find({ $or: [{ email: email }, { id: email }] }).exec().then(async (users) => {
         console.log(users[0])
 
         if (emailValidationResult.error != null) {
-            req.session.INVALID_FIELD = 'Email'
+            req.session.INVALID_FIELD = 'Email or ID'
             res.redirect('/invalidFormData')
         } else if (passwordValidationResult.error != null) {
             req.session.INVALID_FIELD = 'Password'
