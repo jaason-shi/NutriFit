@@ -194,8 +194,11 @@ app.get('/changePassword', (req, res) => {
 // Post change password page
 app.post('/changePassword', async (req, res) => {
     let password = req.body.password
+    if (passwordSchema.validate(password).error != null) {
+        req.session.INVALID_FIELD = 'Password'
+        return res.redirect('/invalidFormData')
+    }
     password = await bcrypt.hash(req.body.password, saltRounds);
-    console.log(password);
     await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
     const user = await User.findOne({ email: req.session.USER.email })
     console.log(user)
