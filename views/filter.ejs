@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Filter Food</title>
+  </head>
+  <body>
+    <form id="search-form">
+        <input type="text" id="search-bar" placeholder="Search for food...">
+      </form>
+      
+      <div id="results"></div>
+      
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <script>
+        $(document).ready(function() {
+          $('#search-bar').on('input', function() {
+            const searchQuery = $(this).val();
+            $.get('/search', { q: searchQuery }, function(data) {
+              $('#results').empty();
+              data.forEach(item => {
+                $('#results').append(`
+                  <div>
+                    <p>${item.name} - ${item.measure}</p>
+                    <button onclick="addItem('${item.id}')">Add</button>
+                  </div>
+                `);
+              });
+            });
+          });
+        });
+      
+        function addItem(id) {
+          $.post('/select', { item: id }, function() {
+            // Redirect to selected page or show a message
+            window.location.href = "/selected";
+          });
+        }
+      </script>
+  </body>
+</html>
