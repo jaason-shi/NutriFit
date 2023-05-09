@@ -199,7 +199,13 @@ app.post('/changePassword', async (req, res) => {
     await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
     const user = await User.findOne({ email: req.session.USER.email })
     console.log(user)
-    return res.redirect('changePassword')
+    return res.redirect('/changePasswordSuccess')
+})
+
+
+// Get change password success page
+app.get('/changePasswordSuccess', (req, res) => {
+    res.render('changePasswordSuccess')
 })
 
 
