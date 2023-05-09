@@ -199,6 +199,13 @@ const checkAuth = (req, res, next) => {
 };
 
 
+// Post logout page
+app.post('/logOut', (req, res) => {
+    req.session.destroy();
+    res.redirect('./');
+})
+
+
 // Get authentication failure page
 app.get('/authFail', (req, res) => {
     res.render('authFailRoute', {
@@ -214,7 +221,6 @@ app.get('/members', checkAuth, (req, res) => {
         primaryUser: req.session.USER,
     })
 });
-
 
 
 app.post('/postInput', (req, res) => {
