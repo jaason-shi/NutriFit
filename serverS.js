@@ -6,6 +6,8 @@ const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const ejs = require("ejs");
+// require axios
+const axios = require("axios");
 
 require("dotenv").config();
 
@@ -15,60 +17,63 @@ const Schema = mongoose.Schema;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set("view engine", "ejs");
+const path = require('path'); // Import the 'path' module
+app.set("views", path.join(__dirname, "views"));
+
 app.use(express.static("public"));
 
-// Set up MongoDB
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri, { useNewUrlParser: true });
-mongoose.connection.once("open", () => {
-  console.log("Connected to MongoDB Atlas.");
-});
+// // Set up MongoDB
+// const uri = process.env.ATLAS_URI;
+// mongoose.connect(uri, { useNewUrlParser: true });
+// mongoose.connection.once("open", () => {
+//   console.log("Connected to MongoDB Atlas.");
+// });
 
-var sessionStore = MongoStore.create({
-  mongoUrl: uri,
-  cypto: {
-    secret: process.env.SESSION_KEY,
-  },
-});
+// var sessionStore = MongoStore.create({
+//   mongoUrl: uri,
+//   cypto: {
+//     secret: process.env.SESSION_KEY,
+//   },
+// });
 
-// Set up sessions
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    store: sessionStore,
-    saveUninitialized: false,
-    resave: true,
-    cookie: { maxAge: 60 * 60 * 1000 },
-  })
-);
+// // Set up sessions
+// app.use(
+//   session({
+//     secret: process.env.SESSION_KEY,
+//     store: sessionStore,
+//     saveUninitialized: false,
+//     resave: true,
+//     cookie: { maxAge: 60 * 60 * 1000 },
+//   })
+// );
 
-// The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
-const idSchema = Joi.string()
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
-const emailSchema = Joi.string()
-  .email({ minDomainSegments: 2 })
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
-const passwordSchema = Joi.string()
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
+// // The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
+// const idSchema = Joi.string()
+//   .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
+//   .required();
+// const emailSchema = Joi.string()
+//   .email({ minDomainSegments: 2 })
+//   .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
+//   .required();
+// const passwordSchema = Joi.string()
+//   .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
+//   .required();
 
-// Input Model
-const inputSchema = new Schema({
-  input: { type: String, required: true },
-});
+// // Input Model
+// const inputSchema = new Schema({
+//   input: { type: String, required: true },
+// });
 
-// User Model
-const userSchema = new Schema({
-  id: { type: String, required: true },
-  email: { type: String, required: true },
-  password: { type: String, required: true },
-});
+// // User Model
+// const userSchema = new Schema({
+//   id: { type: String, required: true },
+//   email: { type: String, required: true },
+//   password: { type: String, required: true },
+// });
 
-const User = mongoose.model("User", userSchema);
+// const User = mongoose.model("User", userSchema);
 
-InputTest = mongoose.model("InputTest", inputSchema);
+// InputTest = mongoose.model("InputTest", inputSchema);
 
 // Basic landing page
 app.get("/", (req, res) => {
@@ -230,6 +235,158 @@ app.post("/postInput", (req, res) => {
     res.redirect("/");
   });
 });
+
+
+// route to generate workout routine with queryChatGPT
+app.get("/generateWorkoutRoutine", (req, res) => {
+  // run chatgpt api function
+
+  queryChatGPT().then((response) => {
+    // render generateWorkoutRoutine.ejs with response from chatgpt api
+    res.render("generateWorkoutRoutine", { response: response });
+    //res.send(response);
+    console.log(response);
+  });
+});
+
+// // generate workout routine with chatgptApi()
+// app.get("/generateWorkoutRoutine", (req, res) => {
+//   // run chatgpt api function
+//   chatgptApi().then((response) => {
+//     // render generateWorkoutRoutine.ejs with response from chatgpt api
+//     //res.render("generateWorkoutRoutine", { response: response });
+//     res.send(response);
+//   });
+// });
+
+// // generate workout routine with suggestFitnessActivity()
+// app.get("/generateWorkoutRoutine", (req, res) => {
+//   // run chatgpt api function
+//   suggestFitnessActivity().then((response) => {
+//     // render generateWorkoutRoutine.ejs with response from chatgpt api
+//     res.render("generateWorkoutRoutine", { response: response });
+
+//   });
+// });
+
+// WORKS but no response
+async function queryChatGPT() {
+  try {
+    const response = await axios.post("https://api.chatgpt.com/1/messages", {
+      messages: [{ role: "system", content: "Create a workout routine" }],
+      key: "oBNiEwyKfijTefZ3HsKET3BlbkFJ2ZRJ8ckXhPjDNao793NS",
+    });
+
+    console.log(response.data.choices[0].message.content);
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+
+
+
+// function to connect to chatgpt api DNU
+async function chatgptApi() {
+  const axios = require("axios");
+  // make request to get response from chatgpt api
+  const response = await axios.post("https://api.chatgpt.com/1/query", {
+    params: {
+      prompt: "Generate a workout routine",
+      key: "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",
+      temperature: 0.9,
+      max_tokens: 150,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+      stop: ["\n", " Human:", " AI:"],
+    },
+  });
+  // return response from chatgpt api
+  return response.data;
+}
+
+// Sean key:  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
+// my key:  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;
+
+
+// Chatgpt API Test Start
+// npm i https request
+
+const https = require('https');
+const request = require('request');
+
+const OPENAI_API_KEY = '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';
+const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
+const OPENAI_ORG_KEY = 'org-lSoIL35QMw5xmTxCrMYEhqAJ'
+
+
+const options = {
+    url: OPENAI_API_ENDPOINT,
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'OpenAI-Organization': OPENAI_ORG_KEY
+    },
+    body: JSON.stringify({
+        'model': 'gpt-3.5-turbo',
+        'messages': [{ 'role': 'user', 'content': 'Make a workout routine' }],
+        'temperature': 0.7
+    })
+};
+
+request.post(options, (error, response, body) => {
+    if (error) {
+        console.error(error);
+        return;
+    }
+    console.log(body);
+});
+
+
+
+// ChatGPT API Test End 
+
+// // function to get fitness routine from chatgpt api
+// async function suggestFitnessActivity() {
+//   const apiKey = "oBNiEwyKfijTefZ3HsKET3BlbkFJ2ZRJ8ckXhPjDNao793NS"; // Replace with your actual API key
+//   const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+//   const headers = {
+//     "Content-Type": "application/json",
+//     Authorization: `Bearer ${apiKey}`,
+//   };
+
+//   // Customize the conversation input to suggest a fitness activity
+//   const conversation = [
+//     { role: "system", content: "You are a helpful assistant." },
+//     { role: "user", content: "Suggest a fitness activity." },
+//   ];
+
+//   const body = JSON.stringify({
+//     model: "gpt-3.5-turbo",
+//     messages: conversation,
+//   });
+
+//   const requestOptions = {
+//     method: "POST",
+//     headers: headers,
+//     body: body,
+//   };
+
+//   try {
+//     const response = await fetch(apiUrl, requestOptions);
+//     const data = await response.json();
+//     const activity = data.choices[0].message.content;
+
+//     const jsonResponse = JSON.stringify({ Activity: activity });
+//     console.log(jsonResponse);
+//     // Handle the JSON response as needed
+//   } catch (error) {
+//     console.error("Error:", error);
+//     // Handle the error
+//   }
+// }
 
 // Connect to port
 const port = 3000;
