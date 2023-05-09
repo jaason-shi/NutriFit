@@ -199,6 +199,13 @@ const checkAuth = (req, res, next) => {
 };
 
 
+// Post logout page
+app.post('/logOut', (req, res) => {
+    req.session.destroy();
+    res.redirect('./');
+})
+
+
 // Get authentication failure page
 app.get('/authFail', (req, res) => {
     res.render('authFailRoute', {
@@ -208,19 +215,12 @@ app.get('/authFail', (req, res) => {
 })
 
 
-// Get success
-app.get('/success', (req, res) => {
-    res.send('Success')
-})
-
-
 // Get members page
 app.get('/members', checkAuth, (req, res) => {
     res.render('members', {
         primaryUser: req.session.USER,
     })
 });
-
 
 
 app.post('/postInput', (req, res) => {
