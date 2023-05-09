@@ -18,16 +18,17 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     console.log('Connected to Database');
     db = client.db('NutriFit');
     foodCollection = db.collection('food');
+    exerciseCollection = db.collection('exercise');
   })
   .catch(error => console.error(error));
 
 let selectedItems = [];
 
-app.get('/', (req, res) => {
-  res.render('filter.ejs');
+app.get('/food', (req, res) => {
+  res.render('foodFilter.ejs');
 });
 
-app.get('/search', (req, res) => {
+app.get('/searchFood', (req, res) => {
   const searchQuery = req.query.q;
   foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
     .then(results => {
@@ -36,20 +37,57 @@ app.get('/search', (req, res) => {
     .catch(error => console.error(error));
 });
 
-app.get('/selected', (req, res) => {
-  res.render('selected.ejs', { food: selectedItems });
+app.get('/selectedFood', (req, res) => {
+  res.render('selectedFood.ejs', { food: selectedItems });
 });
 
-app.post('/select', (req, res) => {
+app.post('/selectFood', (req, res) => {
   const itemId = req.body.item;
   const collection = db.collection('food');
   collection.findOne({ _id: new ObjectId(itemId) })
     .then(item => {
       if (item) {
         selectedItems.push(item);
-        res.redirect('/selected');
+        res.redirect('/selectedFood');
       } else {
         res.status(404).send('Item not found');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send('Internal server error');
+    });
+});
+
+let selectedExerciseItems = [];
+
+app.get('/exercise', (req, res) => {
+  res.render('exerciseFilter.ejs');
+});
+
+app.get('/searchExercise', (req, res) => {
+  const searchQuery = req.query.q;
+  exerciseCollection.find({ name: new RegExp(searchQuery, 'i') }).toArray()
+    .then(results => {
+      res.json(results.map(item => ({ name: item.name, bodyPart: item.bodyPart, equipment: item.equipment, id: item._id })));
+    })
+    .catch(error => console.error(error));
+});
+
+app.get('/selectedExercise', (req, res) => {
+  res.render('selectedExercise.ejs', { exercise: selectedExerciseItems });
+});
+
+app.post('/selectExercise', (req, res) => {
+  const itemId = req.body.item;
+  const collection = db.collection('exercise');
+  collection.findOne({ _id: new ObjectId(itemId) })
+    .then(item => {
+      if (item) {
+        selectedExerciseItems.push(item);
+        res.redirect('/selectedExercise');
+      } else {
+        res.status(404).send('Exercise not found');
       }
     })
     .catch(error => {

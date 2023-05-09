@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Selected Exercises</title>
+  </head>
+  <body>
+    <h1>Selected Exercises</h1>
+    <ul>
+      <% exercise.forEach(item => { %>
+        <li><%= item.name %> (Target: <%= item.bodyPart %>, Equipment: <%= item.equipment %>)</li>
+      <% }) %>
+    </ul>
+    <a href="/exercise">Back to Filter</a>
+  </body>
+</html>
