@@ -194,7 +194,7 @@ const checkAuth = (req, res, next) => {
             return res.redirect('/authFail');
         } else {
             delete req.session.FAIL_FORM
-            return res.redirect('/members');
+            return res.redirect('/login');
         }
     }
     next();
