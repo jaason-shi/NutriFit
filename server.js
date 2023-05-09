@@ -58,6 +58,7 @@ const userSchema = new Schema({
     id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    answer: { type: String, required: true }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -85,6 +86,7 @@ app.post('/signup', async (req, res) => {
     const id = req.body.id;
     const email = req.body.email;
     let password = req.body.password;
+    let answer = req.body.answer;
 
     if (idSchema.validate(id).error != null) {
         req.session.INVALID_FIELD = 'ID'
@@ -94,6 +96,10 @@ app.post('/signup', async (req, res) => {
         res.redirect('/invalidFormData')
     } else if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
+        res.redirect('/invalidFormData')
+    } else if (idSchema.validate(answer).error != null) {
+        console.log(answer)
+        req.session.INVALID_FIELD = 'Answer'
         res.redirect('/invalidFormData')
     } else {
         password = await bcrypt.hash(req.body.password, saltRounds);
@@ -115,7 +121,8 @@ app.post('/signup', async (req, res) => {
         const newUser = new User({
             id,
             email,
-            password
+            password,
+            answer
         })
 
         newUser.save().then(async () => {
