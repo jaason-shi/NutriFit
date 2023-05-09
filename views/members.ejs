@@ -3,6 +3,63 @@
 
 <%- include('partials/meta') %>
 
-    <!-- Header -->
-    <%- include('partials/header.ejs')%>
-        <h3> Hello, <%= primaryUser.id %>!</h3>
+    <body>
+        <div class="container p-3" style="height: 100vh;">
+            <!-- Header -->
+            <%- include('partials/header.ejs')%>
+                <h3> Hello, <%= primaryUser.id %>!</h3>
+
+                <div class="row">
+
+                    <div class="col-3">
+                        <img src="/images/profile-circle.svg" alt="" height="50">
+                    </div>
+
+                    <div class="col d-flex align-items-center">
+                        <span>Profile</span>
+                    </div>
+
+                    <div class="col-5 d-flex align-items-center justify-content-end">
+                        <button class="btn btn-light border ">Sign out <img src="images\greater-than-solid.svg" alt=""
+                                height="20"></button>
+                    </div>
+
+                </div>
+
+
+                <form class="mb-4" action="">
+                    <span>Search</span> <br>
+                    <input class="mt-1 w-100" type="text" placeholder="Please Enter">
+                </form>
+
+                <form class="mb-4" action="">
+                    <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
+                </form>
+
+                <form class="mb-4" action="">
+                    <input class="btn btn-light border w-100" type="submit" value="Quick Add Food Item">
+                </form>
+
+                <form class="mb-4" action="">
+                    <input class="btn btn-dark w-100" type="submit" value="Generate Workout">
+                </form>
+
+                <form class="mb-4" action="">
+                    <input class="btn btn-light border w-100" type="submit" value="Quick Add Exercise">
+                </form>
+
+                <form class="mb-4" action="">
+                    <input class="btn btn-dark w-100" type="submit" value="Favorites">
+                </form>
+
+                <form class="mb-4" action="">
+                    <input class="btn btn-dark w-100" type="submit" value="Logs">
+                </form>
+
+
+        </div>
+
+
+    </body>
+
+</html>
