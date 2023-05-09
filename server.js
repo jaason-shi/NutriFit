@@ -156,20 +156,20 @@ app.post('/getEmail', async (req, res) => {
     }
     const user = await User.findOne({ email: email })
     req.session.USER = user;
-    return res.redirect('/changePassword')
+    return res.redirect('/checkSecurity')
 })
 
 
 // Get change password page
-app.get('/changePassword', (req, res) => {
+app.get('/checkSecurity', (req, res) => {
     console.log(req.session.USER)
-    res.render('changePassword', {
+    res.render('checkSecurity', {
         primaryUser: req.session.USER
     })
 })
 
 // Post change password page
-app.post('/changePassword', (req, res) => {
+app.post('/checkSecurity', (req, res) => {
     const answer = req.body.answer;
     console.log(answer)
     if (answer == req.session.USER.answer) {
@@ -177,7 +177,7 @@ app.post('/changePassword', (req, res) => {
     } else {
         console.log("Incorrect")
     }
-    return res.redirect('/changePassword')
+    return res.redirect('/checkSecurity')
 })
 
 
