@@ -194,6 +194,12 @@ app.get('/invalidFormData', (req, res) => {
 })
 
 
+// Get email page for changing passwords
+app.get('/getEmail', (req, res) => {
+    res.render('getEmail')
+})
+
+
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
     if (!req.session.AUTH) {
