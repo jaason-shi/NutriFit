@@ -208,12 +208,6 @@ app.get('/authFail', (req, res) => {
 })
 
 
-// Get success
-app.get('/success', (req, res) => {
-    res.send('Success')
-})
-
-
 // Get members page
 app.get('/members', checkAuth, (req, res) => {
     res.render('members', {
