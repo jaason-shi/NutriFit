@@ -37,10 +37,6 @@ app.get('/searchFood', (req, res) => {
     .catch(error => console.error(error));
 });
 
-app.get('/selectedFood', (req, res) => {
-  res.render('selectedFood.ejs', { food: selectedItems });
-});
-
 app.post('/selectFood', (req, res) => {
   const itemId = req.body.item;
   const collection = db.collection('food');
@@ -59,6 +55,20 @@ app.post('/selectFood', (req, res) => {
     });
 });
 
+app.get('/selectedFood', (req, res) => {
+  res.render('selectedFood.ejs', { food: selectedItems });
+});
+
+app.post('/removeFood', (req, res) => {
+  const itemId = req.body.item;
+  const index = selectedItems.findIndex(item => item._id.equals(new ObjectId(itemId)));
+  if (index !== -1) {
+    selectedItems.splice(index, 1);
+  }
+  res.redirect('/selectedFood');
+});
+
+
 let selectedExerciseItems = [];
 
 app.get('/exercise', (req, res) => {
@@ -74,9 +84,6 @@ app.get('/searchExercise', (req, res) => {
     .catch(error => console.error(error));
 });
 
-app.get('/selectedExercise', (req, res) => {
-  res.render('selectedExercise.ejs', { exercise: selectedExerciseItems });
-});
 
 app.post('/selectExercise', (req, res) => {
   const itemId = req.body.item;
@@ -94,6 +101,19 @@ app.post('/selectExercise', (req, res) => {
       console.error(error);
       res.status(500).send('Internal server error');
     });
+});
+
+app.get('/selectedExercise', (req, res) => {
+  res.render('selectedExercise.ejs', { exercise: selectedExerciseItems });
+});
+
+app.post('/removeExercise', (req, res) => {
+  const itemId = req.body.item;
+  const index = selectedExerciseItems.findIndex(item => item._id.equals(new ObjectId(itemId)));
+  if (index !== -1) {
+    selectedExerciseItems.splice(index, 1);
+  }
+  res.redirect('/selectedExercise');
 });
 
 app.listen(port, () => {

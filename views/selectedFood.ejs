@@ -8,7 +8,13 @@
     <h1>Selected Food</h1>
     <ul>
       <% food.forEach(item => { %>
-        <li><%= item.Food %> (<%= item.Measure %>)</li>
+        <li>
+          <%= item.Food %> (<%= item.Measure %>)
+          <form method="POST" action="/removeFood">
+            <input type="hidden" name="item" value="<%= item._id %>">
+            <button type="submit">Remove</button>
+          </form>
+        </li>
       <% }) %>
     </ul>
     <a href="/food">Back to Filter</a>
