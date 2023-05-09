@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+
+    <body>
+        <div class="bg-body-tertiary" style="height: 100vh">
+
+            <div class="row w-100 m-0">
+                <div class="mx-auto col-lg-5 col-12">
+                    <div class="card mx-auto mt-5 p-3 w-75">
+                        <div class="card-body">
+                            <h1 class="mb-5">Food Catalog</h1>
+                            <form id="search-form">
+                                <input class="mb-3 w-100" name="searchFood" type="text" id="search-bar"
+                                    placeholder="Search for food...">
+                            </form>
+                            <div class="card">
+                                <div class="card-img">
+                                    <img src="/public/images/logo-modified.png">
+                                </div>
+                                <div class="card-text">
+                                    <h3>Lettuce</h3>
+                                    <p>24 Calories</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-img">
+                                    <img src="/public/images/logo-modified.png">
+                                </div>
+                                <div class="card-text">
+                                    <h3>Pork Chop</h3>
+                                    <p>120 Calories</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-img">
+                                    <img src="/public/images/logo-modified.png">
+                                </div>
+                                <div class="card-text">
+                                    <h3>Rice</h3>
+                                    <p>60 Calories</p>
+                                </div>
+                            </div>
+                            <div>
+                                <input class="btn rounded-pill btn-dark w-100" type="submit" value="Add">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>
