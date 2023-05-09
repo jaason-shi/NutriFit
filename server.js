@@ -132,6 +132,50 @@ app.post('/signup', async (req, res) => {
     }
 });
 
+
+// Get login page
+app.get('/login', (req, res) => {
+    res.render('login', { primaryUser: req.session.USER });
+})
+
+
+// Post login page
+app.post(('/login'), (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const emailValidationResult = emailSchema.validate(email);
+    const passwordValidationResult = passwordSchema.validate(password);
+
+    User.find({ $or: [{ email: email }, { id: email }] }).exec().then(async (users) => {
+        console.log(users[0])
+
+        if (emailValidationResult.error != null) {
+            req.session.INVALID_FIELD = 'Email'
+            res.redirect('/invalidFormData')
+        } else if (passwordValidationResult.error != null) {
+            req.session.INVALID_FIELD = 'Password'
+            res.redirect('/invalidFormData')
+        } else {
+            if (users.length === 0) {
+                req.session.AUTH = false;
+                req.session.FAIL_FORM = true;
+            } else {
+                if (await bcrypt.compare(password, users[0].password)) {
+                    req.session.AUTH = true;
+                    req.session.ROLE = users[0].role;
+                    req.session.USER = users[0]
+                } else {
+                    req.session.AUTH = false;
+                    req.session.FAIL_FORM = true;
+                }
+            }
+            res.redirect('/members');
+        }
+    })
+});
+
+
 // Get invalid form data page
 app.get('/invalidFormData', (req, res) => {
     res.render('invalidFormData', {
