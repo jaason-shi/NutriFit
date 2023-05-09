@@ -3,6 +3,46 @@
 
 <%- include('partials/meta') %>
 
-    <!-- Header -->
-    <%- include('partials/header.ejs')%>
-        <h3> Hello, <%= primaryUser.id %>!</h3>
+    <body>
+        <div class="container p-3" style="height: 100vh;">
+            <!-- Header -->
+            <%- include('partials/header.ejs')%>
+                <h3> Hello, <%= primaryUser.id %>!</h3>
+
+
+                <form class="mb-4" action="">
+                    <span>Search</span> <br>
+                    <input class="mt-1" type="text" placeholder="Please Enter">
+                </form>
+
+                <form action="">
+                    <input class="btn btn-dark" type="submit" value="Generate Meal">
+                </form>
+
+                <form action="">
+                    <input class="btn btn-light border" type="submit" value="Quick Add Food Item">
+                </form>
+
+                <form action="">
+                    <input class="btn btn-dark" type="submit" value="Generate Workout">
+                </form>
+
+                <form action="">
+                    <input type="submit" value="Quick Add Exercise">
+                </form>
+
+                <form action="">
+                    <input class="btn btn-dark" type="submit" value="Favorites">
+                </form>
+
+                <form action="">
+                    <input class="btn btn-dark" type="submit" value="Logs">
+                </form>
+
+
+        </div>
+
+
+    </body>
+
+</html>
