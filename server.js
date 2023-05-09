@@ -66,12 +66,7 @@ InputTest = mongoose.model('InputTest', inputSchema);
 
 // Basic landing page 
 app.get('/', (req, res) => {
-    res.send(`Hello world
-    <form style="margin-bottom:2px" action="/postInput" method="post">
-        <input style="margin-bottom:2px" type="input" id="input" name="input" placeholder="input"><br>
-        <input type="submit" id="submit" value="Post Data">
-    </form>
-                    `)
+    res.render('home')
 })
 
 // Get login page
