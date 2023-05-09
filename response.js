@@ -1,64 +1,101 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const MongoClient = require('mongodb').MongoClient;
+const bodyParser = require('body-parser');
+const { ObjectId } = require('mongodb');
+const app = express();
+const port = 3000;
 
 require('dotenv').config();
 
-const app = express();
-const Schema = mongoose.Schema;
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.set('view engine', 'ejs');
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+let db;
+const uri = process.env.ATLAS_URI;
+MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(client => {
+    console.log('Connected to Database');
+    db = client.db('NutriFit');
+    foodCollection = db.collection('food');
+    exerciseCollection = db.collection('exercise');
+  })
+  .catch(error => console.error(error));
 
-const uri = process.env.ETranATLAS_URI;
-mongoose.connect(uri, { useNewUrlParser: true });
+let selectedItems = [];
 
-// Input Model
-const inputSchema = new Schema({
-  input: { type: String, required: true },
+app.get('/food', (req, res) => {
+  res.render('foodFilter.ejs');
 });
 
-InputTest = mongoose.model('InputTest', inputSchema);
-
-// Basic landing page 
-app.get('/', (req, res) => {
-  InputTest.find()
-    .then(inputs => {
-      res.send(`
-        <html>
-          <head>
-            <title>Inputs</title>
-          </head>
-          <body>
-            <h1>Inputs:</h1>
-            <ul>
-              ${inputs.map(input => `<li>${input.input}</li>`).join('')}
-            </ul>
-            <form style="margin-bottom:2px" action="/postInput" method="post">
-              <input style="margin-bottom:2px" type="input" id="input" name="input" placeholder="input"><br>
-              <input type="submit" id="submit" value="Post Data">
-            </form>
-          </body>
-        </html>
-      `);
+app.get('/searchFood', (req, res) => {
+  const searchQuery = req.query.q;
+  foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
+    .then(results => {
+      res.json(results.map(item => ({ name: item.Food, measure: item.Measure, id: item._id })));
     })
-    .catch(err => {
-      console.error(err);
+    .catch(error => console.error(error));
+});
+
+app.get('/selectedFood', (req, res) => {
+  res.render('selectedFood.ejs', { food: selectedItems });
+});
+
+app.post('/selectFood', (req, res) => {
+  const itemId = req.body.item;
+  const collection = db.collection('food');
+  collection.findOne({ _id: new ObjectId(itemId) })
+    .then(item => {
+      if (item) {
+        selectedItems.push(item);
+        res.redirect('/selectedFood');
+      } else {
+        res.status(404).send('Item not found');
+      }
+    })
+    .catch(error => {
+      console.error(error);
       res.status(500).send('Internal server error');
     });
 });
 
-app.post('/postInput', (req, res) => {
-  const input = req.body.input;
-  const newInput = new InputTest({
-    input
-  });
-  newInput.save().then(() => {
-    res.redirect('/');
-  });
+let selectedExerciseItems = [];
+
+app.get('/exercise', (req, res) => {
+  res.render('exerciseFilter.ejs');
 });
 
-// Connect to port
-const port = 3000;
+app.get('/searchExercise', (req, res) => {
+  const searchQuery = req.query.q;
+  exerciseCollection.find({ name: new RegExp(searchQuery, 'i') }).toArray()
+    .then(results => {
+      res.json(results.map(item => ({ name: item.name, bodyPart: item.bodyPart, equipment: item.equipment, id: item._id })));
+    })
+    .catch(error => console.error(error));
+});
+
+app.get('/selectedExercise', (req, res) => {
+  res.render('selectedExercise.ejs', { exercise: selectedExerciseItems });
+});
+
+app.post('/selectExercise', (req, res) => {
+  const itemId = req.body.item;
+  const collection = db.collection('exercise');
+  collection.findOne({ _id: new ObjectId(itemId) })
+    .then(item => {
+      if (item) {
+        selectedExerciseItems.push(item);
+        res.redirect('/selectedExercise');
+      } else {
+        res.status(404).send('Exercise not found');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send('Internal server error');
+    });
+});
+
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}; http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
