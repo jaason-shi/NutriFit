@@ -124,7 +124,8 @@ app.post('/signup', async (req, res) => {
         })
 
         newUser.save().then(async () => {
-            req.session.USER = await User.findOne({ name: req.body.name })
+            req.session.USER = await User.findOne({ id: req.body.id })
+            console.log(req.session.USER)
             req.session.AUTH = true;
             req.session.ROLE = 'User'
             res.redirect('/members')
