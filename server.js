@@ -43,7 +43,7 @@ app.use(session({
 
 
 // The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
-const idSchema = Joi.string().regex(/^[a-zA-Z0-9]+$/).required();
+const idSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
@@ -125,7 +125,6 @@ app.post('/signup', async (req, res) => {
 
         newUser.save().then(async () => {
             req.session.USER = await User.findOne({ id: req.body.id })
-            console.log(req.session.USER)
             req.session.AUTH = true;
             req.session.ROLE = 'User'
             res.redirect('/members')
@@ -149,7 +148,6 @@ app.post(('/login'), (req, res) => {
     const passwordValidationResult = passwordSchema.validate(password);
 
     User.find({ $or: [{ email: email }, { id: email }] }).exec().then(async (users) => {
-        console.log(users[0])
 
         if (emailValidationResult.error != null) {
             req.session.INVALID_FIELD = 'Email or ID'
