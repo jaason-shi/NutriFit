@@ -179,7 +179,6 @@ app.post('/checkSecurity', (req, res) => {
         console.log("Incorrect")
         return res.redirect('/incorrectAnswer')
     }
-    return res.redirect('/checkSecurity')
 })
 
 
@@ -194,6 +193,18 @@ app.get('/incorrectAnswer', (req, res) => {
 // Get change password page
 app.get('/changePassword', (req, res) => {
     res.render('changePassword.ejs')
+})
+
+
+// Post change password page
+app.post('/changePassword', async (req, res) => {
+    let password = req.body.password
+    password = await bcrypt.hash(req.body.password, saltRounds);
+    console.log(password);
+    await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
+    const user = User.findOne({ email: req.session.USER.email })
+    console.log(user)
+    return res.redirect('changePassword')
 })
 
 
@@ -266,7 +277,7 @@ app.post('/logOut', (req, res) => {
 
 // Get authentication failure page
 app.get('/authFail', (req, res) => {
-    res.render('authFailRoute', {
+    res.render('authFail', {
         primaryUser: req.session.USER,
         referer: req.headers.referer
     })
