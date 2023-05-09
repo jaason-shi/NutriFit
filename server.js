@@ -160,7 +160,7 @@ app.post('/getEmail', async (req, res) => {
 })
 
 
-// Get change password page
+// Get answer security question page
 app.get('/checkSecurity', (req, res) => {
     console.log(req.session.USER)
     res.render('checkSecurity', {
@@ -168,16 +168,23 @@ app.get('/checkSecurity', (req, res) => {
     })
 })
 
-// Post change password page
+// Post answer security question page
 app.post('/checkSecurity', (req, res) => {
     const answer = req.body.answer;
     console.log(answer)
     if (answer == req.session.USER.answer) {
         console.log("Correct")
+        return res.redirect('/changePassword')
     } else {
         console.log("Incorrect")
     }
     return res.redirect('/checkSecurity')
+})
+
+
+// Get change password page
+app.get('/changePassword', (req, res) => {
+    res.render('changePassword.ejs')
 })
 
 
