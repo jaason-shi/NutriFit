@@ -141,8 +141,28 @@ app.get('/login', (req, res) => {
 })
 
 
+// Get email page for changing passwords
+app.get('/getEmail', (req, res) => {
+    res.render('getEmail')
+})
+
+
+// Post email page data for changing passwords
+app.post('/getEmail', async (req, res) => {
+    const email = req.body.email;
+    if (emailSchema.validate(email).error != null) {
+        req.session.INVALID_FIELD = 'Email'
+        return res.redirect('/invalidFormData')
+    }
+    const user = await User.findOne({ email: email })
+    req.session.USER = user;
+    return res.redirect('/changePassword')
+})
+
+
 // Get change password page
 app.get('/changePassword', (req, res) => {
+    console.log(req.session.USER)
     res.render('changePassword', {
         primaryUser: req.session.USER
     })
@@ -191,12 +211,6 @@ app.get('/invalidFormData', (req, res) => {
         invalidField: req.session.INVALID_FIELD,
         referer: req.headers.referer
     })
-})
-
-
-// Get email page for changing passwords
-app.get('/getEmail', (req, res) => {
-    res.render('getEmail')
 })
 
 
