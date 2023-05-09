@@ -58,6 +58,7 @@ const userSchema = new Schema({
     id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    answer: { type: String, required: true }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -85,6 +86,7 @@ app.post('/signup', async (req, res) => {
     const id = req.body.id;
     const email = req.body.email;
     let password = req.body.password;
+    let answer = req.body.answer;
 
     if (idSchema.validate(id).error != null) {
         req.session.INVALID_FIELD = 'ID'
@@ -94,6 +96,9 @@ app.post('/signup', async (req, res) => {
         res.redirect('/invalidFormData')
     } else if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
+        res.redirect('/invalidFormData')
+    } else if (idSchema.validate(answer).error != null) {
+        req.session.INVALID_FIELD = 'Answer'
         res.redirect('/invalidFormData')
     } else {
         password = await bcrypt.hash(req.body.password, saltRounds);
@@ -115,7 +120,8 @@ app.post('/signup', async (req, res) => {
         const newUser = new User({
             id,
             email,
-            password
+            password,
+            answer
         })
 
         newUser.save().then(async () => {
@@ -131,6 +137,78 @@ app.post('/signup', async (req, res) => {
 // Get login page
 app.get('/login', (req, res) => {
     res.render('login', { primaryUser: req.session.USER });
+})
+
+
+// Get email page for changing passwords
+app.get('/getEmail', (req, res) => {
+    res.render('getEmail')
+})
+
+
+// Post email page data for changing passwords
+app.post('/getEmail', async (req, res) => {
+    const email = req.body.email;
+    if (emailSchema.validate(email).error != null) {
+        req.session.INVALID_FIELD = 'Email'
+        return res.redirect('/invalidFormData')
+    }
+    const user = await User.findOne({ email: email })
+    req.session.USER = user;
+    return res.redirect('/checkSecurity')
+})
+
+
+// Get answer security question page
+app.get('/checkSecurity', (req, res) => {
+    res.render('checkSecurity', {
+        primaryUser: req.session.USER
+    })
+})
+
+// Post answer security question page
+app.post('/checkSecurity', (req, res) => {
+    const answer = req.body.answer;
+    if (answer == req.session.USER.answer) {
+        return res.redirect('/changePassword')
+    } else {
+        return res.redirect('/incorrectAnswer')
+    }
+})
+
+
+// Get incorrect answer page
+app.get('/incorrectAnswer', (req, res) => {
+    res.render('incorrectAnswer', {
+        referer: req.headers.referer
+    })
+})
+
+
+// Get change password page
+app.get('/changePassword', (req, res) => {
+    res.render('changePassword.ejs')
+})
+
+
+// Post change password page
+app.post('/changePassword', async (req, res) => {
+    let password = req.body.password
+    if (passwordSchema.validate(password).error != null) {
+        req.session.INVALID_FIELD = 'Password'
+        return res.redirect('/invalidFormData')
+    }
+    password = await bcrypt.hash(req.body.password, saltRounds);
+    await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
+    const user = await User.findOne({ email: req.session.USER.email })
+    console.log(user)
+    return res.redirect('/changePasswordSuccess')
+})
+
+
+// Get change password success page
+app.get('/changePasswordSuccess', (req, res) => {
+    res.render('changePasswordSuccess')
 })
 
 
@@ -203,7 +281,7 @@ app.post('/logOut', (req, res) => {
 
 // Get authentication failure page
 app.get('/authFail', (req, res) => {
-    res.render('authFailRoute', {
+    res.render('authFail', {
         primaryUser: req.session.USER,
         referer: req.headers.referer
     })
