@@ -22,6 +22,13 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static("public"));
 
+
+/* secret information section */
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_ORG_KEY = process.env.OPENAI_ORG_KEY;
+
+
+
 // // Set up MongoDB
 // const uri = process.env.ATLAS_URI;
 // mongoose.connect(uri, { useNewUrlParser: true });
@@ -237,156 +244,60 @@ app.post("/postInput", (req, res) => {
 });
 
 
-// route to generate workout routine with queryChatGPT
-app.get("/generateWorkoutRoutine", (req, res) => {
-  // run chatgpt api function
-
-  queryChatGPT().then((response) => {
-    // render generateWorkoutRoutine.ejs with response from chatgpt api
-    res.render("generateWorkoutRoutine", { response: response });
-    //res.send(response);
-    console.log(response);
-  });
-});
-
-// // generate workout routine with chatgptApi()
-// app.get("/generateWorkoutRoutine", (req, res) => {
-//   // run chatgpt api function
-//   chatgptApi().then((response) => {
-//     // render generateWorkoutRoutine.ejs with response from chatgpt api
-//     //res.render("generateWorkoutRoutine", { response: response });
-//     res.send(response);
-//   });
-// });
-
-// // generate workout routine with suggestFitnessActivity()
-// app.get("/generateWorkoutRoutine", (req, res) => {
-//   // run chatgpt api function
-//   suggestFitnessActivity().then((response) => {
-//     // render generateWorkoutRoutine.ejs with response from chatgpt api
-//     res.render("generateWorkoutRoutine", { response: response });
-
-//   });
-// });
-
-// WORKS but no response
-async function queryChatGPT() {
-  try {
-    const response = await axios.post("https://api.chatgpt.com/1/messages", {
-      messages: [{ role: "system", content: "Create a workout routine" }],
-      key: "oBNiEwyKfijTefZ3HsKET3BlbkFJ2ZRJ8ckXhPjDNao793NS",
-    });
-
-    console.log(response.data.choices[0].message.content);
-  } catch (error) {
-    console.error("Error:", error.message);
-  }
-}
 
 
 
-
-// function to connect to chatgpt api DNU
-async function chatgptApi() {
-  const axios = require("axios");
-  // make request to get response from chatgpt api
-  const response = await axios.post("https://api.chatgpt.com/1/query", {
-    params: {
-      prompt: "Generate a workout routine",
-      key: "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",
-      temperature: 0.9,
-      max_tokens: 150,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      stop: ["\n", " Human:", " AI:"],
-    },
-  });
-  // return response from chatgpt api
-  return response.data;
-}
-
-// Sean key:  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
-// my key:  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;
+const workoutPrompt =
+  "make a workout routine for a duration of 20 minutes and only give me the list of activities and the duration, type of body part it works on, and the calories burned for each activity. ";
 
 
-// Chatgpt API Test Start
-// npm i https request
+// function to query chatgpt api
+async function queryChatGPT(workoutPrompt) {
+  const request = require('request');
 
-const https = require('https');
-const request = require('request');
+  const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
-const OPENAI_API_KEY = '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';
-const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
-const OPENAI_ORG_KEY = 'org-lSoIL35QMw5xmTxCrMYEhqAJ'
-
-
-const options = {
+  const options = {
     url: OPENAI_API_ENDPOINT,
     headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'OpenAI-Organization': OPENAI_ORG_KEY
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'OpenAI-Organization': OPENAI_ORG_KEY
     },
     body: JSON.stringify({
-        'model': 'gpt-3.5-turbo',
-        'messages': [{ 'role': 'user', 'content': 'Make a workout routine' }],
-        'temperature': 0.7
+      'model': 'gpt-3.5-turbo',
+      'messages': [{ 'role': 'user', 'content': workoutPrompt }],
+      'temperature': 0.7
     })
-};
+  };
 
-request.post(options, (error, response, body) => {
-    if (error) {
+  return new Promise((resolve, reject) => {
+    request.post(options, (error, response, body) => {
+      if (error) {
         console.error(error);
-        return;
-    }
-    console.log(body);
+        reject(error);
+      } else {
+        console.log(body);
+        resolve(body);
+      }
+    });
+  });
+}
+
+// route to generate workout routine with queryChatGPT
+app.get("/generateWorkoutRoutine", async (req, res) => {
+  try {
+    const response = await queryChatGPT(workoutPrompt);
+    const workoutRoutine = JSON.parse(response).choices[0].message.content;
+    res.render("generateWorkoutRoutine", { workoutRoutine });
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred");
+  }
 });
 
 
-
-// ChatGPT API Test End 
-
-// // function to get fitness routine from chatgpt api
-// async function suggestFitnessActivity() {
-//   const apiKey = "oBNiEwyKfijTefZ3HsKET3BlbkFJ2ZRJ8ckXhPjDNao793NS"; // Replace with your actual API key
-//   const apiUrl = "https://api.openai.com/v1/chat/completions";
-
-//   const headers = {
-//     "Content-Type": "application/json",
-//     Authorization: `Bearer ${apiKey}`,
-//   };
-
-//   // Customize the conversation input to suggest a fitness activity
-//   const conversation = [
-//     { role: "system", content: "You are a helpful assistant." },
-//     { role: "user", content: "Suggest a fitness activity." },
-//   ];
-
-//   const body = JSON.stringify({
-//     model: "gpt-3.5-turbo",
-//     messages: conversation,
-//   });
-
-//   const requestOptions = {
-//     method: "POST",
-//     headers: headers,
-//     body: body,
-//   };
-
-//   try {
-//     const response = await fetch(apiUrl, requestOptions);
-//     const data = await response.json();
-//     const activity = data.choices[0].message.content;
-
-//     const jsonResponse = JSON.stringify({ Activity: activity });
-//     console.log(jsonResponse);
-//     // Handle the JSON response as needed
-//   } catch (error) {
-//     console.error("Error:", error);
-//     // Handle the error
-//   }
-// }
 
 // Connect to port
 const port = 3000;
