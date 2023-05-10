@@ -7,16 +7,18 @@
         <div class="container p-3" style="height: 100vh;">
             <!-- Header -->
             <%- include('partials/header.ejs')%>
-                <h3> Hello, <%= primaryUser.id %>!</h3>
-
                 <div class="row">
 
                     <div class="col-3">
-                        <img src="/images/profile-circle.svg" alt="" height="50">
+                        <a href="/userProfile">
+                            <img src="/images/profile-circle.svg" alt="" height="50">
+                        </a>
                     </div>
 
                     <div class="col d-flex align-items-center">
-                        <span>Profile</span>
+                        <span>
+                            <%= primaryUser.id %>
+                        </span>
                     </div>
 
                     <div class="col-5 d-flex align-items-center justify-content-end">
