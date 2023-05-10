@@ -298,6 +298,14 @@ app.get('/members', checkAuth, (req, res) => {
 });
 
 
+// Get user profile page
+app.get('/userProfile', (req, res) => {
+    res.render('userProfile', {
+        primaryUser: req.session.USER
+    })
+})
+
+
 // Connect to port
 const port = 3000;
 app.listen((port), () => {
