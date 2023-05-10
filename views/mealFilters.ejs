@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+    <body>
+        <div class="container p-3 overflow-auto" style="height: 100vh;">
+            <!-- Header -->
+            <div class="fs-5 fw-semibold d-flex mb-4 align-items-center">
+                <div>
+                    <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+                </div>
+                <div class="ms-3">
+                    Select Fields for Meal Filter
+                </div>
+            </div>
+
+            <div class="border border-dark container mb-2">
+                <div class="fs-6 fw-medium my-1">
+                    Calories
+                </div>
+                <div class="fs-6 mb-2">
+                    <form action="">
+                        <input type="text" placeholder="Please Enter" class="w-100">
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="border border-dark container mb-2">
+                <div class="fs-6 fw-medium my-1 mb-3">
+                    Include
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Tags
+                </div>
+
+                <div class="container m-0 p-0 d-flex mb-3">
+                    <button class="btn btn-light border fw-medium me-2">Vegan</button>
+                    <button class="btn btn-light border fw-medium me-2">Keto</button>
+                    <button class="btn btn-light border fw-medium me-2">Italian</button>
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Food Items
+                </div>
+
+                <div class="container h-25 mb-2 overflow-auto border">
+                    <div class="container m-0 p-0 d-flex align-items-center">
+                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"></button>
+                        </div>
+
+                        <div class="w-50 vstack gap-0">
+                            <div class="d-inline">
+                                Ingredient
+                            </div>
+                            <div class="d-inline text-secondary" style="font-size: 14px">
+                                Details
+                            </div>
+                        </div>
+
+                        <div class="d-inline align-self-center d-flex justify-content-end" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"><img src="images/minus.svg" alt=""></button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <form class=" mb-2" action="">
+                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img src="/images/plus-circle.svg"
+                            alt="" height="30"></button>
+                </form>
+
+
+            </div>
+
+            <div class="border border-dark container mb-4">
+                <div class="fs-6 fw-medium my-1 mb-3">
+                    Exclude
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Tags
+                </div>
+
+                <div class="container m-0 p-0 d-flex mb-3">
+                    <button class="btn btn-light border fw-medium me-2">Vegan</button>
+                    <button class="btn btn-light border fw-medium me-2">Keto</button>
+                    <button class="btn btn-light border fw-medium me-2">Italian</button>
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Food Items
+                </div>
+
+                <div class="container h-25 mb-2 overflow-auto border">
+                    <div class="container m-0 p-0 d-flex align-items-center">
+                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"></button>
+                        </div>
+
+                        <div class="w-50 vstack gap-0">
+                            <div class="d-inline">
+                                Ingredient
+                            </div>
+                            <div class="d-inline text-secondary" style="font-size: 14px">
+                                Details
+                            </div>
+                        </div>
+
+                        <div class="d-inline align-self-center d-flex justify-content-end" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"><img src="images/minus.svg" alt=""></button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <form class=" mb-2" action="">
+                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img src="/images/plus-circle.svg"
+                            alt="" height="30"></button>
+                </form>
+
+
+
+
+            </div>
+
+            <form class=" mb-4" action="/generatedMeals">
+                <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
+            </form>
+
+
+
+
+    </body>
+
+</html>
