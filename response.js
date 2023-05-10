@@ -19,6 +19,7 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     db = client.db('NutriFit');
     foodCollection = db.collection('food');
     exerciseCollection = db.collection('exercise');
+    usersCollection = db.collection('users');
   })
   .catch(error => console.error(error));
 
@@ -39,14 +40,36 @@ app.get('/searchFood', (req, res) => {
 
 app.post('/selectFood', (req, res) => {
   const itemId = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
   const collection = db.collection('food');
   collection.findOne({ _id: new ObjectId(itemId) })
     .then(item => {
       if (item) {
         selectedItems.push(item);
-        res.redirect('/selectedFood');
+        // Add to users collection
+        console.log(`Updating user: ${userId}`); // Debugging line
+        usersCollection.updateOne(
+          { id: userId },
+          { $addToSet: { includeFood: item.Food } },
+        )
+        .then(result => {
+          console.log(result); // Debugging line
+          res.redirect('/selectedFood');
+        })
       } else {
         res.status(404).send('Item not found');
+      }
+    })
+});
+
+app.get('/selectedFood', (req, res) => {
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  usersCollection.findOne({ id: userId })
+    .then(user => {
+      if (user) {
+        res.render('selectedFood.ejs', { food: user.includeFood, userId: userId });
+      } else {
+        res.status(404).send('User not found');
       }
     })
     .catch(error => {
@@ -55,17 +78,25 @@ app.post('/selectFood', (req, res) => {
     });
 });
 
-app.get('/selectedFood', (req, res) => {
-  res.render('selectedFood.ejs', { food: selectedItems });
-});
-
 app.post('/removeFood', (req, res) => {
-  const itemId = req.body.item;
-  const index = selectedItems.findIndex(item => item._id.equals(new ObjectId(itemId)));
-  if (index !== -1) {
-    selectedItems.splice(index, 1);
-  }
-  res.redirect('/selectedFood');
+  const foodName = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  const collection = db.collection('food');
+  collection.findOne({ Food: foodName })
+    .then(item => {
+      if (item) {
+        // Remove from users collection
+        usersCollection.updateOne(
+          { id: userId },
+          { $pull: { includeFood: item.Food } },
+        )
+        .then(() => {
+          res.redirect('/selectedFood');
+        })
+      } else {
+        res.status(404).send('Item not found');
+      }
+    })
 });
 
 
