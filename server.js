@@ -312,6 +312,11 @@ app.get('/generatedMeals', (req, res) => {
 })
 
 
+// Get meal filters
+app.get('/mealFilters', (req, res) => {
+    res.render('mealFilters')
+})
+
 
 // Connect to port
 const port = 3000;
