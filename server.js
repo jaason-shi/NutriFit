@@ -306,6 +306,13 @@ app.get('/userProfile', (req, res) => {
 })
 
 
+// Get generated meals
+app.get('/generatedMeals', (req, res) => {
+    res.render('generatedMeals')
+})
+
+
+
 // Connect to port
 const port = 3000;
 app.listen((port), () => {
