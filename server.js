@@ -48,11 +48,6 @@ const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z
 const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
 
-// Input Model
-const inputSchema = new Schema({
-    input: { type: String, required: true },
-});
-
 // User Model
 const userSchema = new Schema({
     id: { type: String, required: true },
@@ -63,7 +58,6 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
-InputTest = mongoose.model('InputTest', inputSchema);
 
 // Basic landing page 
 app.get('/', (req, res) => {
