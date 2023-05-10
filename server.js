@@ -298,16 +298,6 @@ app.get('/members', checkAuth, (req, res) => {
 });
 
 
-app.post('/postInput', (req, res) => {
-    const input = req.body.input;
-    const newInput = new InputTest({
-        input
-    });
-    newInput.save().then(() => {
-        res.redirect('/');
-    })
-})
-
 // Connect to port
 const port = 3000;
 app.listen((port), () => {
