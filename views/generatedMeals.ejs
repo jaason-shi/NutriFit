@@ -100,8 +100,28 @@
                 </div>
 
 
-            </div>
 
+
+                <% foodItems.forEach( (foodItem)=> { %>
+                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"></button>
+                        </div>
+
+                        <div class="w-50 vstack gap-0">
+                            <div class="d-inline">
+                                <%= foodItem.name %>
+                            </div>
+                            <div class="d-inline text-secondary" style="font-size: 14px">
+                                Details
+                            </div>
+                        </div>
+
+                    </div>
+                    <% }) %>
+
+            </div>
 
             <div class="conteiner m-0 p-0">
                 <form class=" mb-4" action="">

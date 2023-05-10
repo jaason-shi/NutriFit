@@ -306,9 +306,30 @@ app.get('/userProfile', (req, res) => {
 })
 
 
+// Test API response
+const foodItems = [{
+    name: 'Potato',
+    calories: 50,
+    quantityG: 100
+},
+{
+    name: 'Fries',
+    calories: 100,
+    quantityG: 100
+},
+{
+    name: 'Croquette',
+    calories: 150,
+    quantityG: 100
+},
+
+]
+
 // Get generated meals
 app.get('/generatedMeals', (req, res) => {
-    res.render('generatedMeals')
+    res.render('generatedMeals', {
+        foodItems: foodItems
+    })
 })
 
 
