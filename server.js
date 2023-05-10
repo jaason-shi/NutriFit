@@ -101,7 +101,8 @@ app.post('/signup', async (req, res) => {
         req.session.INVALID_FIELD = 'Answer'
         res.redirect('/invalidFormData')
     } else {
-        password = await bcrypt.hash(req.body.password, saltRounds);
+        password = await bcrypt.hash(password, saltRounds);
+        answer = await bcrypt.hash(answer, saltRounds)
 
         // Check if the fields already exist in the database
         const matchID = await User.findOne({ id: id })
@@ -167,9 +168,10 @@ app.get('/checkSecurity', (req, res) => {
 })
 
 // Post answer security question page
-app.post('/checkSecurity', (req, res) => {
-    const answer = req.body.answer;
-    if (answer == req.session.USER.answer) {
+app.post('/checkSecurity', async (req, res) => {
+    let answer = req.body.answer;
+    answer = await bcrypt.hash(answer, saltRounds)
+    if (bcrypt.compare(answer, req.session.USER.answer)) {
         return res.redirect('/changePassword')
     } else {
         return res.redirect('/incorrectAnswer')
@@ -201,7 +203,7 @@ app.post('/changePassword', async (req, res) => {
     password = await bcrypt.hash(req.body.password, saltRounds);
     await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
     const user = await User.findOne({ email: req.session.USER.email })
-    console.log(user)
+    delete req.session.USER
     return res.redirect('/changePasswordSuccess')
 })
 
