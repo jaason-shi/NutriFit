@@ -6,6 +6,8 @@ const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const ejs = require("ejs");
+// require axios
+const axios = require("axios");
 
 require("dotenv").config();
 
@@ -15,60 +17,70 @@ const Schema = mongoose.Schema;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set("view engine", "ejs");
+const path = require('path'); // Import the 'path' module
+app.set("views", path.join(__dirname, "views"));
+
 app.use(express.static("public"));
 
-// Set up MongoDB
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri, { useNewUrlParser: true });
-mongoose.connection.once("open", () => {
-  console.log("Connected to MongoDB Atlas.");
-});
 
-var sessionStore = MongoStore.create({
-  mongoUrl: uri,
-  cypto: {
-    secret: process.env.SESSION_KEY,
-  },
-});
+/* secret information section */
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_ORG_KEY = process.env.OPENAI_ORG_KEY;
 
-// Set up sessions
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    store: sessionStore,
-    saveUninitialized: false,
-    resave: true,
-    cookie: { maxAge: 60 * 60 * 1000 },
-  })
-);
 
-// The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
-const idSchema = Joi.string()
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
-const emailSchema = Joi.string()
-  .email({ minDomainSegments: 2 })
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
-const passwordSchema = Joi.string()
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
 
-// Input Model
-const inputSchema = new Schema({
-  input: { type: String, required: true },
-});
+// // Set up MongoDB
+// const uri = process.env.ATLAS_URI;
+// mongoose.connect(uri, { useNewUrlParser: true });
+// mongoose.connection.once("open", () => {
+//   console.log("Connected to MongoDB Atlas.");
+// });
 
-// User Model
-const userSchema = new Schema({
-  id: { type: String, required: true },
-  email: { type: String, required: true },
-  password: { type: String, required: true },
-});
+// var sessionStore = MongoStore.create({
+//   mongoUrl: uri,
+//   cypto: {
+//     secret: process.env.SESSION_KEY,
+//   },
+// });
 
-const User = mongoose.model("User", userSchema);
+// // Set up sessions
+// app.use(
+//   session({
+//     secret: process.env.SESSION_KEY,
+//     store: sessionStore,
+//     saveUninitialized: false,
+//     resave: true,
+//     cookie: { maxAge: 60 * 60 * 1000 },
+//   })
+// );
 
-InputTest = mongoose.model("InputTest", inputSchema);
+// // The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
+// const idSchema = Joi.string()
+//   .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
+//   .required();
+// const emailSchema = Joi.string()
+//   .email({ minDomainSegments: 2 })
+//   .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
+//   .required();
+// const passwordSchema = Joi.string()
+//   .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
+//   .required();
+
+// // Input Model
+// const inputSchema = new Schema({
+//   input: { type: String, required: true },
+// });
+
+// // User Model
+// const userSchema = new Schema({
+//   id: { type: String, required: true },
+//   email: { type: String, required: true },
+//   password: { type: String, required: true },
+// });
+
+// const User = mongoose.model("User", userSchema);
+
+// InputTest = mongoose.model("InputTest", inputSchema);
 
 // Basic landing page
 app.get("/", (req, res) => {
@@ -230,6 +242,62 @@ app.post("/postInput", (req, res) => {
     res.redirect("/");
   });
 });
+
+
+
+
+
+const workoutPrompt =
+  "make a workout routine for a duration of 20 minutes and only give me the list of activities and the duration, type of body part it works on, and the calories burned for each activity. ";
+
+
+// function to query chatgpt api
+async function queryChatGPT(workoutPrompt) {
+  const request = require('request');
+
+  const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+
+  const options = {
+    url: OPENAI_API_ENDPOINT,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'OpenAI-Organization': OPENAI_ORG_KEY
+    },
+    body: JSON.stringify({
+      'model': 'gpt-3.5-turbo',
+      'messages': [{ 'role': 'user', 'content': workoutPrompt }],
+      'temperature': 0.7
+    })
+  };
+
+  return new Promise((resolve, reject) => {
+    request.post(options, (error, response, body) => {
+      if (error) {
+        console.error(error);
+        reject(error);
+      } else {
+        console.log(body);
+        resolve(body);
+      }
+    });
+  });
+}
+
+// route to generate workout routine with queryChatGPT
+app.get("/generateWorkoutRoutine", async (req, res) => {
+  try {
+    const response = await queryChatGPT(workoutPrompt);
+    const workoutRoutine = JSON.parse(response).choices[0].message.content;
+    res.render("generateWorkoutRoutine", { workoutRoutine });
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred");
+  }
+});
+
+
 
 // Connect to port
 const port = 3000;
