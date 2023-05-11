@@ -289,9 +289,13 @@ app.get("/generateWorkoutRoutine", async (req, res) => {
   }
 });
 
+const calorieInput = req.query.calorieInput;
+
 // route to generate meals with queryChatGPT
 const mealsPrompt =
-  "make a meal plans from these filters and give me the list of meals, the ingredients, and the calories for each meal.";
+  "make a meal plans with " +
+  calorieInput +
+  "calories and give me the list of meals, the ingredients, and the calories for each meal.";
 
 // function to query chatgpt api
 async function queryChatGPT(mealsPrompt) {
@@ -327,11 +331,16 @@ async function queryChatGPT(mealsPrompt) {
 }
 
 // route to generate workout routine with queryChatGPT
-app.get("/generateMeals", async (req, res) => {
+app.get("/mealFilter", async (req, res) => {
   try {
+    const calorieInput = req.query.calorieInput;
+    const mealsPrompt =
+      "make a meal plans with " +
+      calorieInput +
+      "calories and give me the list of meals, the ingredients, and the calories for each meal.";
     const response = await queryChatGPT(mealsPrompt);
     const mealPlan = JSON.parse(response).choices[0].message.content;
-    res.render("generateMeals", { mealPlan });
+    res.render("generatedMeals", { mealPlan });
     console.log(response);
   } catch (error) {
     console.error(error);
