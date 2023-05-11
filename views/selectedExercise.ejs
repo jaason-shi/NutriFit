@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <title>Selected Exercises</title>
+    <style>
+      .selected {
+        background-color: #666;
+      }
+    </style>
   </head>
   <body>
     <h1>Selected Exercises</h1>
@@ -18,6 +23,23 @@
         </div>
       <% } %>
     </ul>
+
+    <h2>Exercise Categories</h2>
+    <ul>
+      <% for(let i = 0; i < exerciseCategory.length; i++) { %>
+        <li>
+          <form action="/addExerciseTag" method="post">
+            <button type="submit" name="exerciseTag" value="<%= exerciseCategory[i].name %>"
+              <% if (exerciseTag && exerciseTag.includes(exerciseCategory[i].name)) { %>class="selected"<% } %>
+            >
+              <%= exerciseCategory[i].name %>
+            </button>
+            <input type="hidden" name="user" value="<%= userId %>"> <!-- Pass userId to server -->
+          </form>
+        </li>
+      <% } %>
+    </ul>
+
     <a href="/exercise">Back to Filter</a>
   </body>
 </html>
