@@ -306,51 +306,51 @@ app.get('/userProfile', (req, res) => {
 
 // Simulate a request to the api
 
-async function processRequest() {
-    let Food;
+// async function processRequest() {
+//     let Food;
 
-    await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        Food = client.db('NutriFit').collection('food');
-    })
-    const foodItem = await Food.findOne({ Food: "Buttermilk" })
-    const foodItemParse = {
-        "name": foodItem.Food,
-        "calories": foodItem.Calories,
-        "quantityG": foodItem.Grams
-    }
-    const stringParse = JSON.stringify(foodItemParse)
-    let sampleRequest = `
-Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
-`
+//     await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+//         Food = client.db('NutriFit').collection('food');
+//     })
+//     const foodItem = await Food.findOne({ Food: "Buttermilk" })
+//     const foodItemParse = {
+//         "name": foodItem.Food,
+//         "calories": foodItem.Calories,
+//         "quantityG": foodItem.Grams
+//     }
+//     const stringParse = JSON.stringify(foodItemParse)
+//     let sampleRequest = `
+// Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
+// `
 
-    // Multiple JSON object query
+//     // Multiple JSON object query
 
-    const foodItems = await Food.find({
-        $or: [{ Food: "Buttermilk" }, { Food: "Custard" }]
-    }).toArray()
+//     const foodItems = await Food.find({
+//         $or: [{ Food: "Buttermilk" }, { Food: "Custard" }]
+//     }).toArray()
 
-    const foodItemsParse = foodItems.map((foodItem) => {
-        return {
-            "name": foodItem.Food,
-            "calories": foodItem.Calories,
-            "quantityG": foodItem.Grams
-        }
-    })
+//     const foodItemsParse = foodItems.map((foodItem) => {
+//         return {
+//             "name": foodItem.Food,
+//             "calories": foodItem.Calories,
+//             "quantityG": foodItem.Grams
+//         }
+//     })
 
-    const stringParseArray = JSON.stringify(foodItemsParse)
+//     const stringParseArray = JSON.stringify(foodItemsParse)
 
-    console.log(stringParseArray + "\n\n\n")
+//     console.log(stringParseArray + "\n\n\n")
 
 
-    let sampleRequestMulti = `
-Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include [{"name":"Buttermilk","calories":127,"quantityG":246},{"name":"Custard","calories":285,"quantityG":248},{"name":"Custard","calories":265,"quantityG":130}]. Add more food until it is 1000 calories. Stop adding food when it is 1000 calories.
-`
+//     let sampleRequestMulti = `
+// Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include [{"name":"Buttermilk","calories":127,"quantityG":246},{"name":"Custard","calories":285,"quantityG":248},{"name":"Custard","calories":265,"quantityG":130}]. Add more food until it is 1000 calories. Stop adding food when it is 1000 calories.
+// `
 
-    console.log(sampleRequestMulti)
+//     console.log(sampleRequestMulti)
 
-}
+// }
 
-processRequest()
+// processRequest()
 
 
 // Simulate a response from the API
