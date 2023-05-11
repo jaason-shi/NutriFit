@@ -245,8 +245,13 @@ app.post("/postInput", (req, res) => {
   });
 });
 
+
+
+
+
 const workoutPrompt =
   "make a workout routine for a duration of 20 minutes and only give me the list of activities and the duration, type of body part it works on, and the calories burned for each activity. ";
+
 
 // function to query chatgpt api
 async function queryChatGPT(workoutPrompt) {
@@ -331,7 +336,7 @@ async function queryChatGPT(mealsPrompt) {
         console.log(body);
         resolve(body);
       }
-    });
+});
   });
 }
 
