@@ -71,6 +71,10 @@ app.get('/food', (req, res) => {
   res.render('foodFilter.ejs');
 });
 
+app.get('/foodEx', (req, res) => {
+  res.render('foodFilterEx.ejs');
+});
+
 app.get('/searchFood', (req, res) => {
   const searchQuery = req.query.q;
   foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
@@ -104,9 +108,33 @@ app.post('/selectFood', (req, res) => {
     })
 });
 
+app.post('/excludeFood', (req, res) => {
+  const itemId = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  const collection = db.collection('food');
+  collection.findOne({ _id: new ObjectId(itemId) })
+    .then(item => {
+      if (item) {
+        selectedItems.push(item);
+        // Add to users collection
+        console.log(`Updating user: ${userId}`); // Debugging line
+        usersCollection.updateOne(
+          { id: userId },
+          { $addToSet: { excludeFood: item.Food } },
+        )
+        .then(result => {
+          console.log(result); // Debugging line
+          res.redirect('/selectedFood');
+        })
+      } else {
+        res.status(404).send('Item not found');
+      }
+    })
+});
+
 app.post('/addFoodTag', async (req, res) => {
   const foodTag = req.body.foodTag;
-  const userId = req.body.user; // Assuming you send user ID with request
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
 
   try {
     const user = await usersCollection.findOne({ id: userId });
@@ -135,13 +163,50 @@ app.post('/addFoodTag', async (req, res) => {
   }
 });
 
+app.post('/addFoodTagEx', async (req, res) => {
+  const foodTagEx = req.body.foodTagEx; // Corrected variable name
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+
+  try {
+    const user = await usersCollection.findOne({ id: userId });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    if (user.excludeFoodTag && user.excludeFoodTag.includes(foodTagEx)) {
+      // If the tag is already present, remove it
+      await usersCollection.updateOne(
+        { id: userId },
+        { $pull: { excludeFoodTag: foodTagEx } }
+      );
+    } else {
+      // Otherwise, add the tag
+      await usersCollection.updateOne(
+        { id: userId },
+        { $addToSet: { excludeFoodTag: foodTagEx } }
+      );
+    }
+
+    res.redirect('/selectedFood');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
+
 
 app.get('/selectedFood', (req, res) => {
   const userId = 'SeanGuy'; // Assuming you send user ID with request
   usersCollection.findOne({ id: userId })
     .then(user => {
       if (user) {
-        res.render('selectedFood.ejs', { food: user.includeFood, userId: userId, foodTag: user.foodTag });
+        res.render('selectedFood.ejs', {
+          food: user.includeFood, 
+          userId: userId, 
+          foodTag: user.foodTag, 
+          excludeFood: user.excludeFood, 
+          foodTagEx: user.excludeFoodTag
+        });
       } else {
         res.status(404).send('User not found');
       }
@@ -173,6 +238,26 @@ app.post('/removeFood', (req, res) => {
     })
 });
 
+app.post('/removeFoodEx', (req, res) => {
+  const foodName = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  const collection = db.collection('food');
+  collection.findOne({ Food: foodName })
+    .then(item => {
+      if (item) {
+        // Remove from users collection
+        usersCollection.updateOne(
+          { id: userId },
+          { $pull: { excludeFood: item.Food } },
+        )
+        .then(() => {
+          res.redirect('/selectedFood');
+        })
+      } else {
+        res.status(404).send('Item not found');
+      }
+    })
+});
 
 let selectedExerciseItems = [];
 
