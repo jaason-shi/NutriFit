@@ -314,14 +314,20 @@ async function processRequest() {
     })
     const foodItem = await Food.findOne({ Food: "Buttermilk" })
     console.log(foodItem)
+    const foodItemParse = {
+        "name": foodItem.Food,
+        "calories": foodItem.Calories,
+        "quantityG": foodItem.Grams
+    }
+    console.log(foodItemParse)
+    const stringParse = JSON.stringify(foodItemParse)
+    let sampleRequest = `
+Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
+`
+    console.log(sampleRequest)
 }
 
 processRequest()
-
-
-const sampleRequest = `
-Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.
-`
 
 
 // Simulate a response from the API
