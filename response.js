@@ -23,6 +23,10 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   })
   .catch(error => console.error(error));
 
+app.get('/', (req, res) => {
+  res.render('home.ejs');
+});
+
 let selectedItems = [];
 
 app.get('/food', (req, res) => {
