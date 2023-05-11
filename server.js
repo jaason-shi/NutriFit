@@ -11,6 +11,8 @@ require('dotenv').config();
 
 const app = express();
 const Schema = mongoose.Schema;
+const MongoClient = require('mongodb').MongoClient;
+const client = new MongoClient(process.env.ATLAS_URI, { useNewUrlParser: true });
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -57,6 +59,14 @@ const userSchema = new Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+
+
+// Food Collection Access
+let Food;
+
+client.connect((err) => {
+    Food = client.db('NutriFit').collection('food');
+})
 
 
 // Basic landing page 
@@ -300,7 +310,40 @@ app.get('/userProfile', (req, res) => {
 })
 
 
-// Test API response
+// Simulate a response from the API
+const response = '    ```javascript' +
+    '[' +
+    '{ "name": "apple", "calories": 100, "quantityG": 100 },' +
+    '{ "name": "banana", "calories": 90, "quantityG": 120 },' +
+    '{ "name": "orange", "calories": 80, "quantityG": 150 },' +
+    '{ "name": "strawberries", "calories": 50, "quantityG": 200 },' +
+    '{ "name": "blueberries", "calories": 60, "quantityG": 170 },' +
+    '{ "name": "spinach", "calories": 10, "quantityG": 500 },' +
+    '{ "name": "chicken breast", "calories": 165, "quantityG": 150 },' +
+    '{ "name": "salmon", "calories": 200, "quantityG": 120 },' +
+    '{ "name": "brown rice", "calories": 215, "quantityG": 100 },' +
+    '{ "name": "quinoa", "calories": 222, "quantityG": 90 },' +
+    '{ "name": "avocado", "calories": 160, "quantityG": 80 }' +
+    ']' +
+    '```' +
+    'Here is a list of JSON objects representing food items with their respective name, calories, and quantityG properties. Each object in the list represents a food item and its associated calorie count and quantity in grams.'
+
+
+// Filter the response to extract just the content inside the code block
+const codeBlockRegex = /```javascript([\s\S]+?)```/g;
+const matches = response.match(codeBlockRegex);
+let codeBlockContent;
+
+if (matches && matches.length > 0) {
+    codeBlockContent = matches.map(match => match.replace(/```javascript|```/g, '').trim());
+}
+
+
+// Extract the list of JSON from the string
+const jsonArray = JSON.parse(codeBlockContent[0])
+console.log(jsonArray)
+
+// Sample json array
 const foodItems = [{
     name: 'Potato',
     calories: 50,
@@ -322,7 +365,7 @@ const foodItems = [{
 // Get generated meals
 app.get('/generatedMeals', (req, res) => {
     res.render('generatedMeals', {
-        foodItems: foodItems
+        foodItems: jsonArray
     })
 })
 
