@@ -118,33 +118,58 @@ app.get('/searchExercise', (req, res) => {
 
 app.post('/selectExercise', (req, res) => {
   const itemId = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
   const collection = db.collection('exercise');
   collection.findOne({ _id: new ObjectId(itemId) })
     .then(item => {
       if (item) {
         selectedExerciseItems.push(item);
-        res.redirect('/selectedExercise');
+        // Add to users collection
+        console.log(`Updating user: ${userId}`); // Debugging line
+        usersCollection.updateOne(
+          { id: userId },
+          { $addToSet: { includeExercise: item.name } },
+        )
+        .then(result => {
+          console.log(result); // Debugging line
+          res.redirect('/selectedExercise');
+        })
       } else {
         res.status(404).send('Exercise not found');
       }
+    })
+});
+
+app.get('/selectedExercise', (req, res) => {
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  usersCollection.findOne({ id: userId })
+    .then(user => {
+      if (user) {
+        const selectedExerciseNames = user.includeExercise; // Get the selected exercise names from the user
+        exerciseCollection.find({ name: { $in: selectedExerciseNames } }).toArray() // Find the exercises with matching names
+          .then(exercises => {
+            res.render('selectedExercise.ejs', { exercise: exercises, userId: userId });
+          })
+      } else {
+        res.status(404).send('User not found');
+      }
+    })
+});
+
+app.post('/removeExercise', (req, res) => {
+  const exerciseName = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  usersCollection.updateOne(
+    { id: userId },
+    { $pull: { includeExercise: exerciseName } }
+  )
+    .then(() => {
+      res.redirect('/selectedExercise');
     })
     .catch(error => {
       console.error(error);
       res.status(500).send('Internal server error');
     });
-});
-
-app.get('/selectedExercise', (req, res) => {
-  res.render('selectedExercise.ejs', { exercise: selectedExerciseItems });
-});
-
-app.post('/removeExercise', (req, res) => {
-  const itemId = req.body.item;
-  const index = selectedExerciseItems.findIndex(item => item._id.equals(new ObjectId(itemId)));
-  if (index !== -1) {
-    selectedExerciseItems.splice(index, 1);
-  }
-  res.redirect('/selectedExercise');
 });
 
 app.listen(port, () => {
