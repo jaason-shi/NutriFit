@@ -7,15 +7,16 @@
   <body>
     <h1>Selected Food</h1>
     <ul>
-      <% food.forEach(item => { %>
-        <li>
-          <%= item.Food %> (<%= item.Measure %>)
-          <form method="POST" action="/removeFood">
-            <input type="hidden" name="item" value="<%= item._id %>">
-            <button type="submit">Remove</button>
+      <% for(let i = 0; i < food.length; i++) { %>
+        <div>
+          <p><%= food[i] %></p>
+          <form action="/removeFood" method="post">
+            <input type="hidden" name="item" value="<%= food[i] %>">
+            <input type="hidden" name="user" value="<%= userId %>"> <!-- Pass userId to server -->
+            <input type="submit" value="Remove">
           </form>
-        </li>
-      <% }) %>
+        </div>
+      <% } %>
     </ul>
     <a href="/food">Back to Filter</a>
   </body>

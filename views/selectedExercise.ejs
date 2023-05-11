@@ -7,15 +7,16 @@
   <body>
     <h1>Selected Exercises</h1>
     <ul>
-      <% exercise.forEach(item => { %>
-        <li>
-          <%= item.name %> (Target: <%= item.bodyPart %>, Equipment: <%= item.equipment %>)
-          <form method="POST" action="/removeExercise">
-            <input type="hidden" name="item" value="<%= item._id %>">
-            <button type="submit">Remove</button>
+      <% for (let i = 0; i < exercise.length; i++) { %>
+        <div>
+          <p><%= exercise[i].name %> (Target: <%= exercise[i].bodyPart %>, Equipment: <%= exercise[i].equipment %>)</p>
+          <form action="/removeExercise" method="post">
+            <input type="hidden" name="item" value="<%= exercise[i].name %>">
+            <input type="hidden" name="user" value="<%= userId %>">
+            <input type="submit" value="Remove">
           </form>
-        </li>
-      <% }) %>
+        </div>
+      <% } %>
     </ul>
     <a href="/exercise">Back to Filter</a>
   </body>
