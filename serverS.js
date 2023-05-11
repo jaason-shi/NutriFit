@@ -337,7 +337,8 @@ app.get("/mealFilter", async (req, res) => {
     const mealsPrompt =
       "make a meal plans with " +
       calorieInput +
-      "calories and give me the list of meals, the ingredients, and the calories for each meal.";
+      "calories and give me the name of the meals, calories, and grams for each meal. Respond to me in a javascript code block in a list of json objects in this format:" +
+      "{name: String, calories: integer, grams: integer}. Do not make any variables, I just want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.";
     const response = await queryChatGPT(mealsPrompt);
     const mealPlan = JSON.parse(response).choices[0].message.content;
     res.render("generatedMeals", { mealPlan });
