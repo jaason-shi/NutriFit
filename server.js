@@ -11,6 +11,8 @@ require('dotenv').config();
 
 const app = express();
 const Schema = mongoose.Schema;
+const MongoClient = require('mongodb').MongoClient;
+const client = new MongoClient(process.env.ATLAS_URI, { useNewUrlParser: true });
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -48,11 +50,6 @@ const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z
 const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
 
-// Input Model
-const inputSchema = new Schema({
-    input: { type: String, required: true },
-});
-
 // User Model
 const userSchema = new Schema({
     id: { type: String, required: true },
@@ -63,10 +60,20 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
-InputTest = mongoose.model('InputTest', inputSchema);
+
+// Food Collection Access
+let Food;
+
+client.connect((err) => {
+    Food = client.db('NutriFit').collection('food');
+})
+
 
 // Basic landing page 
 app.get('/', (req, res) => {
+    if (req.session.AUTH) {
+        return res.redirect('/members')
+    }
     res.render('home')
 })
 
@@ -306,9 +313,67 @@ app.get('/userProfile', (req, res) => {
 })
 
 
+// Simulate a response from the API
+const response = '    ```javascript' +
+    '[' +
+    '{ "name": "apple", "calories": 100, "quantityG": 100 },' +
+    '{ "name": "banana", "calories": 90, "quantityG": 120 },' +
+    '{ "name": "orange", "calories": 80, "quantityG": 150 },' +
+    '{ "name": "strawberries", "calories": 50, "quantityG": 200 },' +
+    '{ "name": "blueberries", "calories": 60, "quantityG": 170 },' +
+    '{ "name": "spinach", "calories": 10, "quantityG": 500 },' +
+    '{ "name": "chicken breast", "calories": 165, "quantityG": 150 },' +
+    '{ "name": "salmon", "calories": 200, "quantityG": 120 },' +
+    '{ "name": "brown rice", "calories": 215, "quantityG": 100 },' +
+    '{ "name": "quinoa", "calories": 222, "quantityG": 90 },' +
+    '{ "name": "avocado", "calories": 160, "quantityG": 80 }' +
+    ']' +
+    '```' +
+    'Here is a list of JSON objects representing food items with their respective name, calories, and quantityG properties. Each object in the list represents a food item and its associated calorie count and quantity in grams.'
+
+
+// Filter the response to extract just the content inside the code block
+const codeBlockRegex = /```javascript([\s\S]+?)```/g;
+const matches = response.match(codeBlockRegex);
+let codeBlockContent;
+
+if (matches && matches.length > 0) {
+    codeBlockContent = matches.map(match => match.replace(/```javascript|```/g, '').trim());
+}
+
+
+// Extract the list of JSON from the string
+const jsonArray = JSON.parse(codeBlockContent[0])
+console.log(jsonArray)
+
+// Sample json array
+const foodItems = [{
+    name: 'Potato',
+    calories: 50,
+    quantityG: 100
+},
+{
+    name: 'Fries',
+    calories: 100,
+    quantityG: 100
+},
+{
+    name: 'Croquette',
+    calories: 150,
+    quantityG: 100
+}
+]
+
 // Get generated meals
 app.get('/generatedMeals', (req, res) => {
-    res.render('generatedMeals')
+    let totalCalories = 0;
+    jsonArray.forEach((item) => {
+        totalCalories += item.calories
+    })
+    res.render('generatedMeals', {
+        foodItems: jsonArray,
+        totalCalories: totalCalories
+    })
 })
 
 
