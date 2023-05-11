@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<!-- <body>
+    <h1>
+        <% foodsList.forEach(food=> {%>
+            <p>
+                <%= food.Food%>
+            </p>
+            <% }) %>
+    </h1>
+</body> -->
+
+<body>
+    <div class="bg-body-tertiary" style="height: 100vh">
+
+        <div class="row w-100 m-0">
+            <div class="mx-auto col-lg-5 col-12">
+                <div class="card mx-auto mt-5 p-3 w-75">
+                    <div class="card-body">
+                        <h1 class="mb-5">Food Catalog</h1>
+                        <form id="search-form">
+                            <input class="mb-3 w-100" name="searchFood" type="text" id="search-bar"
+                                placeholder="Search for food...">
+                        </form>
+                        <% foodsList.forEach(food=> {%>
+
+                            <div class="card">
+                                <div class="row no-gutters">
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <%= food.Food%>
+                                            </h5>
+                                            <p class="card-text">
+                                                <%= food.Calories%>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="#" class="btn btn rounded-pill btn-dark mt-4">Add to logs</a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
