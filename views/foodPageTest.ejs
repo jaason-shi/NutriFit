@@ -19,6 +19,41 @@
 </body> -->
 
 <body>
+    //search function
+    <form id="search-form">
+        <input type="text" id="search-bar" placeholder="Search for food...">
+    </form>
+
+    <div id="foodResults"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#search-bar').on('input', function () {
+                const searchQuery = $(this).val();
+                $.get('/searchFood', { q: searchQuery }, function (data) {
+                    $('#foodResults').empty();
+                    data.forEach(item => {
+                        $('#foodResults').append(`
+                  <div>
+                    <p>${item.name} - ${item.measure}</p>
+                    <button onclick="addItem('${item.id}')">Add</button>
+                  </div>
+                `);
+                    });
+                });
+            });
+        });
+
+        function addItem(id) {
+            $.post('/selectFood', { item: id }, function () {
+                // Redirect to selected page or show a message
+                window.location.href = "/selectedFood";
+            });
+        }
+    </script>
+
+    //create cards using food data from mongoDB
     <div class="bg-body-tertiary" style="height: 100vh">
 
         <div class="row w-100 m-0">
