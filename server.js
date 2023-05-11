@@ -12,7 +12,6 @@ require('dotenv').config();
 const app = express();
 const Schema = mongoose.Schema;
 const MongoClient = require('mongodb').MongoClient;
-const client = new MongoClient(process.env.ATLAS_URI, { useNewUrlParser: true });
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -59,14 +58,6 @@ const userSchema = new Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-
-
-// Food Collection Access
-let Food;
-
-client.connect((err) => {
-    Food = client.db('NutriFit').collection('food');
-})
 
 
 // Basic landing page 
@@ -313,6 +304,55 @@ app.get('/userProfile', (req, res) => {
 })
 
 
+// Simulate a request to the api
+
+async function processRequest() {
+    let Food;
+
+    await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        Food = client.db('NutriFit').collection('food');
+    })
+    const foodItem = await Food.findOne({ Food: "Buttermilk" })
+    const foodItemParse = {
+        "name": foodItem.Food,
+        "calories": foodItem.Calories,
+        "quantityG": foodItem.Grams
+    }
+    const stringParse = JSON.stringify(foodItemParse)
+    let sampleRequest = `
+Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
+`
+
+    // Multiple JSON object query
+
+    const foodItems = await Food.find({
+        $or: [{ Food: "Buttermilk" }, { Food: "Custard" }]
+    }).toArray()
+
+    const foodItemsParse = foodItems.map((foodItem) => {
+        return {
+            "name": foodItem.Food,
+            "calories": foodItem.Calories,
+            "quantityG": foodItem.Grams
+        }
+    })
+
+    const stringParseArray = JSON.stringify(foodItemsParse)
+
+    console.log(stringParseArray + "\n\n\n")
+
+
+    let sampleRequestMulti = `
+Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include [{"name":"Buttermilk","calories":127,"quantityG":246},{"name":"Custard","calories":285,"quantityG":248},{"name":"Custard","calories":265,"quantityG":130}]. Add more food until it is 1000 calories. Stop adding food when it is 1000 calories.
+`
+
+    console.log(sampleRequestMulti)
+
+}
+
+processRequest()
+
+
 // Simulate a response from the API
 const response = '    ```javascript' +
     '[' +
@@ -344,7 +384,6 @@ if (matches && matches.length > 0) {
 
 // Extract the list of JSON from the string
 const jsonArray = JSON.parse(codeBlockContent[0])
-console.log(jsonArray)
 
 // Sample json array
 const foodItems = [{
