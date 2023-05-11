@@ -358,14 +358,18 @@ const foodItems = [{
     name: 'Croquette',
     calories: 150,
     quantityG: 100
-},
-
+}
 ]
 
 // Get generated meals
 app.get('/generatedMeals', (req, res) => {
+    let totalCalories = 0;
+    jsonArray.forEach((item) => {
+        totalCalories += item.calories
+    })
     res.render('generatedMeals', {
-        foodItems: jsonArray
+        foodItems: jsonArray,
+        totalCalories: totalCalories
     })
 })
 
