@@ -12,7 +12,6 @@ require('dotenv').config();
 const app = express();
 const Schema = mongoose.Schema;
 const MongoClient = require('mongodb').MongoClient;
-const client = new MongoClient(process.env.ATLAS_URI, { useNewUrlParser: true });
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -59,14 +58,6 @@ const userSchema = new Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-
-
-// Food Collection Access
-let Food;
-
-client.connect((err) => {
-    Food = client.db('NutriFit').collection('food');
-})
 
 
 // Basic landing page 
@@ -311,6 +302,26 @@ app.get('/userProfile', (req, res) => {
         primaryUser: req.session.USER
     })
 })
+
+
+// Simulate a request to the api
+
+async function processRequest() {
+    let Food;
+
+    await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        Food = client.db('NutriFit').collection('food');
+    })
+    const foodItem = await Food.findOne({ Food: "Buttermilk" })
+    console.log(foodItem)
+}
+
+processRequest()
+
+
+const sampleRequest = `
+Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.
+`
 
 
 // Simulate a response from the API
