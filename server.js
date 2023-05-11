@@ -71,6 +71,9 @@ client.connect((err) => {
 
 // Basic landing page 
 app.get('/', (req, res) => {
+    if (req.session.AUTH) {
+        return res.redirect('/members')
+    }
     res.render('home')
 })
 
