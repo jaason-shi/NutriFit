@@ -23,6 +23,44 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   })
   .catch(error => console.error(error));
 
+const foodCategory = [
+  { name: 'Dairy products'},
+  { name: 'Fats, Oils, Shortenings'},
+  { name: 'Meat, Poultry'},
+  { name: 'Fish, Seafood'},
+  { name: 'Vegetables A-E'},
+  { name: 'Vegetables F-P'},
+  { name: 'Vegetables R-Z'},
+  { name: 'Fruits A-F'},
+  { name: 'Fruits G-P'},
+  { name: 'Fruits R-Z'},
+  { name: 'Breads, cereals, fastfood, grains'},
+  { name: 'Soups'},
+  { name: 'Desserts, sweets'},
+  { name: 'Jams, Jellies'},
+  { name: 'Seeds and Nuts'},
+  { name: 'Drinks,Alcohol, Beverages'},
+];
+const exerciseCategory = [
+  { name: 'back'},
+  { name: 'cardio'},
+  { name: 'chest'},
+  { name: 'lower arms'},
+  { name: 'lower legs'},
+  { name: 'shoulders'},
+  { name: 'upper arms'},
+  { name: 'upper legs'},
+  { name: 'neck'},
+  { name: 'waist'},
+];
+
+app.use((req, res, next) => {
+  app.locals.foodCategory = foodCategory;
+  app.locals.exerciseCategory = exerciseCategory;
+  next();
+});
+
+
 app.get('/', (req, res) => {
   res.render('home.ejs');
 });
@@ -66,12 +104,44 @@ app.post('/selectFood', (req, res) => {
     })
 });
 
+app.post('/addFoodTag', async (req, res) => {
+  const foodTag = req.body.foodTag;
+  const userId = req.body.user; // Assuming you send user ID with request
+
+  try {
+    const user = await usersCollection.findOne({ id: userId });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    if (user.foodTag && user.foodTag.includes(foodTag)) {
+      // If the tag is already present, remove it
+      await usersCollection.updateOne(
+        { id: userId },
+        { $pull: { foodTag: foodTag } }
+      );
+    } else {
+      // Otherwise, add the tag
+      await usersCollection.updateOne(
+        { id: userId },
+        { $addToSet: { foodTag: foodTag } }
+      );
+    }
+
+    res.redirect('/selectedFood');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+
 app.get('/selectedFood', (req, res) => {
   const userId = 'SeanGuy'; // Assuming you send user ID with request
   usersCollection.findOne({ id: userId })
     .then(user => {
       if (user) {
-        res.render('selectedFood.ejs', { food: user.includeFood, userId: userId });
+        res.render('selectedFood.ejs', { food: user.includeFood, userId: userId, foodTag: user.foodTag });
       } else {
         res.status(404).send('User not found');
       }
@@ -144,6 +214,50 @@ app.post('/selectExercise', (req, res) => {
     })
 });
 
+app.post('/addExerciseTag', (req, res) => {
+  const exerciseTag = req.body.exerciseTag;
+  const userId = req.body.user;
+  usersCollection.findOne({ id: userId })
+    .then(user => {
+      if (user) {
+        if (user.exerciseTag && user.exerciseTag.includes(exerciseTag)) {
+          // If the tag already exists, remove it
+          usersCollection.updateOne(
+            { id: userId },
+            { $pull: { exerciseTag: exerciseTag } },
+          )
+          .then(() => {
+            res.redirect('/selectedExercise');
+          })
+          .catch(error => {
+            console.error(error);
+            res.status(500).send('Internal server error');
+          });
+        } else {
+          // If the tag doesn't exist, add it
+          usersCollection.updateOne(
+            { id: userId },
+            { $addToSet: { exerciseTag: exerciseTag } },
+          )
+          .then(() => {
+            res.redirect('/selectedExercise');
+          })
+          .catch(error => {
+            console.error(error);
+            res.status(500).send('Internal server error');
+          });
+        }
+      } else {
+        res.status(404).send('User not found');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send('Internal server error');
+    });
+});
+
+
 app.get('/selectedExercise', (req, res) => {
   const userId = 'SeanGuy'; // Assuming you send user ID with request
   usersCollection.findOne({ id: userId })
@@ -152,7 +266,7 @@ app.get('/selectedExercise', (req, res) => {
         const selectedExerciseNames = user.includeExercise; // Get the selected exercise names from the user
         exerciseCollection.find({ name: { $in: selectedExerciseNames } }).toArray() // Find the exercises with matching names
           .then(exercises => {
-            res.render('selectedExercise.ejs', { exercise: exercises, userId: userId });
+            res.render('selectedExercise.ejs', { exercise: exercises, userId: userId, exerciseTag: user.exerciseTag });
           })
       } else {
         res.status(404).send('User not found');
