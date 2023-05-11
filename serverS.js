@@ -25,6 +25,11 @@ app.use(express.static("public"));
 /* secret information section */
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_ORG_KEY = process.env.OPENAI_ORG_KEY;
+const ATLAS_URI = process.env.ATLAS_URI;
+const SESSION_KEY = process.env.SESSION_KEY;
+/* END secret section */
+
+
 
 // // Set up MongoDB
 // const uri = process.env.ATLAS_URI;
