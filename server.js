@@ -543,7 +543,7 @@ app.get('/foodCatalogInclude', (req, res) => {
 })
 
 
-// Catalog search function
+// Food catalog search function
 app.get('/searchFood', (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(client => {
@@ -996,8 +996,75 @@ app.post('/addExerciseTagExclude', async (req, res) => {
 
 // Get exercise catalog Include
 app.get('/exerciseCatalogInclude', (req, res) => {
-    res.render('exerciseCatalog')
+    res.render('exerciseCatalogInclude')
 })
+
+
+// Catalog search function
+app.get('/searchExercise', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(client => {
+            console.log('Connected to Database');
+            db = client.db('NutriFit');
+            exerciseCollection = db.collection('exercise');
+
+            const searchQuery = req.query.q;
+            exerciseCollection.find({ name: new RegExp(searchQuery, 'i') }).toArray()
+                .then(results => {
+                    res.json(results.map(item => ({ name: item.name, bodyPart: item.bodyPart, id: item._id })));
+                }).catch(error => console.error(error));
+        })
+        .catch(error => console.error(error));
+});
+
+
+// Select included exercises
+app.post('/selectExerciseInclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('exercise');
+
+        const itemId = req.body.item;
+        const userId = req.session.USER.id;
+        let selectedItems = [];
+
+        console.log("Item ID\n***\n" + itemId)
+
+        collection.findOne({ _id: new ObjectId(itemId) })
+            .then(item => {
+                if (item) {
+                    selectedItems.push(item);
+                    // Add to users collection
+                    console.log(`Updating user: ${userId}`); // Debugging line
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $addToSet: {
+                                includeExercise: {
+                                    $each: [{
+                                        name: item.name,
+                                        bodyPart: item.bodyPart
+                                    }]
+                                }
+                            }
+                        },
+                    )
+                        .then(result => {
+                            console.log(result); // Debugging line
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/workoutFilters');
+                            })
+
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
 
 
 // Get exercise catalog Exclude
