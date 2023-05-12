@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10
 const ejs = require('ejs');
 const { ObjectId } = require('mongodb');
+const bodyParser = require('body-parser');
 
 require('dotenv').config();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(express.static('public'))
+app.use(bodyParser.json());
 
 
 // Set up MongoDB
@@ -509,7 +511,8 @@ app.get('/mealFilters', async (req, res) => {
     res.render('mealFilters', {
         tagsList: foodCategory,
         userInclude: user.includeFood,
-        userExclude: user.excludeFood
+        userExclude: user.excludeFood,
+        primaryUser: user
 
     })
 })
@@ -643,6 +646,90 @@ app.post('/selectFoodExclude', (req, res) => {
     })
 });
 
+
+// Remove included food
+app.post('/deleteFoodInclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('food');
+
+        const foodName = req.body.item;
+        console.log("Food name: " + req.body.item)
+        console.log("User name: " + req.body.user)
+        const userId = req.session.USER.id
+        collection.findOne({ Food: foodName })
+            .then(item => {
+                if (item) {
+                    // Remove from users collection
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $pull: {
+                                includeFood: {
+                                    Food: item.Food,
+                                    Calories: item.Calories, Grams: item.Grams
+                                }
+                            }
+                        }
+                    )
+                        .then(() => {
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/mealFilters');
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
+
+
+// Remove excluded Food
+app.post('/deleteFoodExclude', (req, res) => {
+    console.log("hi :)")
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('food');
+
+        const foodName = req.body.item;
+        console.log("Food name: " + req.body.item)
+        console.log("User name: " + req.body.user)
+        const userId = req.session.USER.id
+        collection.findOne({ Food: foodName })
+            .then(item => {
+                console.log("Item Exclude: " + item.Food)
+                if (item) {
+                    console.log("Inside if")
+                    // Remove from users collection
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $pull: {
+                                excludeFood: {
+                                    Food: item.Food,
+                                    Calories: item.Calories, Grams: item.Grams
+                                }
+                            }
+                        }
+                    )
+                        .then((result) => {
+                            console.log("Update result: " + JSON.stringify(result))
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/mealFilters');
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
 
 // Get favorite meals
 app.get('/favoriteMeals', (req, res) => {
