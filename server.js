@@ -469,6 +469,11 @@ app.get('/exerciseCatalogExclude', (req, res) => {
 })
 
 
+app.get('/workoutLogs', (req, res) => {
+    res.render('workoutLogs')
+})
+
+
 // Connect to port
 const port = 3000;
 app.listen((port), () => {
