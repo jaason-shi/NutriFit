@@ -458,7 +458,7 @@ async function mealGenerationQuery(calories, user) {
     const mealPlan = JSON.parse(response).choices[0].message.content;
     console.log("Meal: " + mealPlan)
 
-    const codeBlockRegex = /\[.*?\]/g;
+    const codeBlockRegex = /```javascript([\s\S]+?)```/g;
     const matches = mealPlan.match(codeBlockRegex);
     console.log(`After regex filter: ${matches}`)
     let codeBlockContent;
