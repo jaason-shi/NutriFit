@@ -706,6 +706,10 @@ app.post('/deleteFoodExclude', (req, res) => {
     })
 });
 
+app.get('/favourites', (req, res) => {
+    res.render('favourites')
+})
+
 // Get favorite meals
 app.get('/favoriteMeals', (req, res) => {
     res.render('favouritesMeals')
