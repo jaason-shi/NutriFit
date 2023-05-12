@@ -888,8 +888,8 @@ app.get('/generatedExercises', (req, res) => {
 
 
 // Get exercise filters
-app.get('/exerciseFilter', (req, res) => {
-    res.render('exerciseFilterPage')
+app.get('/workoutFilters', (req, res) => {
+    res.render('workoutFilters')
 })
 
 
