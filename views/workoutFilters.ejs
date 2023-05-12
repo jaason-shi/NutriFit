@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="mb-2 fw-medium">
-                    exercise Items
+                    Exercise Items
                 </div>
 
                 <% if (userInclude !=undefined) { %>
@@ -79,7 +79,7 @@
                                         <%= exerciseItem.name %>
                                     </span>
 
-                                    <form class="ms-auto" action="/deleteFoodInclude" method="post">
+                                    <form class="ms-auto" action="/deleteExerciseInclude" method="post">
                                         <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                         <button type="submit">Remove</button>
@@ -136,7 +136,7 @@
                 </div>
 
                 <div class="mb-2 fw-medium">
-                    exercise Items
+                    Exercise Items
                 </div>
 
                 <% if (userExclude !=undefined) { %>
@@ -155,7 +155,7 @@
                                         <%= exerciseItem.name %>
                                     </span>
 
-                                    <form class="ms-auto" action="/deleteFoodExclude" method="post">
+                                    <form class="ms-auto" action="/deleteExerciseExclude" method="post">
                                         <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                         <button type="submit">Remove</button>

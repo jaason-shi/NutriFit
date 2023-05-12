@@ -1068,6 +1068,45 @@ app.post('/selectExerciseInclude', (req, res) => {
 });
 
 
+// Remove included exercises
+app.post('/deleteExerciseInclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('exercise');
+
+        const exerciseName = req.body.item;
+
+        const userId = req.session.USER.id
+        collection.findOne({ name: exerciseName })
+            .then(item => {
+                if (item) {
+                    // Remove from users collection
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $pull: {
+                                includeExercise: {
+                                    name: item.name,
+                                    bodyPart: item.bodyPart
+                                }
+                            }
+                        }
+                    )
+                        .then(() => {
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/workoutFilters');
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
+
 // Get exercise catalog Exclude
 app.get('/exerciseCatalogExclude', (req, res) => {
     res.render('exerciseCatalogExclude')
@@ -1113,6 +1152,45 @@ app.post('/selectExerciseExclude', (req, res) => {
                                 res.redirect('/workoutFilters');
                             })
 
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
+
+// Remove excluded exercises
+app.post('/deleteExerciseExclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('exercise');
+
+        const exerciseName = req.body.item;
+
+        const userId = req.session.USER.id
+        collection.findOne({ name: exerciseName })
+            .then(item => {
+                if (item) {
+                    // Remove from users collection
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $pull: {
+                                excludeExercise: {
+                                    name: item.name,
+                                    bodyPart: item.bodyPart
+                                }
+                            }
+                        }
+                    )
+                        .then(() => {
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/workoutFilters');
+                            })
                         })
                 } else {
                     res.status(404).send('Item not found');
