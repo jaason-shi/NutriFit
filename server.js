@@ -56,7 +56,11 @@ const userSchema = new Schema({
     id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    answer: { type: String, required: true }
+    answer: { type: String, required: true },
+    foodTagInclude: { type: Schema.Types.Mixed },
+    foodTagExclude: { type: Schema.Types.Mixed },
+    includeExercise: { type: Schema.Types.Mixed },
+    excludeExercise: { type: Schema.Types.Mixed }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -118,10 +122,10 @@ app.post('/signup', async (req, res) => {
         }
 
         const newUser = new User({
-            id,
-            email,
-            password,
-            answer
+            id: id,
+            email: email,
+            password: password,
+            answer: answer,
         })
 
         newUser.save().then(async () => {
@@ -346,6 +350,19 @@ async function mealGenerationQuery(calories, user) {
     let excludedFood = JSON.stringify(user.excludeFood);
     let includedTags = user.foodTagInclude;
     let excludedTags = user.foodTagExclude;
+
+    if (includedFood == undefined) {
+        includedFood = [];
+    }
+    if (excludedFood == undefined) {
+        excludedFood = [];
+    }
+    if (includedTags == undefined) {
+        includedTags = [];
+    }
+    if (excludedTags == undefined) {
+        excludedTags = [];
+    }
 
     const mealsPrompt =
         `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal. Give me a response`
@@ -728,13 +745,28 @@ async function workoutGenerationQuery(duration, user) {
     let includedTags = user.exerciseTagInclude;
     let excludedTags = user.exerciseTagExclude;
 
+    if (includedExercise == undefined) {
+        includedExercise = [];
+    }
+    if (excludedExercise == undefined) {
+        excludedExercise = [];
+    }
+    if (includedTags == undefined) {
+        includedTags = [];
+    }
+    if (excludedTags == undefined) {
+        excludedTags = [];
+    }
+
     const exercisesPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a sample ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
 
     console.log(`Initial Prompt: ${exercisesPrompt}\n\n`)
 
     const response = await queryChatGPT(exercisesPrompt);
     const workout = JSON.parse(response).choices[0].message.content;
+
+    console.log(`Response we get: ${workout}\n\n`)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
 
