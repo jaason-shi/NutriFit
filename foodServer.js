@@ -26,7 +26,7 @@ const Food = mongoose.model("Food", foodSchema);
 
 app.get("/", (req, res) => {
   Food.find({}, function (err, foods) {
-    res.render("foodPageTest", {
+    res.render("foodCatalog", {
       foodsList: foods,
     });
   });

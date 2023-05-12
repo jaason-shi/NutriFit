@@ -152,9 +152,12 @@ app.post('/getEmail', async (req, res) => {
         req.session.INVALID_FIELD = 'Email'
         return res.redirect('/invalidFormData')
     }
-    const user = await User.findOne({ email: email })
-    req.session.USER = user;
-    return res.redirect('/checkSecurity')
+    User.findOne({ email: email }).then((user) => {
+        req.session.USER = user;
+        console.log(req.session.USER)
+        return res.redirect('/checkSecurity')
+    })
+
 })
 
 
@@ -420,6 +423,19 @@ app.get('/generatedMeals', (req, res) => {
 app.get('/mealFilters', (req, res) => {
     res.render('mealFilters')
 })
+
+
+// Get meal catalog page to include
+app.get('/foodCatalogInclude', (req, res) => {
+    res.render('foodCatalog')
+})
+
+
+// Get meal catalog page to exclude
+app.get('/foodCatalogExclude', (req, res) => {
+    res.render('foodCatalog')
+})
+
 
 
 // Connect to port
