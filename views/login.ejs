@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+    <body>
+
+        <div class="bg-body-tertiary" style="height: 100vh">
+
+            <!-- Header -->
+            <%- include('partials/header') %>
+
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-5 col-12">
+
+                        <div class="card mx-auto mt-5 p-3 w-75">
+
+                            <div class="card-body">
+                                <h1 class="mb-4">Sign in</h1>
+
+                                <form action="/login" method="post">
+                                    <input class="mb-3 w-100" name="email" type="text" placeholder="Email or ID">
+                                    <input class="w-100 mb-1" name="password" type="password" placeholder="Password">
+                                    <div class="container m-0 p-0 mb-2">
+                                        <a class="link-underline-light ms-1" href="/getEmail">
+                                            Change
+                                            Password</a>
+                                    </div>
+                                    <input class="btn rounded-pill btn-dark w-100" type="submit" value="Sign in">
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <%- include('partials/navbar') %>
+        </div>
+
+    </body>
+
+</html>

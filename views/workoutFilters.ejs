@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+    <body>
+        <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
+            <!-- Header -->
+            <div class=" fs-5 fw-semibold d-flex mb-4 align-items-center">
+                <div>
+                    <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+                </div>
+                <div class="ms-3">
+                    Select Fields for Workout Filter
+                </div>
+            </div>
+
+            <div class="border border-dark container mb-2">
+                <div class="fs-6 fw-medium my-1">
+                    Duration
+                </div>
+                <div class="fs-6 mb-2">
+                    <form action="">
+                        <input type="text" placeholder="Please Enter" class="w-100" id="inputDuration">
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="border border-dark container mb-2">
+                <div class="fs-6 fw-medium my-1 mb-3">
+                    Include
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Tags
+                </div>
+
+                <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
+                    <% tagsList.forEach((category)=> { %>
+                        <form action="/addExerciseTagInclude" method="post">
+                            <input type="hidden" name="exerciseTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+
+                            <% if (primaryUser.exerciseTagInclude !=undefined) { %>
+                                <button type="submit"
+                                    class="<%= primaryUser.exerciseTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                    <%= category.name %>
+                                </button>
+                                <% } else {%>
+                                    <button type="submit" class="btn btn-light border fw-medium me-2">
+                                        <%= category.name %>
+                                    </button>
+                                    <% } %>
+
+                        </form>
+
+                        <% }) %>
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Exercise Items
+                </div>
+
+                <% if (userInclude !=undefined) { %>
+
+
+                    <% userInclude.forEach( (exerciseItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
+                            </div>
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= exerciseItem.name %>
+                                    </span>
+
+                                    <form class="ms-auto" action="/deleteExerciseInclude" method="post">
+                                        <input type="hidden" name="item" value="<%= exerciseItem.name %>">
+                                        <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <button type="submit">Remove</button>
+                                    </form>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= exerciseItem.bodyPart %>
+                                </div>
+                            </div>
+
+                        </div>
+                        <% }) %>
+                            <% } %>
+
+                                <form class=" mb-2" action="/exerciseCatalogInclude">
+                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
+                                            src="/images/plus-circle.svg" alt="" height="30"></button>
+                                </form>
+
+
+            </div>
+
+            <div class="border border-dark container mb-4">
+                <div class="fs-6 fw-medium my-1 mb-3">
+                    Exclude
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Tags
+                </div>
+
+                <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
+                    <% tagsList.forEach((category)=> { %>
+                        <form action="/addExerciseTagExclude" method="post">
+                            <input type="hidden" name="exerciseTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+
+                            <% if (primaryUser.exerciseTagExclude !=undefined) { %>
+                                <button type="submit"
+                                    class="<%= primaryUser.exerciseTagExclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                    <%= category.name %>
+                                </button>
+                                <% } else {%>
+                                    <button type="submit" class="btn btn-light border fw-medium me-2">
+                                        <%= category.name %>
+                                    </button>
+                                    <% } %>
+
+                        </form>
+
+                        <% }) %>
+                </div>
+
+                <div class="mb-2 fw-medium">
+                    Exercise Items
+                </div>
+
+                <% if (userExclude !=undefined) { %>
+
+
+                    <% userExclude.forEach( (exerciseItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
+                            </div>
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= exerciseItem.name %>
+                                    </span>
+
+                                    <form class="ms-auto" action="/deleteExerciseExclude" method="post">
+                                        <input type="hidden" name="item" value="<%= exerciseItem.name %>">
+                                        <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <button type="submit">Remove</button>
+                                    </form>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= exerciseItem.bodyPart %>
+                                </div>
+                            </div>
+
+                        </div>
+                        <% }) %>
+                            <% } %>
+
+                                <form class=" mb-2" action="/exerciseCatalogExclude">
+                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
+                                            src="/images/plus-circle.svg" alt="" height="30"></button>
+                                </form>
+
+
+
+
+            </div>
+
+            <input class="btn btn-dark w-100" type="submit" value="Generate Workout" onclick="sendDuration()">
+
+            <%- include('partials/navbar') %>
+
+        </div>
+
+        <script>
+            function sendDuration() {
+                let duration = document.getElementById("inputDuration").value;
+                let url = "/generatedWorkouts?duration=" + duration;
+                window.location.href = url;
+            }
+        </script>
+    </body>
+
+</html>

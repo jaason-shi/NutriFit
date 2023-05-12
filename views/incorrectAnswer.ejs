@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+    <body>
+
+        <div class="bg-body-tertiary" style="height: 100vh">
+
+            <!-- Header -->
+            <%- include('partials/header') %>
+
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-5 col-12">
+
+                        <div class="card mx-auto mt-5 p-3 w-75">
+
+                            <div class="card-body">
+
+                                <div class="container-fluid text-center mt-3">
+                                    <h4>Incorrect answer</h4>
+                                    <a href="<%= referer %>">Try again</a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <%- include('partials/navbar') %>
+        </div>
+
+    </body>
+
+</html>

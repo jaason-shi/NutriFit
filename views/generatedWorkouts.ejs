@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+  <body>
+    <div class="container p-3" style="height: 100vh;">
+      <!-- Header -->
+      <div class="fs-3 fw-semibold d-flex mb-4">
+        <div class="me-1">
+          <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+        </div>
+        <div class="ms-5">
+          Generated Workout
+        </div>
+
+
+      </div>
+
+      <div class="container fs-4 fw-medium m-0 p-0 mb-1">
+        Workout Type
+      </div>
+      <div class="container m-0 p-0 d-flex mb-2">
+        <button class="btn btn-light border fw-medium me-2">Intense</button>
+        <button class="btn btn-light border fw-medium me-2">Full-Body</button>
+      </div>
+
+      <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
+        <span>
+          Exercises
+        </span>
+
+        <span class="ms-auto">
+          <%= totalDuration %> min
+        </span>
+      </div>
+
+      <div class="container h-25 mb-4 overflow-auto border">
+
+        <% workout.forEach( (exercise)=> { %>
+          <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+              <button class="rounded-circle border-0 m-0 p-0 my-auto" style="height: 30px; width: 30px"></button>
+            </div>
+
+            <div class="w-50 vstack gap-0">
+              <div class="d-inline-flex">
+                <span>
+                  <%= exercise.name %>
+                </span>
+
+                <span class="ms-auto">
+                  <%= exercise.duration %> min
+                </span>
+
+              </div>
+              <div class="d-inline text-secondary" style="font-size: 14px">
+                <%= exercise.bodyPart %>
+              </div>
+            </div>
+
+          </div>
+          <% }) %>
+
+      </div>
+
+      <div class="conteiner m-0 p-0">
+        <form class=" mb-4" action="/favoriteMeals">
+          <input class="btn btn-dark w-100" type="submit" value="Add to Favorites">
+        </form>
+
+        <form class="mb-4" action="">
+          <input class="btn btn-dark w-100" type="submit" value="Add to Log">
+        </form>
+
+        <form class="mb-4" action="/generatedWorkouts">
+          <input class="btn btn-dark w-100" type="submit" value="Regenerate">
+        </form>
+
+        <form class="mb-4" action="/workoutFilters">
+          <input class="btn btn-dark w-100" type="submit" value="Customize Workout">
+        </form>
+      </div>
+      <%- include('partials/navbar') %>
+    </div>
+
+
+  </body>
+
+</html>
