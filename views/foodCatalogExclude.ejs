@@ -24,6 +24,7 @@
         </div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
         <script>
             $(document).ready(function () {
                 $('#search-bar').on('input', function () {
@@ -51,8 +52,9 @@
                 });
             });
 
+
             function addItem(id) {
-                $.post('/selectFoodInclude', { item: id }, function () {
+                $.post('/selectFoodExclude', { item: id }, function () {
                     // Redirect to selected page or show a message
                     window.location.href = "/mealFilters";
                 });

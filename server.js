@@ -517,7 +517,8 @@ app.get('/mealFilters', async (req, res) => {
 
 // Get meal catalog page to include
 app.get('/foodCatalogInclude', (req, res) => {
-    res.render('foodCatalog')
+    console.log(req.originalUrl)
+    res.render('foodCatalogInclude')
 })
 
 
@@ -590,8 +591,57 @@ app.post('/selectFoodInclude', (req, res) => {
 
 // Get meal catalog page to exclude
 app.get('/foodCatalogExclude', (req, res) => {
-    res.render('foodCatalog')
+    console.log(req.originalUrl)
+    res.render('foodCatalogExclude', {
+        currentURL: req.originalURL
+    })
 })
+
+
+// Select excluded food
+app.post('/selectFoodExclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('food');
+
+        const itemId = req.body.item;
+        const userId = req.session.USER.id
+        let selectedItems = []
+
+        collection.findOne({ _id: new ObjectId(itemId) })
+            .then(item => {
+                if (item) {
+                    selectedItems.push(item);
+                    // Add to users collection
+                    console.log(`Updating user: ${userId}`); // Debugging line
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $addToSet: {
+                                excludeFood: {
+                                    $each: [{
+                                        Food: item.Food,
+                                        Calories: item.Calories, Grams: item.Grams
+                                    }]
+                                }
+                            }
+                        }
+                    )
+                        .then(result => {
+                            console.log(result); // Debugging line
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                return res.redirect('/mealFilters');
+
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
 
 
 // Get favorite meals
