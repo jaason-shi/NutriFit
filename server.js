@@ -592,6 +592,90 @@ app.post('/selectFoodInclude', (req, res) => {
 });
 
 
+// Add food tag to include
+app.post('/addFoodTagInclude', async (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const Food = client.db('NutriFit').collection('food');
+        const foodTag = req.body.foodTag;
+        const userId = req.session.USER.id
+        console.log(foodTag)
+        console.log(req.body.user)
+
+        try {
+            const user = await usersCollection.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+
+            if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
+                // If the tag is already present, remove it
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $pull: { foodTagInclude: foodTag } }
+                );
+            } else {
+                // Otherwise, add the tag
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $addToSet: { foodTagInclude: foodTag } }
+                );
+            }
+            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                console.log(user);
+                req.session.USER = user;
+                res.redirect('/mealFilters');
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal server error');
+        }
+    })
+});
+
+
+// Add food tag to exclude
+app.post('/addFoodTagExclude', async (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const Food = client.db('NutriFit').collection('food');
+        const foodTag = req.body.foodTag;
+        const userId = req.session.USER.id
+        console.log(foodTag)
+        console.log(req.body.user)
+
+        try {
+            const user = await usersCollection.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+
+            if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
+                // If the tag is already present, remove it
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $pull: { foodTagExclude: foodTag } }
+                );
+            } else {
+                // Otherwise, add the tag
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $addToSet: { foodTagExclude: foodTag } }
+                );
+            }
+            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                console.log(user);
+                req.session.USER = user;
+                res.redirect('/mealFilters');
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal server error');
+        }
+    })
+});
+
+
 // Get meal catalog page to exclude
 app.get('/foodCatalogExclude', (req, res) => {
     console.log(req.originalUrl)

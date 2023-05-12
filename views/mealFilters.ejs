@@ -38,9 +38,17 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <button class="btn btn-light border fw-medium me-2">
-                            <%= category.name %>
-                        </button>
+                        <form action="/addFoodTagInclude" method="post">
+                            <input type="hidden" name="foodTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+                            <button type="submit"
+                                class="<%= primaryUser.foodTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                <%= category.name %>
+                            </button>
+
+                        </form>
+
                         <% }) %>
                 </div>
 
@@ -100,9 +108,22 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <button class="btn btn-light border fw-medium me-2">
-                            <%= category.name %>
-                        </button>
+                        <form action="/addFoodTagExclude" method="post">
+                            <input type="hidden" name="foodTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+                            <% if (primaryUser.foodTagExclude !=undefined) { %>
+                                <button type="submit"
+                                    class="<%= primaryUser.foodTagExclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                    <%= category.name %>
+                                </button>
+                                <% } else {%>
+                                    <button type="submit" class="btn btn-light border fw-medium me-2">
+                                        <%= category.name %>
+                                            Argh
+                                    </button>
+                                    <% } %>
+                        </form>
                         <% }) %>
                 </div>
 
