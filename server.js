@@ -677,7 +677,6 @@ app.post('/addFoodTagExclude', async (req, res) => {
 
 // Get meal catalog page to exclude
 app.get('/foodCatalogExclude', (req, res) => {
-    console.log(req.originalUrl)
     res.render('foodCatalogExclude')
 })
 
@@ -697,7 +696,6 @@ app.post('/selectFoodExclude', (req, res) => {
                 if (item) {
                     selectedItems.push(item);
                     // Add to users collection
-                    console.log(`Updating user: ${userId}`); // Debugging line
                     usersCollection.updateOne(
                         { id: userId },
                         {
@@ -712,9 +710,8 @@ app.post('/selectFoodExclude', (req, res) => {
                         }
                     )
                         .then(result => {
-                            console.log(result); // Debugging line
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
+                                console.log(`User Updated: ${user}\n\n`);
                                 req.session.USER = user;
                                 return res.redirect('/mealFilters');
 
@@ -733,11 +730,9 @@ app.post('/deleteFoodInclude', (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
         const usersCollection = client.db('NutriFit').collection('users');
         const collection = client.db('NutriFit').collection('food');
-
         const foodName = req.body.item;
-        console.log("Food name: " + req.body.item)
-        console.log("User name: " + req.body.user)
         const userId = req.session.USER.id
+
         collection.findOne({ Food: foodName })
             .then(item => {
                 if (item) {
@@ -755,7 +750,7 @@ app.post('/deleteFoodInclude', (req, res) => {
                     )
                         .then(() => {
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
+                                console.log(`User Updated: ${user}\n\n`);
                                 req.session.USER = user;
                                 res.redirect('/mealFilters');
                             })
@@ -771,20 +766,15 @@ app.post('/deleteFoodInclude', (req, res) => {
 
 // Remove excluded Food
 app.post('/deleteFoodExclude', (req, res) => {
-    console.log("hi :)")
     MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
         const usersCollection = client.db('NutriFit').collection('users');
         const collection = client.db('NutriFit').collection('food');
-
         const foodName = req.body.item;
-        console.log("Food name: " + req.body.item)
-        console.log("User name: " + req.body.user)
         const userId = req.session.USER.id
+
         collection.findOne({ Food: foodName })
             .then(item => {
-                console.log("Item Exclude: " + item.Food)
                 if (item) {
-                    console.log("Inside if")
                     // Remove from users collection
                     usersCollection.updateOne(
                         { id: userId },
@@ -798,9 +788,8 @@ app.post('/deleteFoodExclude', (req, res) => {
                         }
                     )
                         .then((result) => {
-                            console.log("Update result: " + JSON.stringify(result))
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
+                                console.log(`User Updated: ${user}\n\n`);
                                 req.session.USER = user;
                                 res.redirect('/mealFilters');
                             })
@@ -828,14 +817,10 @@ async function workoutGenerationQuery(duration, user) {
     const exercisesPrompt =
         `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space.`
 
-    console.log("Initial Prompt: " + exercisesPrompt)
-
+    console.log(`Initial Prompt: ${exercisesPrompt}\n\n`)
 
     const response = await queryChatGPT(exercisesPrompt);
     const workout = JSON.parse(response).choices[0].message.content;
-
-    console.log("Prompt Response\n***\n" + response)
-    console.log("Prompt message\n***\n" + workout)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
 
@@ -852,20 +837,15 @@ async function workoutGenerationQuery(duration, user) {
         codeBlockContent = matches.map(match => match.replace(/```javascript|```/g, '').trim());
     }
 
-    console.log("codeBlockContent\n***\n" + codeBlockContent)
-    console.log("codeBlockContent Index\n***\n" + codeBlockContent[0])
     const workoutParsed = JSON.parse(codeBlockContent[0])
     const stringify = JSON.stringify(workoutParsed)
 
-    console.log("parse\n***\n" + workoutParsed + "\n**\n");
-    console.log("string\n***\n" + stringify + "\n**\n");
     return workoutParsed;
 }
 
 
 // Get generated exercises
 app.get('/generatedWorkouts', (req, res) => {
-    console.log("Request Calories: " + req.query.calories)
     let duration;
     if (req.query.duration != undefined) {
         duration = req.query.duration;
@@ -875,7 +855,6 @@ app.get('/generatedWorkouts', (req, res) => {
     console.log(`Duration: ${duration}\n\n`)
     workoutGenerationQuery(duration, req.session.USER).then((workout) => {
         let totalDuration = 0;
-        console.log(workout)
         workout.forEach((item) => {
             totalDuration += item.duration
         })
@@ -919,8 +898,6 @@ app.post('/addExerciseTagInclude', async (req, res) => {
         const usersCollection = client.db('NutriFit').collection('users');
         const exerciseTag = req.body.exerciseTag;
         const userId = req.session.USER.id
-        console.log(exerciseTag)
-        console.log(req.body.user)
 
         try {
             const user = await usersCollection.findOne({ id: userId });
@@ -942,7 +919,7 @@ app.post('/addExerciseTagInclude', async (req, res) => {
                 );
             }
             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(user);
+                console.log(`User Updated: ${user}\n\n`);
                 req.session.USER = user;
                 res.redirect('/workoutFilters');
             })
@@ -960,8 +937,6 @@ app.post('/addExerciseTagExclude', async (req, res) => {
         const usersCollection = client.db('NutriFit').collection('users');
         const exerciseTag = req.body.exerciseTag;
         const userId = req.session.USER.id
-        console.log(exerciseTag)
-        console.log(req.body.user)
 
         try {
             const user = await usersCollection.findOne({ id: userId });
@@ -983,7 +958,7 @@ app.post('/addExerciseTagExclude', async (req, res) => {
                 );
             }
             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(user);
+                console.log(`User Updated: ${user}\n\n`);
                 req.session.USER = user;
                 res.redirect('/workoutFilters');
             })
@@ -1006,7 +981,6 @@ app.get('/exerciseCatalogInclude', (req, res) => {
 app.get('/searchExercise', (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(client => {
-            console.log('Connected to Database');
             db = client.db('NutriFit');
             exerciseCollection = db.collection('exercise');
 
@@ -1025,19 +999,15 @@ app.post('/selectExerciseInclude', (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
         const usersCollection = client.db('NutriFit').collection('users');
         const collection = client.db('NutriFit').collection('exercise');
-
         const itemId = req.body.item;
         const userId = req.session.USER.id;
         let selectedItems = [];
-
-        console.log("Item ID\n***\n" + itemId)
 
         collection.findOne({ _id: new ObjectId(itemId) })
             .then(item => {
                 if (item) {
                     selectedItems.push(item);
                     // Add to users collection
-                    console.log(`Updating user: ${userId}`); // Debugging line
                     usersCollection.updateOne(
                         { id: userId },
                         {
@@ -1052,9 +1022,8 @@ app.post('/selectExerciseInclude', (req, res) => {
                         },
                     )
                         .then(result => {
-                            console.log(result); // Debugging line
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
+                                console.log(`User Updated: ${user}\n\n`);
                                 req.session.USER = user;
                                 res.redirect('/workoutFilters');
                             })
@@ -1094,7 +1063,7 @@ app.post('/deleteExerciseInclude', (req, res) => {
                     )
                         .then(() => {
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
+                                console.log(`User Updated: ${user}\n\n`);
                                 req.session.USER = user;
                                 res.redirect('/workoutFilters');
                             })
@@ -1118,19 +1087,16 @@ app.post('/selectExerciseExclude', (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
         const usersCollection = client.db('NutriFit').collection('users');
         const collection = client.db('NutriFit').collection('exercise');
-
         const itemId = req.body.item;
         const userId = req.session.USER.id;
         let selectedItems = [];
 
-        console.log("Item ID\n***\n" + itemId)
 
         collection.findOne({ _id: new ObjectId(itemId) })
             .then(item => {
                 if (item) {
                     selectedItems.push(item);
                     // Add to users collection
-                    console.log(`Updating user: ${userId}`); // Debugging line
                     usersCollection.updateOne(
                         { id: userId },
                         {
@@ -1145,9 +1111,8 @@ app.post('/selectExerciseExclude', (req, res) => {
                         },
                     )
                         .then(result => {
-                            console.log(result); // Debugging line
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
+                                console.log(`User Updated: ${user}\n\n`);
                                 req.session.USER = user;
                                 res.redirect('/workoutFilters');
                             })
@@ -1187,7 +1152,6 @@ app.post('/deleteExerciseExclude', (req, res) => {
                     )
                         .then(() => {
                             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(user);
                                 req.session.USER = user;
                                 res.redirect('/workoutFilters');
                             })
