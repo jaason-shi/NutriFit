@@ -456,6 +456,19 @@ app.get('/exerciseFilter', (req, res) => {
     res.render('exerciseFilterPage')
 })
 
+
+// Get exercise catalog Include
+app.get('/exerciseCatalogInclude', (req, res) => {
+    res.render('exerciseCatalog')
+})
+
+
+// Get exercise catalog Exclude
+app.get('/exerciseCatalogExclude', (req, res) => {
+    res.render('exerciseCatalog')
+})
+
+
 // Connect to port
 const port = 3000;
 app.listen((port), () => {
