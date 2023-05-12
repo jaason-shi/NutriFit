@@ -164,7 +164,7 @@ app.post('/addFoodTag', async (req, res) => {
 });
 
 app.post('/addFoodTagEx', async (req, res) => {
-  const foodTagEx = req.body.foodTagEx; // Corrected variable name
+  const foodTagEx = req.body.foodTagEx;
   const userId = 'SeanGuy'; // Assuming you send user ID with request
 
   try {
@@ -265,6 +265,10 @@ app.get('/exercise', (req, res) => {
   res.render('exerciseFilter.ejs');
 });
 
+app.get('/exerciseEx', (req, res) => {
+  res.render('exerciseFilterEx.ejs');
+});
+
 app.get('/searchExercise', (req, res) => {
   const searchQuery = req.query.q;
   exerciseCollection.find({ name: new RegExp(searchQuery, 'i') }).toArray()
@@ -301,7 +305,7 @@ app.post('/selectExercise', (req, res) => {
 
 app.post('/addExerciseTag', (req, res) => {
   const exerciseTag = req.body.exerciseTag;
-  const userId = req.body.user;
+  const userId = 'SeanGuy';
   usersCollection.findOne({ id: userId })
     .then(user => {
       if (user) {
@@ -342,6 +346,36 @@ app.post('/addExerciseTag', (req, res) => {
     });
 });
 
+app.post('/addExerciseTagEx', async (req, res) => {
+  const exerciseTagEx = req.body.exerciseTagEx; // Corrected variable name
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+
+  try {
+    const user = await usersCollection.findOne({ id: userId });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    if (user.excludeExerciseTag && user.excludeExerciseTag.includes(exerciseTagEx)) {
+      // If the tag is already present, remove it
+      await usersCollection.updateOne(
+        { id: userId },
+        { $pull: { excludeExerciseTag: exerciseTagEx } }
+      );
+    } else {
+      // Otherwise, add the tag
+      await usersCollection.updateOne(
+        { id: userId },
+        { $addToSet: { excludeExerciseTag: exerciseTagEx } }
+      );
+    }
+
+    res.redirect('/selectedExercise');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
 
 app.get('/selectedExercise', (req, res) => {
   const userId = 'SeanGuy'; // Assuming you send user ID with request
@@ -349,12 +383,41 @@ app.get('/selectedExercise', (req, res) => {
     .then(user => {
       if (user) {
         const selectedExerciseNames = user.includeExercise; // Get the selected exercise names from the user
-        exerciseCollection.find({ name: { $in: selectedExerciseNames } }).toArray() // Find the exercises with matching names
-          .then(exercises => {
-            res.render('selectedExercise.ejs', { exercise: exercises, userId: userId, exerciseTag: user.exerciseTag });
+        const excludeExerciseNames = user.excludeExercise; // Get the excluded exercise names from the user
+        const exercisePromises = [
+          exerciseCollection.find({ name: { $in: selectedExerciseNames } }).toArray(), // Find the included exercises with matching names
+          exerciseCollection.find({ name: { $in: excludeExerciseNames } }).toArray() // Find the excluded exercises with matching names
+        ];
+        Promise.all(exercisePromises)
+          .then(([exercises, excludeExercises]) => {
+            res.render('selectedExercise.ejs', { exercise: exercises, excludeExercise: excludeExercises, userId: userId, exerciseTag: user.exerciseTag, exerciseTagEx: user.excludeExerciseTag });
           })
       } else {
         res.status(404).send('User not found');
+      }
+    })
+});
+
+app.post('/excludeExercise', (req, res) => {
+  const itemId = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  const collection = db.collection('exercise');
+  collection.findOne({ _id: new ObjectId(itemId) })
+    .then(item => {
+      if (item) {
+        selectedExerciseItems.push(item);
+        // Add to users collection
+        console.log(`Updating user: ${userId}`); // Debugging line
+        usersCollection.updateOne(
+          { id: userId },
+          { $addToSet: { excludeExercise: item.name}},
+        )
+        .then(result => {
+          console.log(result); // Debugging line
+          res.redirect('/selectedExercise');
+        })
+      } else {
+        res.status(404).send('Exercise not found');
       }
     })
 });
@@ -365,6 +428,22 @@ app.post('/removeExercise', (req, res) => {
   usersCollection.updateOne(
     { id: userId },
     { $pull: { includeExercise: exerciseName } }
+  )
+    .then(() => {
+      res.redirect('/selectedExercise');
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send('Internal server error');
+    });
+});
+
+app.post('/removeExerciseEx', (req, res) => {
+  const exerciseName = req.body.item;
+  const userId = 'SeanGuy'; // Assuming you send user ID with request
+  usersCollection.updateOne(
+    { id: userId },
+    { $pull: { excludeExercise: exerciseName } }
   )
     .then(() => {
       res.redirect('/selectedExercise');
