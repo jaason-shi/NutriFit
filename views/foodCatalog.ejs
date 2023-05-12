@@ -16,51 +16,48 @@
                                 <input class="mb-3 w-100" name="searchFood" type="text" id="search-bar"
                                     placeholder="Search for food...">
                             </form>
-                            <div class="card">
-                                <div class="row no-gutters">
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Chicken Thigh</h5>
-                                            <p class="card-text">120 calories</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="/mealFilters" class="btn btn rounded-pill btn-dark mt-4">Add to
-                                            logs</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="row no-gutters">
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Potatoes</h5>
-                                            <p class="card-text">24 calories</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="#" class="btn btn rounded-pill btn-dark mt-4">Add to logs</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="row no-gutters">
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Noodles</h5>
-                                            <p class="card-text">60 calories</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="#" class="btn btn rounded-pill btn-dark mt-4">Add to logs</a>
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="foodResults"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#search-bar').on('input', function () {
+                    const searchQuery = $(this).val();
+                    $.get('/searchFood', { q: searchQuery }, function (data) {
+                        $('#foodResults').empty();
+                        data.forEach(item => {
+                            $('#foodResults').append(`
+                                <div class="card">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${item.name}</h5>
+                                                <p class="card-text">${item.measure}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button onclick="addItem('${item.id}')" class="btn btn rounded-pill btn-dark mt-4">Add to logs</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    });
+                });
+            });
+
+            function addItem(id) {
+                $.post('/selectFood', { item: id }, function () {
+                    // Redirect to selected page or show a message
+                    window.location.href = "/selectedFood";
+                });
+            }
+        </script>
     </body>
 
 </html>

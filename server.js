@@ -502,9 +502,14 @@ const foodCategory = [
 
 
 // Get meal filters
-app.get('/mealFilters', (req, res) => {
+app.get('/mealFilters', async (req, res) => {
+    const user = req.session.USER
+    console.log("Testing included food \n***\n" + user)
     res.render('mealFilters', {
-        tagsList: foodCategory
+        tagsList: foodCategory,
+        userInclude: user.includeFood,
+        userExclude: user.excludeFood
+
     })
 })
 
@@ -513,6 +518,24 @@ app.get('/mealFilters', (req, res) => {
 app.get('/foodCatalogInclude', (req, res) => {
     res.render('foodCatalog')
 })
+
+
+// Catalog search function
+app.get('/searchFood', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(client => {
+            console.log('Connected to Database');
+            db = client.db('NutriFit');
+            foodCollection = db.collection('food');
+
+            const searchQuery = req.query.q;
+            foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
+                .then(results => {
+                    res.json(results.map(item => ({ name: item.Food, measure: item.Measure, id: item._id })));
+                }).catch(error => console.error(error));
+        })
+        .catch(error => console.error(error));
+});
 
 
 // Get meal catalog page to exclude
