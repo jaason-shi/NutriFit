@@ -73,21 +73,34 @@ async function queryChatGPT(mealsPrompt) {
 
 // route to generate meal plan with queryChatGPT
 app.get("/mealFilter", async (req, res) => {
-  try {
+  async function generateMeals() {
     const calorieInput = req.query.calorieInput;
     const mealsPrompt =
       "make a meal plans with " +
       calorieInput +
       "calories and give me the name of the meals, calories, and grams for each meal. Respond to me in a javascript code block in a list of json objects in this format:" +
       "{name: String, calories: integer, grams: integer}. Do not make any variables, I just want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.";
-    const response = await queryChatGPT(mealsPrompt);
-    const mealPlan = JSON.parse(response).choices[0].message.content;
-    res.render("generatedMeals", { mealPlan });
-    console.log(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("An error occurred");
+    try {
+      const response = await queryChatGPT(mealsPrompt);
+      const mealPlan = JSON.parse(response).choices[0].message.content;
+      res.render("generatedMeals", { mealPlan });
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("An error occurred");
+    }
   }
+});
+
+// route to render the form page
+app.get("/mealFilterForm", (req, res) => {
+  res.render("mealFilterForm");
+});
+
+// route to handle form submission
+app.post("/mealFilterSubmit", (req, res) => {
+  const calorieInput = req.body.calorieInput;
+  res.redirect(`/mealFilters?inputCalories=${inputCalories}`);
 });
 
 app.listen(3000, function () {
