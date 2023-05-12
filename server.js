@@ -505,10 +505,45 @@ app.get('/favoriteMeals', (req, res) => {
 })
 
 
+async function workoutGenerationQuery() {
+    const durationInput = '30';
+    const exercisesPrompt =
+        "make a workout with " +
+        durationInput +
+        "minutes total and give me the name of the exercises, duration (in minutes), and body part for each exercise. Respond to me in a ```javascript code block in a list of json objects in this format:" +
+        `{"name": String, "duration": integer, "bodyPart": String}. Do not make any variables, I just ` + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real exercises.`;
+    const response = await queryChatGPT(exercisesPrompt);
+    const workout = JSON.parse(response).choices[0].message.content;
+
+    const codeBlockRegex = /```javascript([\s\S]+?)```/g;
+    const matches = workout.match(codeBlockRegex);
+    let codeBlockContent;
+
+    if (matches && matches.length > 0) {
+        codeBlockContent = matches.map(match => match.replace(/```javascript|```/g, '').trim());
+    }
+
+    const workoutParsed = JSON.parse(codeBlockContent[0])
+    const stringify = JSON.stringify(workoutParsed)
+
+
+    console.log("string\n**\n" + stringify + "\n**\n");
+    return workoutParsed;
+}
+
+
 // Get generated exercises
 app.get('/generatedExercises', (req, res) => {
-    res.render('generateWorkoutRoutine', {
-        workoutRoutine: {}
+    workoutGenerationQuery().then((workout) => {
+        let totalDuration = 0;
+        console.log(workout)
+        workout.forEach((item) => {
+            totalDuration += item.duration
+        })
+        res.render('generateWorkoutRoutine', {
+            workout: workout,
+            totalDuration: totalDuration
+        })
     })
 })
 
