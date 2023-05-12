@@ -450,18 +450,17 @@ async function mealGenerationQuery(calories, user) {
     // console.log("EXTAG: " + excludedTags)
 
     const mealsPrompt =
-        "make a meal plans with " +
-        calories +
-        "calories total and give me the name of the meals, calories, and grams for each meal. Respond to me in a ```javascript code block in a list of json objects in this format:" +
-        '```javascript[{"name": String, "calories": integer, "grams": integer},...]```. Do not make any variables, I just ' + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${includedFood} and include ${includedTags} types. Exclude ${excludedFood} and exclude ${excludedTags} types.`;
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}.`
 
-    console.log("prompt: " + mealsPrompt)
+    console.log("Initial Prompt: " + mealsPrompt)
+
     const response = await queryChatGPT(mealsPrompt);
     const mealPlan = JSON.parse(response).choices[0].message.content;
-    console.log("meal: " + mealPlan)
+    console.log("Meal: " + mealPlan)
 
-    const codeBlockRegex = /```javascript([\s\S]+?)```/g;
+    const codeBlockRegex = /\[.*?\]/g;
     const matches = mealPlan.match(codeBlockRegex);
+    console.log(`After regex filter: ${matches}`)
     let codeBlockContent;
 
     if (matches && matches.length > 0) {
@@ -847,7 +846,7 @@ async function workoutGenerationQuery(duration, user) {
     let excludedTags = user.exerciseTagExclude;
 
     const exercisesPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": "pushup", "duration": 5, "bodyPart": "lats" },...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}.`
 
     console.log("Initial Prompt: " + exercisesPrompt)
 
