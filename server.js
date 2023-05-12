@@ -839,13 +839,19 @@ app.get('/favoriteMeals', (req, res) => {
 })
 
 
-async function workoutGenerationQuery() {
-    const durationInput = '15';
+async function workoutGenerationQuery(duration, user) {
+
+    let includedExercise = JSON.stringify(user.includeExercise);
+    let excludedExercise = JSON.stringify(user.excludeExercise);
+    let includedTags = user.exerciseTagInclude;
+    let excludedTags = user.exerciseTagExclude;
+
     const exercisesPrompt =
-        "make a workout with " +
-        durationInput +
-        "minutes total and give me the name of the exercises, duration (in minutes), and body part for each exercise." +
-        `Respond to me in a javascript code block in a list of json objects, in this format:` + '```javascript[{"name": "pushup", "duration": 5, "bodyPart": "lats"},...]```' + `. Make me a ${durationInput} minute workout. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real exercises.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": "pushup", "duration": 5, "bodyPart": "lats" },...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}`
+
+    console.log("Initial Prompt: " + exercisesPrompt)
+
+
     const response = await queryChatGPT(exercisesPrompt);
     const workout = JSON.parse(response).choices[0].message.content;
 
@@ -873,7 +879,7 @@ async function workoutGenerationQuery() {
 
 // Get generated exercises
 app.get('/generatedWorkouts', (req, res) => {
-    workoutGenerationQuery().then((workout) => {
+    workoutGenerationQuery(req.query.duration, req.session.USER).then((workout) => {
         let totalDuration = 0;
         console.log(workout)
         workout.forEach((item) => {
