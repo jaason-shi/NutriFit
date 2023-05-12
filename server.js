@@ -348,7 +348,7 @@ async function mealGenerationQuery(calories, user) {
     let excludedTags = user.foodTagExclude;
 
     const mealsPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal. Give me a response`
 
     console.log(`Initial Prompt: ${mealsPrompt}\n\n`)
 
@@ -364,6 +364,11 @@ async function mealGenerationQuery(calories, user) {
     if (matches == null) {
         matches = mealPlan.match(/\[[^\[\]]*\]/)
         console.log(`After regex filter Second: ${matches}\n\n`)
+    }
+
+    if (matches == null) {
+        console.log("REGENERATING\n\n")
+        return mealGenerationQuery(calories, user)
     }
     let codeBlockContent;
 
