@@ -62,7 +62,6 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
-
 // Basic landing page 
 app.get('/', (req, res) => {
     if (req.session.AUTH) {
@@ -437,15 +436,29 @@ async function queryChatGPT(mealsPrompt) {
     });
 }
 
-async function mealGenerationQuery() {
-    const calorieInput = '500';
+async function mealGenerationQuery(calories, user) {
+
+    let includedFood = JSON.stringify(user.includeFood);
+    let excludedFood = JSON.stringify(user.excludeFood);
+    let includedTags = user.foodTagInclude;
+    let excludedTags = user.foodTagExclude;
+
+    // console.log("USER: " + JSON.stringify(user))
+    // console.log("INCFOOD: " + JSON.stringify(includedFood))
+    // console.log("EXFOOD: " + JSON.stringify(excludedFood))
+    // console.log("INCTAG: " + includedTags)
+    // console.log("EXTAG: " + excludedTags)
+
     const mealsPrompt =
         "make a meal plans with " +
-        calorieInput +
+        calories +
         "calories total and give me the name of the meals, calories, and grams for each meal. Respond to me in a ```javascript code block in a list of json objects in this format:" +
-        `{"name": String, "calories": integer, "grams": integer}. Do not make any variables, I just ` + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.`;
+        '```javascript[{"name": String, "calories": integer, "grams": integer},...]```. Do not make any variables, I just ' + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${includedFood} and include ${includedTags} types. Exclude ${excludedFood} and exclude ${excludedTags} types.`;
+
+    console.log("prompt: " + mealsPrompt)
     const response = await queryChatGPT(mealsPrompt);
     const mealPlan = JSON.parse(response).choices[0].message.content;
+    console.log("meal: " + mealPlan)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
     const matches = mealPlan.match(codeBlockRegex);
@@ -462,6 +475,9 @@ async function mealGenerationQuery() {
 
     // console.log("parsed\n**\n" + mealPlanParsed + "\n**\n");
     console.log("string\n**\n" + stringify + "\n**\n");
+
+
+
     return mealPlanParsed;
 }
 
@@ -471,7 +487,7 @@ async function mealGenerationQuery() {
 // Get generated meals
 app.get('/generatedMeals', async (req, res) => {
     console.log("Request Calories: " + req.query.calories)
-    mealGenerationQuery().then((mealPlan) => {
+    mealGenerationQuery(req.query.calories, req.session.USER).then((mealPlan) => {
         let totalCalories = 0;
         console.log(mealPlan)
         mealPlan.forEach((item) => {
@@ -479,7 +495,8 @@ app.get('/generatedMeals', async (req, res) => {
         })
         res.render('generatedMeals', {
             foodItems: mealPlan,
-            totalCalories: totalCalories
+            totalCalories: totalCalories,
+            userSpecifiedCalories: req.query.calories
         })
     })
 })
