@@ -1200,6 +1200,7 @@ app.post('/deleteExerciseExclude', (req, res) => {
 });
 
 
+// Get workout logs
 app.get('/workoutLogs', (req, res) => {
     res.render('workoutLogs')
 })
