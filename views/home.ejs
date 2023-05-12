@@ -3,30 +3,30 @@
 <%- include('partials/meta.ejs') %>
 
     <body>
-        <div class="px-4 py-5 my-5 text-center">
-            <img class="d-block mx-auto mb-4" src="/images/logo-modified.png" alt="" height="100">
-            <h1 class="display-5 fw-bold text-body-emphasis">NutriFit</h1>
-            <div class="col-lg-6 mx-auto">
-                <p class="lead mb-4">Put the 'AI' in 'Fit' and the 'yum' in your tum with our AI-powered meal and
-                    fitness generator - making health and
-                    fitness more fun than ever before.</p>
-                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                    <form action="/login" method="get">
-                        <button type="submit" class="btn btn-dark btn-lg px-4 gap-3 w-100">Sign In</button>
-                    </form>
+        <div class="container p-3" style="height: 100vh">
+            <div class="px-4 py-5 my-5 text-center overflow-auto">
+                <img class="d-block mx-auto mb-4" src="/images/logo-modified.png" alt="" height="100">
+                <h1 class="display-5 fw-bold text-body-emphasis">NutriFit</h1>
+                <div class="col-lg-6 mx-auto">
+                    <p class="lead mb-4">Put the 'AI' in 'Fit' and the 'yum' in your tum with our AI-powered meal and
+                        fitness generator - making health and
+                        fitness more fun than ever before.</p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <form action="/login" method="get">
+                            <button type="submit" class="btn btn-dark btn-lg px-4 gap-3 w-100">Sign In</button>
+                        </form>
 
-                    <form action="/signup" method="get">
-                        <button type="submit" class="btn btn-outline-secondary btn-lg px-4 w-100">Sign Up</button>
-                    </form>
+                        <form action="/signup" method="get">
+                            <button type="submit" class="btn btn-outline-secondary btn-lg px-4 w-100">Sign Up</button>
+                        </form>
 
+                        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+                        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 
-                    <%- include('partials/navbar') %>
-
-                    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-
+                    </div>
                 </div>
             </div>
+            <%- include('partials/navbar') %>
         </div>
     </body>
 

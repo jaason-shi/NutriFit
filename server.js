@@ -859,6 +859,7 @@ async function workoutGenerationQuery(duration, user) {
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
     const matches = workout.match(codeBlockRegex);
+
     let codeBlockContent;
 
     if (matches && matches.length > 0) {
