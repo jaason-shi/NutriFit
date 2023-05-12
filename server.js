@@ -348,12 +348,14 @@ async function mealGenerationQuery(calories, user) {
     let excludedTags = user.foodTagExclude;
 
     const mealsPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal.`
 
     console.log(`Initial Prompt: ${mealsPrompt}\n\n`)
 
     const response = await queryChatGPT(mealsPrompt);
     const mealPlan = JSON.parse(response).choices[0].message.content;
+
+    console.log(`The response we get: ${mealPlan}\n\n`)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
     let matches = mealPlan.match(codeBlockRegex);
@@ -718,7 +720,7 @@ async function workoutGenerationQuery(duration, user) {
     let excludedTags = user.exerciseTagExclude;
 
     const exercisesPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
 
     console.log(`Initial Prompt: ${exercisesPrompt}\n\n`)
 
@@ -756,6 +758,7 @@ app.get('/generatedWorkouts', (req, res) => {
         duration = 10;
     }
     console.log(`Duration: ${duration}\n\n`)
+    console.log("\n\n\nBREAK\n\n\n")
     workoutGenerationQuery(duration, req.session.USER).then((workout) => {
         let totalDuration = 0;
         workout.forEach((item) => {
