@@ -872,14 +872,14 @@ async function workoutGenerationQuery() {
 
 
 // Get generated exercises
-app.get('/generatedExercises', (req, res) => {
+app.get('/generatedWorkouts', (req, res) => {
     workoutGenerationQuery().then((workout) => {
         let totalDuration = 0;
         console.log(workout)
         workout.forEach((item) => {
             totalDuration += item.duration
         })
-        res.render('generateWorkoutRoutine', {
+        res.render('generatedWorkouts', {
             workout: workout,
             totalDuration: totalDuration
         })

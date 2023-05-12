@@ -17,11 +17,11 @@
 
             <div class="border border-dark container mb-2">
                 <div class="fs-6 fw-medium my-1">
-                    Calories
+                    Duration
                 </div>
                 <div class="fs-6 mb-2">
                     <form action="">
-                        <input type="text" placeholder="Please Enter" class="w-100" id="inputCalories">
+                        <input type="text" placeholder="Please Enter" class="w-100" id="inputDuration">
                     </form>
                 </div>
 
@@ -181,15 +181,19 @@
 
             </div>
 
-            <form class=" mb-4" action="/generatedExercises">
-                <input class="btn btn-dark w-100" type="submit" value="Generate Exercise">
-            </form>
-
+            <input class="btn btn-dark w-100" type="submit" value="Generate Workout" onclick="sendDuration()">
 
             <!-- <%#- include('partials/navbar') %> -->
+
         </div>
 
-
+        <script>
+            function sendDuration() {
+                let duration = document.getElementById("inputDuration").value;
+                let url = "/generatedWorkouts?duration=" + duration;
+                window.location.href = url;
+            }
+        </script>
     </body>
 
 </html>
