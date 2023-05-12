@@ -906,7 +906,8 @@ app.get('/workoutFilters', (req, res) => {
     let user = req.session.USER;
     res.render('workoutFilters', {
         tagsList: exerciseCategory,
-        primaryUser: user
+        primaryUser: user,
+        userInclude: user.includeExercise
     })
 })
 
