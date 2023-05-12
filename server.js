@@ -5,7 +5,6 @@ const MongoStore = require('connect-mongo');
 const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const saltRounds = 10
-const ejs = require('ejs');
 const { ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
 
@@ -308,101 +307,6 @@ app.get('/userProfile', (req, res) => {
 })
 
 
-// Simulate a request to the api
-
-async function processRequest() {
-    let Food;
-
-    await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        Food = client.db('NutriFit').collection('food');
-    })
-    const foodItem = await Food.findOne({ Food: "Buttermilk" })
-    const foodItemParse = {
-        "name": foodItem.Food,
-        "calories": foodItem.Calories,
-        "quantityG": foodItem.Grams
-    }
-    const stringParse = JSON.stringify(foodItemParse)
-    let sampleRequest = `
-Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
-`
-
-    // Multiple JSON object query
-
-    const foodItems = await Food.find({
-        $or: [{ Food: "Buttermilk" }, { Food: "Custard" }]
-    }).toArray()
-
-    const foodItemsParse = foodItems.map((foodItem) => {
-        return {
-            "name": foodItem.Food,
-            "calories": foodItem.Calories,
-            "quantityG": foodItem.Grams
-        }
-    })
-
-    const stringParseArray = JSON.stringify(foodItemsParse)
-
-
-    let sampleRequestMulti = `
-Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include [{"name":"Buttermilk","calories":127,"quantityG":246},{"name":"Custard","calories":285,"quantityG":248},{"name":"Custard","calories":265,"quantityG":130}]. Add more food until it is 1000 calories. Stop adding food when it is 1000 calories.
-`
-}
-
-processRequest()
-
-
-// Simulate a response from the API
-const response = '    ```javascript' +
-    '[' +
-    '{ "name": "apple", "calories": 100, "quantityG": 100 },' +
-    '{ "name": "banana", "calories": 90, "quantityG": 120 },' +
-    '{ "name": "orange", "calories": 80, "quantityG": 150 },' +
-    '{ "name": "strawberries", "calories": 50, "quantityG": 200 },' +
-    '{ "name": "blueberries", "calories": 60, "quantityG": 170 },' +
-    '{ "name": "spinach", "calories": 10, "quantityG": 500 },' +
-    '{ "name": "chicken breast", "calories": 165, "quantityG": 150 },' +
-    '{ "name": "salmon", "calories": 200, "quantityG": 120 },' +
-    '{ "name": "brown rice", "calories": 215, "quantityG": 100 },' +
-    '{ "name": "quinoa", "calories": 222, "quantityG": 90 },' +
-    '{ "name": "avocado", "calories": 160, "quantityG": 80 }' +
-    ']' +
-    '```' +
-    'Here is a list of JSON objects representing food items with their respective name, calories, and quantityG properties. Each object in the list represents a food item and its associated calorie count and quantity in grams.'
-
-
-// Filter the response to extract just the content inside the code block
-const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-const matches = response.match(codeBlockRegex);
-let codeBlockContent;
-
-if (matches && matches.length > 0) {
-    codeBlockContent = matches.map(match => match.replace(/```javascript|```/g, '').trim());
-}
-
-
-// Extract the list of JSON from the string
-const jsonArray = JSON.parse(codeBlockContent[0])
-
-// Sample json array
-const foodItems = [{
-    name: 'Potato',
-    calories: 50,
-    quantityG: 100
-},
-{
-    name: 'Fries',
-    calories: 100,
-    quantityG: 100
-},
-{
-    name: 'Croquette',
-    calories: 150,
-    quantityG: 100
-}
-]
-
-
 // function to query chatgpt api
 async function queryChatGPT(mealsPrompt) {
     const request = require("request");
@@ -434,6 +338,7 @@ async function queryChatGPT(mealsPrompt) {
         });
     });
 }
+
 
 async function mealGenerationQuery(calories, user) {
 
@@ -469,8 +374,6 @@ async function mealGenerationQuery(calories, user) {
 
     return mealPlanParsed;
 }
-
-
 
 
 // Get generated meals
