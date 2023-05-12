@@ -6,6 +6,7 @@
     <body>
         <div class="container p-3 overflow-auto" style="height: 100vh;">
             <!-- Header -->
+
             <div class="fs-5 fw-semibold d-flex mb-4 align-items-center">
                 <div>
                     <a href="/members"><img src="/images/less-than.svg" alt=""></a>
@@ -20,7 +21,7 @@
                     Calories
                 </div>
                 <div class="fs-6 mb-2">
-                    <form action="">
+                    <form class=" mb-4" action="">
                         <input name="calories" type="text" placeholder="Please Enter" class="w-100" id="inputCalories">
                     </form>
                 </div>
@@ -177,15 +178,21 @@
 
             </div>
 
-            <form class=" mb-4" action="/generatedMeals">
-                <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
-            </form>
+
+            <input class="btn btn-dark w-100" type="submit" value="Generate Meal" onclick="sendCalories()">
+
 
 
             <!-- <%#- include('partials/navbar') %> -->
         </div>
 
-
+        <script>
+            function sendCalories() {
+                let calories = document.getElementById("inputCalories").value;
+                let url = "/generatedMeals?calories=" + calories;
+                window.location.href = url;
+            }
+        </script>
     </body>
 
 </html>

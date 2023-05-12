@@ -470,6 +470,7 @@ async function mealGenerationQuery() {
 
 // Get generated meals
 app.get('/generatedMeals', async (req, res) => {
+    console.log("Request Calories: " + req.query.calories)
     mealGenerationQuery().then((mealPlan) => {
         let totalCalories = 0;
         console.log(mealPlan)
