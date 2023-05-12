@@ -481,9 +481,31 @@ app.get('/generatedMeals', async (req, res) => {
 })
 
 
+const foodCategory = [
+    { name: 'Dairy products' },
+    { name: 'Fats, Oils, Shortenings' },
+    { name: 'Meat, Poultry' },
+    { name: 'Fish, Seafood' },
+    { name: 'Vegetables A-E' },
+    { name: 'Vegetables F-P' },
+    { name: 'Vegetables R-Z' },
+    { name: 'Fruits A-F' },
+    { name: 'Fruits G-P' },
+    { name: 'Fruits R-Z' },
+    { name: 'Breads, cereals, fastfood, grains' },
+    { name: 'Soups' },
+    { name: 'Desserts, sweets' },
+    { name: 'Jams, Jellies' },
+    { name: 'Seeds and Nuts' },
+    { name: 'Drinks,Alcohol, Beverages' },
+];
+
+
 // Get meal filters
 app.get('/mealFilters', (req, res) => {
-    res.render('mealFilters')
+    res.render('mealFilters', {
+        tagsList: foodCategory
+    })
 })
 
 
