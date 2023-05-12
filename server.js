@@ -6,6 +6,7 @@ const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 const ejs = require('ejs');
+const { ObjectId } = require('mongodb');
 
 require('dotenv').config();
 
@@ -535,6 +536,55 @@ app.get('/searchFood', (req, res) => {
                 }).catch(error => console.error(error));
         })
         .catch(error => console.error(error));
+});
+
+
+// Select included food
+app.post('/selectFoodInclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const Food = client.db('NutriFit').collection('food');
+
+        const itemId = req.body.item;
+        const userId = req.session.USER.id;
+        const collection = Food
+        let selectedItems = [];
+
+        console.log("Item ID\n***\n" + itemId)
+
+        collection.findOne({ _id: new ObjectId(itemId) })
+            .then(item => {
+                if (item) {
+                    selectedItems.push(item);
+                    // Add to users collection
+                    console.log(`Updating user: ${userId}`); // Debugging line
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $addToSet: {
+                                includeFood: {
+                                    $each: [{
+                                        Food: item.Food,
+                                        Calories: item.Calories, Grams: item.Grams
+                                    }]
+                                }
+                            }
+                        },
+                    )
+                        .then(result => {
+                            console.log(result); // Debugging line
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/mealFilters');
+                            })
+
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
 });
 
 

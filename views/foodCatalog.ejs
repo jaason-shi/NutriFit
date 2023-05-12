@@ -52,9 +52,9 @@
             });
 
             function addItem(id) {
-                $.post('/selectFood', { item: id }, function () {
+                $.post('/selectFoodInclude', { item: id }, function () {
                     // Redirect to selected page or show a message
-                    window.location.href = "/selectedFood";
+                    window.location.href = "/mealFilters";
                 });
             }
         </script>

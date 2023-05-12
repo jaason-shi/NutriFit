@@ -47,37 +47,39 @@
                 <div class="mb-2 fw-medium">
                     Food Items
                 </div>
+                <% if (userInclude !=undefined) { %>
 
-                <% userInclude.forEach( (foodItem)=> { %>
-                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
-                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"></button>
-                        </div>
 
-                        <div class="w-50 vstack gap-0">
-                            <div class="d-inline-flex">
-                                <span>
-                                    <%= foodItem.Food %>
-                                </span>
-
-                                <span class="ms-auto">
-                                    <%= foodItem.Calories %> cal
-                                </span>
-
+                    <% userInclude.forEach( (foodItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
                             </div>
-                            <div class="d-inline text-secondary" style="font-size: 14px">
-                                <%= foodItem.Grams %>g
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= foodItem.Food %>
+                                    </span>
+
+                                    <span class="ms-auto">
+                                        <%= foodItem.Calories %> cal
+                                    </span>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= foodItem.Grams %>g
+                                </div>
                             </div>
+
                         </div>
-
-                    </div>
-                    <% }) %>
-
-                        <form class=" mb-2" action="/foodCatalogInclude">
-                            <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
-                                    src="/images/plus-circle.svg" alt="" height="30"></button>
-                        </form>
+                        <% }) %>
+                            <% } %>
+                                <form class=" mb-2" action="/foodCatalogInclude">
+                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
+                                            src="/images/plus-circle.svg" alt="" height="30"></button>
+                                </form>
 
 
             </div>
@@ -103,36 +105,40 @@
                     Food Items
                 </div>
 
-                <% userExclude.forEach( (foodItem)=> { %>
-                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
-                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"></button>
-                        </div>
+                <% if (userExclude !=undefined) { %>
 
-                        <div class="w-50 vstack gap-0">
-                            <div class="d-inline-flex">
-                                <span>
-                                    <%= foodItem.Food %>
-                                </span>
 
-                                <span class="ms-auto">
-                                    <%= foodItem.Calories %> cal
-                                </span>
-
+                    <% userExclude.forEach( (foodItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
                             </div>
-                            <div class="d-inline text-secondary" style="font-size: 14px">
-                                <%= foodItem.Grams %>g
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= foodItem.Food %>
+                                    </span>
+
+                                    <span class="ms-auto">
+                                        <%= foodItem.Calories %> cal
+                                    </span>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= foodItem.Grams %>g
+                                </div>
                             </div>
+
                         </div>
+                        <% }) %>
 
-                    </div>
-                    <% }) %>
-
-                        <form class=" mb-2" action="/foodCatalogExclude">
-                            <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
-                                    src="/images/plus-circle.svg" alt="" height="30"></button>
-                        </form>
+                            <% } %>
+                                <form class=" mb-2" action="/foodCatalogExclude">
+                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
+                                            src="/images/plus-circle.svg" alt="" height="30"></button>
+                                </form>
 
 
 
