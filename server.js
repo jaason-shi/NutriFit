@@ -443,6 +443,18 @@ app.get('/favoriteMeals', (req, res) => {
 })
 
 
+// Get generated exercises
+app.get('/generatedExercises', (req, res) => {
+    res.render('generateWorkoutRoutine', {
+        workoutRoutine: {}
+    })
+})
+
+
+// Get exercise filters
+app.get('/exerciseFilter', (req, res) => {
+    res.render('exerciseFilterPage')
+})
 
 // Connect to port
 const port = 3000;
