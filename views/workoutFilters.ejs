@@ -36,10 +36,27 @@
                     Tags
                 </div>
 
-                <div class="container m-0 p-0 d-flex mb-3">
-                    <button class="btn btn-light border fw-medium me-2">Vegan</button>
-                    <button class="btn btn-light border fw-medium me-2">Keto</button>
-                    <button class="btn btn-light border fw-medium me-2">Italian</button>
+                <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
+                    <% tagsList.forEach((category)=> { %>
+                        <form action="/addExerciseTagInclude" method="post">
+                            <input type="hidden" name="exerciseTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+
+                            <% if (primaryUser.exerciseTagInclude !=undefined) { %>
+                                <button type="submit"
+                                    class="<%= primaryUser.exerciseTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                    <%= category.name %>
+                                </button>
+                                <% } else {%>
+                                    <button type="submit" class="btn btn-light border fw-medium me-2">
+                                        <%= category.name %>
+                                    </button>
+                                    <% } %>
+
+                        </form>
+
+                        <% }) %>
                 </div>
 
                 <div class="mb-2 fw-medium">
@@ -87,10 +104,20 @@
                     Tags
                 </div>
 
-                <div class="container m-0 p-0 d-flex mb-3">
-                    <button class="btn btn-light border fw-medium me-2">Vegan</button>
-                    <button class="btn btn-light border fw-medium me-2">Keto</button>
-                    <button class="btn btn-light border fw-medium me-2">Italian</button>
+                <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
+                    <% tagsList.forEach((category)=> { %>
+                        <form action="/addFoodTagInclude" method="post">
+                            <input type="hidden" name="foodTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+                            <button type="submit"
+                                class="<%= primaryUser.foodTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                <%= category.name %>
+                            </button>
+
+                        </form>
+
+                        <% }) %>
                 </div>
 
                 <div class="mb-2 fw-medium">

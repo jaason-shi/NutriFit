@@ -886,11 +886,71 @@ app.get('/generatedExercises', (req, res) => {
     })
 })
 
+// Exercise tags
+const exerciseCategory = [
+    { name: 'back' },
+    { name: 'cardio' },
+    { name: 'chest' },
+    { name: 'lower arms' },
+    { name: 'lower legs' },
+    { name: 'shoulders' },
+    { name: 'upper arms' },
+    { name: 'upper legs' },
+    { name: 'neck' },
+    { name: 'waist' },
+];
+
 
 // Get exercise filters
 app.get('/workoutFilters', (req, res) => {
-    res.render('workoutFilters')
+    let user = req.session.USER;
+    res.render('workoutFilters', {
+        tagsList: exerciseCategory,
+        primaryUser: user
+    })
 })
+
+
+// User selects exercise tag to includ
+app.post('/addExerciseTagInclude', async (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const exerciseTag = req.body.exerciseTag;
+        const userId = req.session.USER.id
+        console.log(exerciseTag)
+        console.log(req.body.user)
+
+        try {
+            const user = await usersCollection.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+
+            if (user.exerciseTagInclude && user.exerciseTagInclude.includes(exerciseTag)) {
+                // If the tag is already present, remove it
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $pull: { exerciseTagInclude: exerciseTag } }
+                );
+            } else {
+                // Otherwise, add the tag
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $addToSet: { exerciseTagInclude: exerciseTag } }
+                );
+            }
+            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                console.log(user);
+                req.session.USER = user;
+                res.redirect('/workoutFilters');
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal server error');
+        }
+    })
+});
+
 
 
 // Get exercise catalog Include
