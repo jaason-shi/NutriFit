@@ -437,6 +437,12 @@ app.get('/foodCatalogExclude', (req, res) => {
 })
 
 
+// Get favorite meals
+app.get('/favoriteMeals', (req, res) => {
+    res.render('favouritesMeals')
+})
+
+
 
 // Connect to port
 const port = 3000;
