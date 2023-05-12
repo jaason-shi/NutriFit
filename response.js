@@ -24,34 +24,34 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch(error => console.error(error));
 
 const foodCategory = [
-  { name: 'Dairy products'},
-  { name: 'Fats, Oils, Shortenings'},
-  { name: 'Meat, Poultry'},
-  { name: 'Fish, Seafood'},
-  { name: 'Vegetables A-E'},
-  { name: 'Vegetables F-P'},
-  { name: 'Vegetables R-Z'},
-  { name: 'Fruits A-F'},
-  { name: 'Fruits G-P'},
-  { name: 'Fruits R-Z'},
-  { name: 'Breads, cereals, fastfood, grains'},
-  { name: 'Soups'},
-  { name: 'Desserts, sweets'},
-  { name: 'Jams, Jellies'},
-  { name: 'Seeds and Nuts'},
-  { name: 'Drinks,Alcohol, Beverages'},
+  { name: 'Dairy products' },
+  { name: 'Fats, Oils, Shortenings' },
+  { name: 'Meat, Poultry' },
+  { name: 'Fish, Seafood' },
+  { name: 'Vegetables A-E' },
+  { name: 'Vegetables F-P' },
+  { name: 'Vegetables R-Z' },
+  { name: 'Fruits A-F' },
+  { name: 'Fruits G-P' },
+  { name: 'Fruits R-Z' },
+  { name: 'Breads, cereals, fastfood, grains' },
+  { name: 'Soups' },
+  { name: 'Desserts, sweets' },
+  { name: 'Jams, Jellies' },
+  { name: 'Seeds and Nuts' },
+  { name: 'Drinks,Alcohol, Beverages' },
 ];
 const exerciseCategory = [
-  { name: 'back'},
-  { name: 'cardio'},
-  { name: 'chest'},
-  { name: 'lower arms'},
-  { name: 'lower legs'},
-  { name: 'shoulders'},
-  { name: 'upper arms'},
-  { name: 'upper legs'},
-  { name: 'neck'},
-  { name: 'waist'},
+  { name: 'back' },
+  { name: 'cardio' },
+  { name: 'chest' },
+  { name: 'lower arms' },
+  { name: 'lower legs' },
+  { name: 'shoulders' },
+  { name: 'upper arms' },
+  { name: 'upper legs' },
+  { name: 'neck' },
+  { name: 'waist' },
 ];
 
 app.use((req, res, next) => {
@@ -96,12 +96,21 @@ app.post('/selectFood', (req, res) => {
         console.log(`Updating user: ${userId}`); // Debugging line
         usersCollection.updateOne(
           { id: userId },
-          { $addToSet: { includeFood: item.Food } },
+          {
+            $addToSet: {
+              includeFood: {
+                $each: [{
+                  Food: item.Food,
+                  Calories: item.Calories, Grams: item.Grams
+                }]
+              }
+            }
+          },
         )
-        .then(result => {
-          console.log(result); // Debugging line
-          res.redirect('/selectedFood');
-        })
+          .then(result => {
+            console.log(result); // Debugging line
+            res.redirect('/selectedFood');
+          })
       } else {
         res.status(404).send('Item not found');
       }
@@ -120,12 +129,21 @@ app.post('/excludeFood', (req, res) => {
         console.log(`Updating user: ${userId}`); // Debugging line
         usersCollection.updateOne(
           { id: userId },
-          { $addToSet: { excludeFood: item.Food } },
+          {
+            $addToSet: {
+              excludeFood: {
+                $each: [{
+                  Food: item.Food,
+                  Calories: item.Calories, Grams: item.Grams
+                }]
+              }
+            }
+          }
         )
-        .then(result => {
-          console.log(result); // Debugging line
-          res.redirect('/selectedFood');
-        })
+          .then(result => {
+            console.log(result); // Debugging line
+            res.redirect('/selectedFood');
+          })
       } else {
         res.status(404).send('Item not found');
       }
@@ -201,10 +219,10 @@ app.get('/selectedFood', (req, res) => {
     .then(user => {
       if (user) {
         res.render('selectedFood.ejs', {
-          food: user.includeFood, 
-          userId: userId, 
-          foodTag: user.foodTag, 
-          excludeFood: user.excludeFood, 
+          food: user.includeFood,
+          userId: userId,
+          foodTag: user.foodTag,
+          excludeFood: user.excludeFood,
           foodTagEx: user.excludeFoodTag
         });
       } else {
@@ -229,9 +247,9 @@ app.post('/removeFood', (req, res) => {
           { id: userId },
           { $pull: { includeFood: item.Food } },
         )
-        .then(() => {
-          res.redirect('/selectedFood');
-        })
+          .then(() => {
+            res.redirect('/selectedFood');
+          })
       } else {
         res.status(404).send('Item not found');
       }
@@ -250,9 +268,9 @@ app.post('/removeFoodEx', (req, res) => {
           { id: userId },
           { $pull: { excludeFood: item.Food } },
         )
-        .then(() => {
-          res.redirect('/selectedFood');
-        })
+          .then(() => {
+            res.redirect('/selectedFood');
+          })
       } else {
         res.status(404).send('Item not found');
       }
@@ -293,10 +311,10 @@ app.post('/selectExercise', (req, res) => {
           { id: userId },
           { $addToSet: { includeExercise: item.name } },
         )
-        .then(result => {
-          console.log(result); // Debugging line
-          res.redirect('/selectedExercise');
-        })
+          .then(result => {
+            console.log(result); // Debugging line
+            res.redirect('/selectedExercise');
+          })
       } else {
         res.status(404).send('Exercise not found');
       }
@@ -315,26 +333,26 @@ app.post('/addExerciseTag', (req, res) => {
             { id: userId },
             { $pull: { exerciseTag: exerciseTag } },
           )
-          .then(() => {
-            res.redirect('/selectedExercise');
-          })
-          .catch(error => {
-            console.error(error);
-            res.status(500).send('Internal server error');
-          });
+            .then(() => {
+              res.redirect('/selectedExercise');
+            })
+            .catch(error => {
+              console.error(error);
+              res.status(500).send('Internal server error');
+            });
         } else {
           // If the tag doesn't exist, add it
           usersCollection.updateOne(
             { id: userId },
             { $addToSet: { exerciseTag: exerciseTag } },
           )
-          .then(() => {
-            res.redirect('/selectedExercise');
-          })
-          .catch(error => {
-            console.error(error);
-            res.status(500).send('Internal server error');
-          });
+            .then(() => {
+              res.redirect('/selectedExercise');
+            })
+            .catch(error => {
+              console.error(error);
+              res.status(500).send('Internal server error');
+            });
         }
       } else {
         res.status(404).send('User not found');
@@ -410,12 +428,12 @@ app.post('/excludeExercise', (req, res) => {
         console.log(`Updating user: ${userId}`); // Debugging line
         usersCollection.updateOne(
           { id: userId },
-          { $addToSet: { excludeExercise: item.name}},
+          { $addToSet: { excludeExercise: item.name } },
         )
-        .then(result => {
-          console.log(result); // Debugging line
-          res.redirect('/selectedExercise');
-        })
+          .then(result => {
+            console.log(result); // Debugging line
+            res.redirect('/selectedExercise');
+          })
       } else {
         res.status(404).send('Exercise not found');
       }

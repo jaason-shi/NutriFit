@@ -6,6 +6,7 @@
     <body>
         <div class="container p-3 overflow-auto" style="height: 100vh;">
             <!-- Header -->
+
             <div class="fs-5 fw-semibold d-flex mb-4 align-items-center">
                 <div>
                     <a href="/members"><img src="/images/less-than.svg" alt=""></a>
@@ -20,8 +21,8 @@
                     Calories
                 </div>
                 <div class="fs-6 mb-2">
-                    <form action="">
-                        <input type="text" placeholder="Please Enter" class="w-100" id="inputCalories">
+                    <form class=" mb-4" action="">
+                        <input name="calories" type="text" placeholder="Please Enter" class="w-100" id="inputCalories">
                     </form>
                 </div>
 
@@ -36,44 +37,63 @@
                     Tags
                 </div>
 
-                <div class="container m-0 p-0 d-flex mb-3">
-                    <button class="btn btn-light border fw-medium me-2">Vegan</button>
-                    <button class="btn btn-light border fw-medium me-2">Keto</button>
-                    <button class="btn btn-light border fw-medium me-2">Italian</button>
+                <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
+                    <% tagsList.forEach((category)=> { %>
+                        <form action="/addFoodTagInclude" method="post">
+                            <input type="hidden" name="foodTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+                            <button type="submit"
+                                class="<%= primaryUser.foodTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                <%= category.name %>
+                            </button>
+
+                        </form>
+
+                        <% }) %>
                 </div>
 
                 <div class="mb-2 fw-medium">
                     Food Items
                 </div>
+                <% if (userInclude !=undefined) { %>
 
-                <div class="container h-25 mb-2 overflow-auto border">
-                    <div class="container m-0 p-0 d-flex align-items-center">
-                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"></button>
-                        </div>
 
-                        <div class="w-50 vstack gap-0">
-                            <div class="d-inline">
-                                Ingredient
+                    <% userInclude.forEach( (foodItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
                             </div>
-                            <div class="d-inline text-secondary" style="font-size: 14px">
-                                Details
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= foodItem.Food %>
+                                    </span>
+
+                                    <span class="ms-auto">
+                                        <%= foodItem.Calories %> cal
+                                    </span>
+                                    <form action="/deleteFoodInclude" method="post">
+                                        <input type="hidden" name="item" value="<%= foodItem.Food %>">
+                                        <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <button type="submit">Remove</button>
+                                    </form>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= foodItem.Grams %>g
+                                </div>
                             </div>
+
                         </div>
-
-                        <div class="d-inline align-self-center d-flex justify-content-end" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"><img src="images/minus.svg" alt=""></button>
-                        </div>
-
-                    </div>
-                </div>
-
-                <form class=" mb-2" action="/foodCatalogInclude">
-                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img src="/images/plus-circle.svg"
-                            alt="" height="30"></button>
-                </form>
+                        <% }) %>
+                            <% } %>
+                                <form class=" mb-2" action="/foodCatalogInclude">
+                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
+                                            src="/images/plus-circle.svg" alt="" height="30"></button>
+                                </form>
 
 
             </div>
@@ -87,59 +107,98 @@
                     Tags
                 </div>
 
-                <div class="container m-0 p-0 d-flex mb-3">
-                    <button class="btn btn-light border fw-medium me-2">Vegan</button>
-                    <button class="btn btn-light border fw-medium me-2">Keto</button>
-                    <button class="btn btn-light border fw-medium me-2">Italian</button>
+                <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
+                    <% tagsList.forEach((category)=> { %>
+                        <form action="/addFoodTagExclude" method="post">
+                            <input type="hidden" name="foodTag" value="<%= category.name%>">
+                            <input type="hidden" name="user" value="<%= primaryUser.id %>">
+
+                            <% if (primaryUser.foodTagExclude !=undefined) { %>
+                                <button type="submit"
+                                    class="<%= primaryUser.foodTagExclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                    <%= category.name %>
+                                </button>
+                                <% } else {%>
+                                    <button type="submit" class="btn btn-light border fw-medium me-2">
+                                        <%= category.name %>
+                                            Argh
+                                    </button>
+                                    <% } %>
+                        </form>
+                        <% }) %>
                 </div>
 
                 <div class="mb-2 fw-medium">
                     Food Items
                 </div>
 
-                <div class="container h-25 mb-2 overflow-auto border">
-                    <div class="container m-0 p-0 d-flex align-items-center">
-                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"></button>
-                        </div>
+                <% if (userExclude !=undefined) { %>
 
-                        <div class="w-50 vstack gap-0">
-                            <div class="d-inline">
-                                Ingredient
+
+                    <% userExclude.forEach( (foodItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
                             </div>
-                            <div class="d-inline text-secondary" style="font-size: 14px">
-                                Details
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= foodItem.Food %>
+                                    </span>
+
+                                    <span class="ms-auto">
+                                        <%= foodItem.Calories %> cal
+                                    </span>
+                                    <form action="/deleteFoodExclude" method="post">
+                                        <input type="hidden" name="item" value="<%= foodItem.Food %>">
+                                        <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <button type="submit">Remove</button>
+                                    </form>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= foodItem.Grams %>g
+                                </div>
+
                             </div>
+
                         </div>
+                        <% }) %>
 
-                        <div class="d-inline align-self-center d-flex justify-content-end" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"><img src="images/minus.svg" alt=""></button>
-                        </div>
-
-                    </div>
-                </div>
-
-                <form class=" mb-2" action="/foodCatalogExclude">
-                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img src="/images/plus-circle.svg"
-                            alt="" height="30"></button>
-                </form>
+                            <% } %>
+                                <form class=" mb-2" action="/foodCatalogExclude">
+                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
+                                            src="/images/plus-circle.svg" alt="" height="30"></button>
+                                </form>
 
 
 
 
             </div>
 
+<<<<<<< HEAD
             <form class=" mb-4" action="/generatedMeals">
                 <input class="btn btn-dark w-100" type="submit" value="Generate Meal" onclick="generateMeals()">
             </form>
+=======
+
+            <input class="btn btn-dark w-100" type="submit" value="Generate Meal" onclick="sendCalories()">
+
+>>>>>>> 98f5c9f9cb896fd4bd16182b02a55c4b7c7e19c8
 
 
             <!-- <%#- include('partials/navbar') %> -->
         </div>
 
-
+        <script>
+            function sendCalories() {
+                let calories = document.getElementById("inputCalories").value;
+                let url = "/generatedMeals?calories=" + calories;
+                window.location.href = url;
+            }
+        </script>
     </body>
 
 </html>

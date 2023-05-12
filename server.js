@@ -6,6 +6,8 @@ const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 const ejs = require('ejs');
+const { ObjectId } = require('mongodb');
+const bodyParser = require('body-parser');
 
 require('dotenv').config();
 
@@ -17,6 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(express.static('public'))
+app.use(bodyParser.json());
 
 
 // Set up MongoDB
@@ -58,7 +61,6 @@ const userSchema = new Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-
 
 // Basic landing page 
 app.get('/', (req, res) => {
@@ -434,15 +436,29 @@ async function queryChatGPT(mealsPrompt) {
     });
 }
 
-async function mealGenerationQuery() {
-    const calorieInput = '500';
+async function mealGenerationQuery(calories, user) {
+
+    let includedFood = JSON.stringify(user.includeFood);
+    let excludedFood = JSON.stringify(user.excludeFood);
+    let includedTags = user.foodTagInclude;
+    let excludedTags = user.foodTagExclude;
+
+    // console.log("USER: " + JSON.stringify(user))
+    // console.log("INCFOOD: " + JSON.stringify(includedFood))
+    // console.log("EXFOOD: " + JSON.stringify(excludedFood))
+    // console.log("INCTAG: " + includedTags)
+    // console.log("EXTAG: " + excludedTags)
+
     const mealsPrompt =
         "make a meal plans with " +
-        calorieInput +
+        calories +
         "calories total and give me the name of the meals, calories, and grams for each meal. Respond to me in a ```javascript code block in a list of json objects in this format:" +
-        `{"name": String, "calories": integer, "grams": integer}. Do not make any variables, I just ` + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.`;
+        '```javascript[{"name": String, "calories": integer, "grams": integer},...]```. Do not make any variables, I just ' + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${includedFood} and include ${includedTags} types. Exclude ${excludedFood} and exclude ${excludedTags} types.`;
+
+    console.log("prompt: " + mealsPrompt)
     const response = await queryChatGPT(mealsPrompt);
     const mealPlan = JSON.parse(response).choices[0].message.content;
+    console.log("meal: " + mealPlan)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
     const matches = mealPlan.match(codeBlockRegex);
@@ -459,6 +475,9 @@ async function mealGenerationQuery() {
 
     // console.log("parsed\n**\n" + mealPlanParsed + "\n**\n");
     console.log("string\n**\n" + stringify + "\n**\n");
+
+
+
     return mealPlanParsed;
 }
 
@@ -467,7 +486,8 @@ async function mealGenerationQuery() {
 
 // Get generated meals
 app.get('/generatedMeals', async (req, res) => {
-    mealGenerationQuery().then((mealPlan) => {
+    console.log("Request Calories: " + req.query.calories)
+    mealGenerationQuery(req.query.calories, req.session.USER).then((mealPlan) => {
         let totalCalories = 0;
         console.log(mealPlan)
         mealPlan.forEach((item) => {
@@ -475,29 +495,343 @@ app.get('/generatedMeals', async (req, res) => {
         })
         res.render('generatedMeals', {
             foodItems: mealPlan,
-            totalCalories: totalCalories
+            totalCalories: totalCalories,
+            userSpecifiedCalories: req.query.calories
         })
     })
 })
 
 
+const foodCategory = [
+    { name: 'Dairy products' },
+    { name: 'Fats, Oils, Shortenings' },
+    { name: 'Meat, Poultry' },
+    { name: 'Fish, Seafood' },
+    { name: 'Vegetables A-E' },
+    { name: 'Vegetables F-P' },
+    { name: 'Vegetables R-Z' },
+    { name: 'Fruits A-F' },
+    { name: 'Fruits G-P' },
+    { name: 'Fruits R-Z' },
+    { name: 'Breads, cereals, fastfood, grains' },
+    { name: 'Soups' },
+    { name: 'Desserts, sweets' },
+    { name: 'Jams, Jellies' },
+    { name: 'Seeds and Nuts' },
+    { name: 'Drinks,Alcohol, Beverages' },
+];
+
+
 // Get meal filters
-app.get('/mealFilters', (req, res) => {
-    res.render('mealFilters')
+app.get('/mealFilters', async (req, res) => {
+    const user = req.session.USER
+    console.log("Testing included food \n***\n" + user)
+    res.render('mealFilters', {
+        tagsList: foodCategory,
+        userInclude: user.includeFood,
+        userExclude: user.excludeFood,
+        primaryUser: user
+
+    })
 })
 
 
 // Get meal catalog page to include
 app.get('/foodCatalogInclude', (req, res) => {
-    res.render('foodCatalog')
+    console.log(req.originalUrl)
+    res.render('foodCatalogInclude')
 })
+
+
+// Catalog search function
+app.get('/searchFood', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(client => {
+            console.log('Connected to Database');
+            db = client.db('NutriFit');
+            foodCollection = db.collection('food');
+
+            const searchQuery = req.query.q;
+            foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
+                .then(results => {
+                    res.json(results.map(item => ({ name: item.Food, measure: item.Measure, id: item._id })));
+                }).catch(error => console.error(error));
+        })
+        .catch(error => console.error(error));
+});
+
+
+// Select included food
+app.post('/selectFoodInclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const Food = client.db('NutriFit').collection('food');
+
+        const itemId = req.body.item;
+        const userId = req.session.USER.id;
+        const collection = Food
+        let selectedItems = [];
+
+        console.log("Item ID\n***\n" + itemId)
+
+        collection.findOne({ _id: new ObjectId(itemId) })
+            .then(item => {
+                if (item) {
+                    selectedItems.push(item);
+                    // Add to users collection
+                    console.log(`Updating user: ${userId}`); // Debugging line
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $addToSet: {
+                                includeFood: {
+                                    $each: [{
+                                        Food: item.Food,
+                                        Calories: item.Calories, Grams: item.Grams
+                                    }]
+                                }
+                            }
+                        },
+                    )
+                        .then(result => {
+                            console.log(result); // Debugging line
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/mealFilters');
+                            })
+
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
+
+// Add food tag to include
+app.post('/addFoodTagInclude', async (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const Food = client.db('NutriFit').collection('food');
+        const foodTag = req.body.foodTag;
+        const userId = req.session.USER.id
+        console.log(foodTag)
+        console.log(req.body.user)
+
+        try {
+            const user = await usersCollection.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+
+            if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
+                // If the tag is already present, remove it
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $pull: { foodTagInclude: foodTag } }
+                );
+            } else {
+                // Otherwise, add the tag
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $addToSet: { foodTagInclude: foodTag } }
+                );
+            }
+            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                console.log(user);
+                req.session.USER = user;
+                res.redirect('/mealFilters');
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal server error');
+        }
+    })
+});
+
+
+// Add food tag to exclude
+app.post('/addFoodTagExclude', async (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const Food = client.db('NutriFit').collection('food');
+        const foodTag = req.body.foodTag;
+        const userId = req.session.USER.id
+        console.log(foodTag)
+        console.log(req.body.user)
+
+        try {
+            const user = await usersCollection.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+
+            if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
+                // If the tag is already present, remove it
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $pull: { foodTagExclude: foodTag } }
+                );
+            } else {
+                // Otherwise, add the tag
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $addToSet: { foodTagExclude: foodTag } }
+                );
+            }
+            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                console.log(user);
+                req.session.USER = user;
+                res.redirect('/mealFilters');
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal server error');
+        }
+    })
+});
 
 
 // Get meal catalog page to exclude
 app.get('/foodCatalogExclude', (req, res) => {
-    res.render('foodCatalog')
+    console.log(req.originalUrl)
+    res.render('foodCatalogExclude', {
+        currentURL: req.originalURL
+    })
 })
 
+
+// Select excluded food
+app.post('/selectFoodExclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('food');
+
+        const itemId = req.body.item;
+        const userId = req.session.USER.id
+        let selectedItems = []
+
+        collection.findOne({ _id: new ObjectId(itemId) })
+            .then(item => {
+                if (item) {
+                    selectedItems.push(item);
+                    // Add to users collection
+                    console.log(`Updating user: ${userId}`); // Debugging line
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $addToSet: {
+                                excludeFood: {
+                                    $each: [{
+                                        Food: item.Food,
+                                        Calories: item.Calories, Grams: item.Grams
+                                    }]
+                                }
+                            }
+                        }
+                    )
+                        .then(result => {
+                            console.log(result); // Debugging line
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                return res.redirect('/mealFilters');
+
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
+
+// Remove included food
+app.post('/deleteFoodInclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('food');
+
+        const foodName = req.body.item;
+        console.log("Food name: " + req.body.item)
+        console.log("User name: " + req.body.user)
+        const userId = req.session.USER.id
+        collection.findOne({ Food: foodName })
+            .then(item => {
+                if (item) {
+                    // Remove from users collection
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $pull: {
+                                includeFood: {
+                                    Food: item.Food,
+                                    Calories: item.Calories, Grams: item.Grams
+                                }
+                            }
+                        }
+                    )
+                        .then(() => {
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/mealFilters');
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
+
+
+
+// Remove excluded Food
+app.post('/deleteFoodExclude', (req, res) => {
+    console.log("hi :)")
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('food');
+
+        const foodName = req.body.item;
+        console.log("Food name: " + req.body.item)
+        console.log("User name: " + req.body.user)
+        const userId = req.session.USER.id
+        collection.findOne({ Food: foodName })
+            .then(item => {
+                console.log("Item Exclude: " + item.Food)
+                if (item) {
+                    console.log("Inside if")
+                    // Remove from users collection
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $pull: {
+                                excludeFood: {
+                                    Food: item.Food,
+                                    Calories: item.Calories, Grams: item.Grams
+                                }
+                            }
+                        }
+                    )
+                        .then((result) => {
+                            console.log("Update result: " + JSON.stringify(result))
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/mealFilters');
+                            })
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
 
 // Get favorite meals
 app.get('/favoriteMeals', (req, res) => {
