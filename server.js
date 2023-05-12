@@ -450,7 +450,7 @@ async function mealGenerationQuery(calories, user) {
     // console.log("EXTAG: " + excludedTags)
 
     const mealsPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space.`
 
     console.log("Initial Prompt: " + mealsPrompt)
 
@@ -459,8 +459,12 @@ async function mealGenerationQuery(calories, user) {
     console.log("Meal: " + mealPlan)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-    const matches = mealPlan.match(codeBlockRegex);
+    let matches = mealPlan.match(codeBlockRegex);
     console.log(`After regex filter: ${matches}`)
+    if (matches == null) {
+        matches = mealPlan.match(/\[[^\[\]]*\]/)
+        console.log(`After regex filter Second: ${matches}`)
+    }
     let codeBlockContent;
 
     if (matches && matches.length > 0) {
@@ -846,7 +850,7 @@ async function workoutGenerationQuery(duration, user) {
     let excludedTags = user.exerciseTagExclude;
 
     const exercisesPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a ${duration} minute workout. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space.`
 
     console.log("Initial Prompt: " + exercisesPrompt)
 
@@ -858,7 +862,13 @@ async function workoutGenerationQuery(duration, user) {
     console.log("Prompt message\n***\n" + workout)
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-    const matches = workout.match(codeBlockRegex);
+
+    let matches = workout.match(codeBlockRegex);
+    console.log(`\n\nAfter regex filter: ${matches}\n\n`)
+    if (matches == null) {
+        matches = workout.match(/\[[^\[\]]*\]/)
+        console.log(`\n\nAfter regex filter Second: ${matches}\n\n`)
+    }
 
     let codeBlockContent;
 
