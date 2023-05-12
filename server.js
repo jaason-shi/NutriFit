@@ -911,7 +911,7 @@ app.get('/workoutFilters', (req, res) => {
 })
 
 
-// User selects exercise tag to includ
+// User selects exercise tag to include
 app.post('/addExerciseTagInclude', async (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
         const usersCollection = client.db('NutriFit').collection('users');
@@ -937,6 +937,47 @@ app.post('/addExerciseTagInclude', async (req, res) => {
                 await usersCollection.updateOne(
                     { id: userId },
                     { $addToSet: { exerciseTagInclude: exerciseTag } }
+                );
+            }
+            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                console.log(user);
+                req.session.USER = user;
+                res.redirect('/workoutFilters');
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal server error');
+        }
+    })
+});
+
+
+// User selects exercise tag to exclude
+app.post('/addExerciseTagExclude', async (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const exerciseTag = req.body.exerciseTag;
+        const userId = req.session.USER.id
+        console.log(exerciseTag)
+        console.log(req.body.user)
+
+        try {
+            const user = await usersCollection.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+
+            if (user.exerciseTagExclude && user.exerciseTagExclude.includes(exerciseTag)) {
+                // If the tag is already present, remove it
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $pull: { exerciseTagExclude: exerciseTag } }
+                );
+            } else {
+                // Otherwise, add the tag
+                await usersCollection.updateOne(
+                    { id: userId },
+                    { $addToSet: { exerciseTagExclude: exerciseTag } }
                 );
             }
             usersCollection.findOne({ email: req.session.USER.email }).then((user) => {

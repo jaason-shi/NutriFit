@@ -106,14 +106,21 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/addFoodTagInclude" method="post">
-                            <input type="hidden" name="foodTag" value="<%= category.name%>">
+                        <form action="/addExerciseTagExclude" method="post">
+                            <input type="hidden" name="exerciseTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
 
-                            <button type="submit"
-                                class="<%= primaryUser.foodTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
-                                <%= category.name %>
-                            </button>
+
+                            <% if (primaryUser.exerciseTagExclude !=undefined) { %>
+                                <button type="submit"
+                                    class="<%= primaryUser.exerciseTagExclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
+                                    <%= category.name %>
+                                </button>
+                                <% } else {%>
+                                    <button type="submit" class="btn btn-light border fw-medium me-2">
+                                        <%= category.name %>
+                                    </button>
+                                    <% } %>
 
                         </form>
 
