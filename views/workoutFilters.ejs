@@ -94,16 +94,6 @@
                         </div>
                         <% }) %>
                             <% } %>
-                                <form class=" mb-2" action="/exerciseCatalogInclude">
-                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
-                                            src="/images/plus-circle.svg" alt="" height="30"></button>
-                                </form>
-
-                                <form class=" mb-2" action="/exerciseCatalogExclude">
-                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
-                                            src="/images/plus-circle.svg" alt="" height="30"></button>
-                                </form>
-
 
                                 <form class=" mb-2" action="/exerciseCatalogInclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
@@ -149,10 +139,10 @@
                     exercise Items
                 </div>
 
-                <% if (userInclude !=undefined) { %>
+                <% if (userExclude !=undefined) { %>
 
 
-                    <% userInclude.forEach( (exerciseItem)=> { %>
+                    <% userExclude.forEach( (exerciseItem)=> { %>
                         <div class="container m-0 p-0 border-bottom d-flex align-items-center">
                             <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
                                 <button class="rounded-circle border-0 m-0 p-0 my-auto"
@@ -165,7 +155,7 @@
                                         <%= exerciseItem.name %>
                                     </span>
 
-                                    <form class="ms-auto" action="/deleteFoodInclude" method="post">
+                                    <form class="ms-auto" action="/deleteFoodExclude" method="post">
                                         <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                         <button type="submit">Remove</button>
@@ -180,10 +170,6 @@
                         </div>
                         <% }) %>
                             <% } %>
-                                <form class=" mb-2" action="/exerciseCatalogInclude">
-                                    <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
-                                            src="/images/plus-circle.svg" alt="" height="30"></button>
-                                </form>
 
                                 <form class=" mb-2" action="/exerciseCatalogExclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img

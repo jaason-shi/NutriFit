@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/meta') %>
+
+
+    <body>
+        <div class="bg-body-tertiary" style="height: 100vh">
+
+            <div class="row w-100 m-0">
+                <div class="mx-auto col-lg-5 col-12">
+                    <div class="card mx-auto mt-5 p-3 w-75">
+                        <div class="card-body">
+                            <h1 class="mb-5">Exercise Catalog</h1>
+                            <form id="search-form">
+                                <input class="mb-3 w-100" name="searchFood" type="text" id="search-bar"
+                                    placeholder="Search for food...">
+                            </form>
+                            <div id="exerciseResults"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $('#search-bar').on('input', function () {
+                    const searchQuery = $(this).val();
+                    $.get('/searchExercise', { q: searchQuery }, function (data) {
+                        $('#exerciseResults').empty();
+                        data.forEach(item => {
+                            $('#exerciseResults').append(`
+                                <div class="card">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${item.name}</h5>
+                                                <p class="card-text">${item.bodyPart}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button onclick="addItem('${item.id}')" class="btn btn rounded-pill btn-dark mt-4">Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    });
+                });
+            });
+
+
+            function addItem(id) {
+                $.post('/selectExerciseExclude', { item: id }, function () {
+                    // Redirect to selected page or show a message
+                    window.location.href = "/workoutFilters";
+                });
+            }
+        </script>
+    </body>
+
+</html>

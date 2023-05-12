@@ -907,7 +907,8 @@ app.get('/workoutFilters', (req, res) => {
     res.render('workoutFilters', {
         tagsList: exerciseCategory,
         primaryUser: user,
-        userInclude: user.includeExercise
+        userInclude: user.includeExercise,
+        userExclude: user.excludeExercise
     })
 })
 
@@ -1067,11 +1068,58 @@ app.post('/selectExerciseInclude', (req, res) => {
 });
 
 
-
 // Get exercise catalog Exclude
 app.get('/exerciseCatalogExclude', (req, res) => {
-    res.render('exerciseCatalog')
+    res.render('exerciseCatalogExclude')
 })
+
+
+// Select excluded exercises
+app.post('/selectExerciseExclude', (req, res) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        const usersCollection = client.db('NutriFit').collection('users');
+        const collection = client.db('NutriFit').collection('exercise');
+
+        const itemId = req.body.item;
+        const userId = req.session.USER.id;
+        let selectedItems = [];
+
+        console.log("Item ID\n***\n" + itemId)
+
+        collection.findOne({ _id: new ObjectId(itemId) })
+            .then(item => {
+                if (item) {
+                    selectedItems.push(item);
+                    // Add to users collection
+                    console.log(`Updating user: ${userId}`); // Debugging line
+                    usersCollection.updateOne(
+                        { id: userId },
+                        {
+                            $addToSet: {
+                                excludeExercise: {
+                                    $each: [{
+                                        name: item.name,
+                                        bodyPart: item.bodyPart
+                                    }]
+                                }
+                            }
+                        },
+                    )
+                        .then(result => {
+                            console.log(result); // Debugging line
+                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
+                                console.log(user);
+                                req.session.USER = user;
+                                res.redirect('/workoutFilters');
+                            })
+
+                        })
+                } else {
+                    res.status(404).send('Item not found');
+                }
+            })
+    })
+});
 
 
 app.get('/workoutLogs', (req, res) => {
