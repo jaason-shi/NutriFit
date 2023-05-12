@@ -43,9 +43,11 @@
                             <input type="hidden" name="foodTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
 
-                            <button type="submit"
-                                class="<%= primaryUser.foodTagInclude.includes(category.name) ? 'btn btn-light border fw-medium me-2 active' : 'btn btn-light border fw-medium me-2' %>">
-                                <%= category.name %>
+                            <button type="submit" class="<%= (primaryUser && primaryUser.foodTagInclude &&
+                                    primaryUser.foodTagInclude.includes(category.name))
+                                    ? 'btn btn-light border fw-medium me-2 active'
+                                    : 'btn btn-light border fw-medium me-2' %>">
+                                <%=category.name %>
                             </button>
 
                         </form>
