@@ -434,7 +434,7 @@ async function queryChatGPT(mealsPrompt) {
     });
 }
 
-async function testQuery() {
+async function mealGenerationQuery() {
     const calorieInput = '500';
     const mealsPrompt =
         "make a meal plans with " +
@@ -467,7 +467,7 @@ async function testQuery() {
 
 // Get generated meals
 app.get('/generatedMeals', async (req, res) => {
-    testQuery().then((mealPlan) => {
+    mealGenerationQuery().then((mealPlan) => {
         let totalCalories = 0;
         console.log(mealPlan)
         mealPlan.forEach((item) => {
