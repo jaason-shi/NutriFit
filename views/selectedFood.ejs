@@ -10,20 +10,7 @@
     </style>
   </head>
   <body>
-    <h1>Selected Food</h1>
-    <ul>
-      <% for(let i = 0; i < food.length; i++) { %>
-        <div>
-          <p><%= food[i] %></p>
-          <form action="/removeFood" method="post">
-            <input type="hidden" name="item" value="<%= food[i] %>">
-            <input type="hidden" name="user" value="<%= userId %>"> <!-- Pass userId to server -->
-            <input type="submit" value="Remove">
-          </form>
-        </div>
-      <% } %>
-    </ul>
-    
+    <h1>Include Food</h1>
     <h2>Food Categories</h2>
     <ul>
       <% for(let i = 0; i < foodCategory.length; i++) { %>
@@ -39,7 +26,52 @@
         </li>
       <% } %>
     </ul>
-    
+
+    <ul>
+      <% for(let i = 0; i < food.length; i++) { %>
+        <div>
+          <p><%= food[i] %></p>
+          <form action="/removeFood" method="post">
+            <input type="hidden" name="item" value="<%= food[i] %>">
+            <input type="hidden" name="user" value="<%= userId %>"> <!-- Pass userId to server -->
+            <input type="submit" value="Remove">
+          </form>
+        </div>
+      <% } %>
+    </ul>
     <a href="/food">Search</a>
+
+    <h1>Exclude Food</h1>
+    <h2>Food Categories</h2>
+    <ul>
+      <% for(let i = 0; i < foodCategory.length; i++) { %>
+        <li>
+          <form action="/addFoodTagEx" method="post">
+            <button type="submit" name="foodTagEx" value="<%= foodCategory[i].name %>"
+              <% if (foodTagEx.includes(foodCategory[i].name)) { %>class="selected"<% } %>
+            >
+              <%= foodCategory[i].name %>
+            </button>
+            <input type="hidden" name="user" value="<%= userId %>"> <!-- Pass userId to server -->
+          </form>
+        </li>
+      <% } %>
+    </ul>
+
+    <ul>
+      <% for(let i = 0; i < excludeFood.length; i++) { %>
+        <div>
+          <p><%= excludeFood[i] %></p>
+          <form action="/removeFoodEx" method="post">
+            <input type="hidden" name="item" value="<%= excludeFood[i] %>">
+            <input type="hidden" name="user" value="<%= userId %>"> <!-- Pass userId to server -->
+            <input type="submit" value="Remove">
+          </form>
+        </div>
+      <% } %>
+    </ul>
+
+    <a href="/foodEx">Search</a>
   </body>
 </html>
+
