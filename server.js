@@ -152,9 +152,12 @@ app.post('/getEmail', async (req, res) => {
         req.session.INVALID_FIELD = 'Email'
         return res.redirect('/invalidFormData')
     }
-    const user = await User.findOne({ email: email })
-    req.session.USER = user;
-    return res.redirect('/checkSecurity')
+    User.findOne({ email: email }).then((user) => {
+        req.session.USER = user;
+        console.log(req.session.USER)
+        return res.redirect('/checkSecurity')
+    })
+
 })
 
 
@@ -306,51 +309,46 @@ app.get('/userProfile', (req, res) => {
 
 // Simulate a request to the api
 
-// async function processRequest() {
-//     let Food;
+async function processRequest() {
+    let Food;
 
-//     await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-//         Food = client.db('NutriFit').collection('food');
-//     })
-//     const foodItem = await Food.findOne({ Food: "Buttermilk" })
-//     const foodItemParse = {
-//         "name": foodItem.Food,
-//         "calories": foodItem.Calories,
-//         "quantityG": foodItem.Grams
-//     }
-//     const stringParse = JSON.stringify(foodItemParse)
-//     let sampleRequest = `
-// Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
-// `
+    await MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
+        Food = client.db('NutriFit').collection('food');
+    })
+    const foodItem = await Food.findOne({ Food: "Buttermilk" })
+    const foodItemParse = {
+        "name": foodItem.Food,
+        "calories": foodItem.Calories,
+        "quantityG": foodItem.Grams
+    }
+    const stringParse = JSON.stringify(foodItemParse)
+    let sampleRequest = `
+Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include ${stringParse}
+`
 
-//     // Multiple JSON object query
+    // Multiple JSON object query
 
-//     const foodItems = await Food.find({
-//         $or: [{ Food: "Buttermilk" }, { Food: "Custard" }]
-//     }).toArray()
+    const foodItems = await Food.find({
+        $or: [{ Food: "Buttermilk" }, { Food: "Custard" }]
+    }).toArray()
 
-//     const foodItemsParse = foodItems.map((foodItem) => {
-//         return {
-//             "name": foodItem.Food,
-//             "calories": foodItem.Calories,
-//             "quantityG": foodItem.Grams
-//         }
-//     })
+    const foodItemsParse = foodItems.map((foodItem) => {
+        return {
+            "name": foodItem.Food,
+            "calories": foodItem.Calories,
+            "quantityG": foodItem.Grams
+        }
+    })
 
-//     const stringParseArray = JSON.stringify(foodItemsParse)
-
-//     console.log(stringParseArray + "\n\n\n")
+    const stringParseArray = JSON.stringify(foodItemsParse)
 
 
-//     let sampleRequestMulti = `
-// Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include [{"name":"Buttermilk","calories":127,"quantityG":246},{"name":"Custard","calories":285,"quantityG":248},{"name":"Custard","calories":265,"quantityG":130}]. Add more food until it is 1000 calories. Stop adding food when it is 1000 calories.
-// `
+    let sampleRequestMulti = `
+Respond to me in a javascript code block in a list of json objects, in this format: {name: "apple", calories: 100, quantityG: 100". Make me a 1000 calorie meal. Do not make any variables, I just want the list of json objects, no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items. Include [{"name":"Buttermilk","calories":127,"quantityG":246},{"name":"Custard","calories":285,"quantityG":248},{"name":"Custard","calories":265,"quantityG":130}]. Add more food until it is 1000 calories. Stop adding food when it is 1000 calories.
+`
+}
 
-//     console.log(sampleRequestMulti)
-
-// }
-
-// processRequest()
+processRequest()
 
 
 // Simulate a response from the API
@@ -403,15 +401,82 @@ const foodItems = [{
 }
 ]
 
+
+// function to query chatgpt api
+async function queryChatGPT(mealsPrompt) {
+    const request = require("request");
+
+    const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+
+    const options = {
+        url: OPENAI_API_ENDPOINT,
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.GPT_API_KEY}`,
+            "OpenAI-Organization": process.env.GPT_ORG_ID,
+        },
+        body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: mealsPrompt }],
+            temperature: 0.7,
+        }),
+    };
+
+    return new Promise((resolve, reject) => {
+        request.post(options, (error, response, body) => {
+            if (error) {
+                console.error(error);
+                reject(error);
+            } else {
+                resolve(body);
+            }
+        });
+    });
+}
+
+async function testQuery() {
+    const calorieInput = '500';
+    const mealsPrompt =
+        "make a meal plans with " +
+        calorieInput +
+        "calories total and give me the name of the meals, calories, and grams for each meal. Respond to me in a ```javascript code block in a list of json objects in this format:" +
+        `{"name": String, "calories": integer, "grams": integer}. Do not make any variables, I just ` + `want the list of json objects and no extra code. Do not provide any explanations or any other kind of text outside of the code block. Use real food items.`;
+    const response = await queryChatGPT(mealsPrompt);
+    const mealPlan = JSON.parse(response).choices[0].message.content;
+
+    const codeBlockRegex = /```javascript([\s\S]+?)```/g;
+    const matches = mealPlan.match(codeBlockRegex);
+    let codeBlockContent;
+
+    if (matches && matches.length > 0) {
+        codeBlockContent = matches.map(match => match.replace(/```javascript|```/g, '').trim());
+    }
+
+    const mealPlanParsed = JSON.parse(codeBlockContent[0])
+    const stringify = JSON.stringify(mealPlanParsed)
+
+
+
+    // console.log("parsed\n**\n" + mealPlanParsed + "\n**\n");
+    console.log("string\n**\n" + stringify + "\n**\n");
+    return mealPlanParsed;
+}
+
+
+
+
 // Get generated meals
-app.get('/generatedMeals', (req, res) => {
-    let totalCalories = 0;
-    jsonArray.forEach((item) => {
-        totalCalories += item.calories
-    })
-    res.render('generatedMeals', {
-        foodItems: jsonArray,
-        totalCalories: totalCalories
+app.get('/generatedMeals', async (req, res) => {
+    testQuery().then((mealPlan) => {
+        let totalCalories = 0;
+        console.log(mealPlan)
+        mealPlan.forEach((item) => {
+            totalCalories += item.calories
+        })
+        res.render('generatedMeals', {
+            foodItems: mealPlan,
+            totalCalories: totalCalories
+        })
     })
 })
 
@@ -419,6 +484,55 @@ app.get('/generatedMeals', (req, res) => {
 // Get meal filters
 app.get('/mealFilters', (req, res) => {
     res.render('mealFilters')
+})
+
+
+// Get meal catalog page to include
+app.get('/foodCatalogInclude', (req, res) => {
+    res.render('foodCatalog')
+})
+
+
+// Get meal catalog page to exclude
+app.get('/foodCatalogExclude', (req, res) => {
+    res.render('foodCatalog')
+})
+
+
+// Get favorite meals
+app.get('/favoriteMeals', (req, res) => {
+    res.render('favouritesMeals')
+})
+
+
+// Get generated exercises
+app.get('/generatedExercises', (req, res) => {
+    res.render('generateWorkoutRoutine', {
+        workoutRoutine: {}
+    })
+})
+
+
+// Get exercise filters
+app.get('/exerciseFilter', (req, res) => {
+    res.render('exerciseFilterPage')
+})
+
+
+// Get exercise catalog Include
+app.get('/exerciseCatalogInclude', (req, res) => {
+    res.render('exerciseCatalog')
+})
+
+
+// Get exercise catalog Exclude
+app.get('/exerciseCatalogExclude', (req, res) => {
+    res.render('exerciseCatalog')
+})
+
+
+app.get('/workoutLogs', (req, res) => {
+    res.render('workoutLogs')
 })
 
 
