@@ -725,83 +725,48 @@ app.get('/workoutFilters', (req, res) => {
 })
 
 
-// User selects exercise tag to include
-app.post('/addExerciseTagInclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const exerciseTag = req.body.exerciseTag;
-        const userId = req.session.USER.id
+// Modify exercise tag
+app.post('/modifyExerciseTag', async (req, res) => {
 
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
+    const exerciseTag = req.body.exerciseTag;
+    const userId = req.session.USER.id
+    const type = req.body.type
+    let user = await User.findOne({ id: userId });
 
-            if (user.exerciseTagInclude && user.exerciseTagInclude.includes(exerciseTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { exerciseTagInclude: exerciseTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { exerciseTagInclude: exerciseTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/workoutFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    if (type === 'include') {
+        if (user.exerciseTagInclude && user.exerciseTagInclude.includes(exerciseTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { exerciseTagInclude: exerciseTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { exerciseTagInclude: exerciseTag } }
+            );
         }
-    })
-});
-
-
-// User selects exercise tag to exclude
-app.post('/addExerciseTagExclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const exerciseTag = req.body.exerciseTag;
-        const userId = req.session.USER.id
-
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-
-            if (user.exerciseTagExclude && user.exerciseTagExclude.includes(exerciseTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { exerciseTagExclude: exerciseTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { exerciseTagExclude: exerciseTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/workoutFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    } else {
+        if (user.exerciseTagExclude && user.exerciseTagExclude.includes(exerciseTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { exerciseTagExclude: exerciseTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { exerciseTagExclude: exerciseTag } }
+            );
         }
-    })
-});
+    }
 
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/workoutFilters');
+});
 
 
 // Get exercise catalog Include
