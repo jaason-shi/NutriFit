@@ -728,6 +728,10 @@ app.post('/deleteFoodExclude', (req, res) => {
     })
 });
 
+app.get('/logs', (req, res) => {
+    res.render('logs')
+})
+
 app.get('/favourites', (req, res) => {
     res.render('favourites')
 })
