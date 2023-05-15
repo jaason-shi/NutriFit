@@ -620,7 +620,7 @@ app.get('/favourites', (req, res) => {
 
 // Get favorite meals
 app.get('/favoriteMeals', (req, res) => {
-    res.render('favouritesMeals')
+    res.render('favoriteMeals')
 })
 
 
