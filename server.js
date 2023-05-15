@@ -613,6 +613,9 @@ app.post('/deleteFood', async (req, res) => {
     res.redirect('/mealFilters');
 });
 
+app.get('/logs', async (req, res) => {
+    res.render('logs')
+})
 
 app.get('/favourites', (req, res) => {
     res.render('favourites')
