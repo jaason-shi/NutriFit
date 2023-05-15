@@ -80,9 +80,10 @@
                                         <%= exerciseItem.name %>
                                     </span>
 
-                                    <form class="ms-auto" action="/deleteExerciseInclude" method="post">
+                                    <form class="ms-auto" action="/deleteExercise" method="post">
                                         <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <input type="hidden" name="type" value="include">
                                         <button type="submit">Remove</button>
                                     </form>
 
@@ -157,9 +158,10 @@
                                         <%= exerciseItem.name %>
                                     </span>
 
-                                    <form class="ms-auto" action="/deleteExerciseExclude" method="post">
+                                    <form class="ms-auto" action="/deleteExercise" method="post">
                                         <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <input type="hidden" name="type" value="exclude">
                                         <button type="submit">Remove</button>
                                     </form>
 

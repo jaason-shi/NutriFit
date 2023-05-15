@@ -835,42 +835,43 @@ app.post('/selectExercise', async (req, res) => {
 });
 
 
-// Remove included exercises
-app.post('/deleteExerciseInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
+// Remove exercise from filter
+app.post('/deleteExercise', async (req, res) => {
+    const exerciseName = req.body.item;
+    const userId = req.session.USER.id
+    const type = req.body.type
 
-        const exerciseName = req.body.item;
+    let exerciseToDelete = await Exercise.findOne({ name: exerciseName })
 
-        const userId = req.session.USER.id
-        collection.findOne({ name: exerciseName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                includeExercise: {
-                                    name: item.name,
-                                    bodyPart: item.bodyPart
-                                }
-                            }
-                        }
-                    )
-                        .then(() => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    if (type === 'include') {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    includeExercise: {
+                        name: exerciseToDelete.name,
+                        bodyPart: exerciseToDelete.bodyPart
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    excludeExercise: {
+                        name: exerciseToDelete.name,
+                        bodyPart: exerciseToDelete.bodyPart
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/workoutFilters');
 });
 
 
@@ -878,44 +879,6 @@ app.post('/deleteExerciseInclude', (req, res) => {
 app.get('/exerciseCatalogExclude', (req, res) => {
     res.render('exerciseCatalogExclude')
 })
-
-
-// Remove excluded exercises
-app.post('/deleteExerciseExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
-
-        const exerciseName = req.body.item;
-
-        const userId = req.session.USER.id
-        collection.findOne({ name: exerciseName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                excludeExercise: {
-                                    name: item.name,
-                                    bodyPart: item.bodyPart
-                                }
-                            }
-                        }
-                    )
-                        .then(() => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
 
 
 // Get workout logs
