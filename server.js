@@ -1,3 +1,8 @@
+/**
+ * Main server file
+ */
+
+// Set up dependencies
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
@@ -7,27 +12,25 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10
 const { ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
-
+const MongoClient = require('mongodb').MongoClient;
 require('dotenv').config();
 
+// Set up app (express)
 const app = express();
-const Schema = mongoose.Schema;
-const MongoClient = require('mongodb').MongoClient;
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(express.static('public'))
 app.use(bodyParser.json());
 
-
-// Set up MongoDB
+// Set up MongoDB connection
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true });
 mongoose.connection.once('open', () => {
     console.log("Connected to MongoDB Atlas.")
 })
 
+// Set up MongoDB Session store
 var sessionStore = MongoStore.create({
     mongoUrl: uri,
     cypto: {
@@ -44,24 +47,13 @@ app.use(session({
     cookie: { maxAge: 60 * 60 * 1000 }
 }))
 
-
-// The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
-const idSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
+/**
+ * Set up form field validation to protect against DB query attacks.
+ * The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
+ */
+const basicStringSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
-
-
-// User Model
-// const userSchema = new Schema({
-//     id: { type: String, required: true },
-//     email: { type: String, required: true },
-//     password: { type: String, required: true },
-//     answer: { type: String, required: true },
-//     foodTagInclude: { type: Schema.Types.Mixed },
-//     foodTagExclude: { type: Schema.Types.Mixed },
-//     includeExercise: { type: Schema.Types.Mixed },
-//     excludeExercise: { type: Schema.Types.Mixed }
-// });
 
 // User model
 const User = require('./models/userModel')
@@ -71,29 +63,6 @@ const Food = require('./models/foodModel')
 
 // Exercise model
 const Exercise = require('./models/exerciseModel')
-
-const testUser = async () => {
-    let test = await User.find({ id: "SeanGuy" })
-    console.log("User test:")
-    console.log(test)
-}
-
-const testFood = async () => {
-    let test = await Food.find().limit(1)
-    console.log("Food test:")
-    console.log(test)
-}
-
-const testExercise = async () => {
-    let test = await Exercise.find().limit(1)
-    console.log("Exercise test:")
-    console.log(test)
-}
-
-testUser()
-testFood()
-testExercise()
-
 
 // Basic landing page 
 app.get('/', (req, res) => {
@@ -121,7 +90,7 @@ app.post('/signup', async (req, res) => {
     let password = req.body.password;
     let answer = req.body.answer;
 
-    if (idSchema.validate(id).error != null) {
+    if (basicStringSchema.validate(id).error != null) {
         req.session.INVALID_FIELD = 'ID'
         res.redirect('/invalidFormData')
     } else if (emailSchema.validate(email).error != null) {
@@ -130,7 +99,7 @@ app.post('/signup', async (req, res) => {
     } else if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
         res.redirect('/invalidFormData')
-    } else if (idSchema.validate(answer).error != null) {
+    } else if (basicStringSchema.validate(answer).error != null) {
         req.session.INVALID_FIELD = 'Answer'
         res.redirect('/invalidFormData')
     } else {
@@ -254,7 +223,7 @@ app.post(('/login'), (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const emailValidationResult = idSchema.validate(email);
+    const emailValidationResult = basicStringSchema.validate(email);
     const passwordValidationResult = passwordSchema.validate(password);
 
     User.find({ $or: [{ email: email }, { id: email }] }).exec().then(async (users) => {
