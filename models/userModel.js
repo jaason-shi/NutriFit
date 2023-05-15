@@ -15,7 +15,9 @@ const userSchema = new Schema({
     exerciseTagInclude: [Schema.Types.Mixed],
     exerciseTagExclude: [Schema.Types.Mixed],
     includeExercise: [Schema.Types.Mixed],
-    excludeExercise: [Schema.Types.Mixed]
+    excludeExercise: [Schema.Types.Mixed],
+    includeFood: [Schema.Types.Mixed],
+    excludeFood: [Schema.Types.Mixed]
 });
 
 const User = mongoose.model('User', userSchema)

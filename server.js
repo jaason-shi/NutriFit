@@ -465,7 +465,6 @@ app.get('/searchFood', async (req, res) => {
     const searchQuery = req.query.q;
     let foodQuery = await Food.find({ Food: new RegExp(searchQuery, 'i') })
     let parsedResponse = foodQuery.map((foodObject) => {
-        console.log(foodObject)
         return {
             name: foodObject.Food,
             measure: foodObject.Measure,
@@ -478,47 +477,29 @@ app.get('/searchFood', async (req, res) => {
 
 
 // Select included food
-app.post('/selectFoodInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const Food = client.db('NutriFit').collection('food');
+app.post('/selectFoodInclude', async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) })
 
-        const itemId = req.body.item;
-        const userId = req.session.USER.id;
-        const collection = Food
-        let selectedItems = [];
-
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                includeFood: {
-                                    $each: [{
-                                        Food: item.Food,
-                                        Calories: item.Calories, Grams: item.Grams
-                                    }]
-                                }
-                            }
-                        },
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/mealFilters');
-                            })
-
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    await User.updateOne({ id: userId },
+        {
+            $addToSet: {
+                includeFood: {
+                    $each: [{
+                        Food: foodToAdd.Food,
+                        Calories: foodToAdd.Calories,
+                        Grams: foodToAdd.Grams
+                    }]
                 }
-            })
-    })
+            }
+        }
+    )
+
+    let updatedUser = await User.findOne({ id: userId })
+    console.log(`User Updated: ${updatedUser}\n\n`);
+    req.session.USER = updatedUser;
+    res.redirect('/mealFilters');
 });
 
 
