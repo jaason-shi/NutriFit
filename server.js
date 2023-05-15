@@ -572,81 +572,47 @@ app.get('/foodCatalogExclude', (req, res) => {
 })
 
 
-// Remove included food
-app.post('/deleteFoodInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('food');
-        const foodName = req.body.item;
-        const userId = req.session.USER.id
+// Remove food item from filter
+app.post('/deleteFood', async (req, res) => {
+    const foodName = req.body.item;
+    const userId = req.session.USER.id
+    const type = req.body.type
 
-        collection.findOne({ Food: foodName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                includeFood: {
-                                    Food: item.Food,
-                                    Calories: item.Calories, Grams: item.Grams
-                                }
-                            }
-                        }
-                    )
-                        .then(() => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/mealFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    let foodToDelete = await Food.findOne({ Food: foodName })
+
+    if (type === 'include') {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    includeFood: {
+                        Food: foodToDelete.Food,
+                        Calories: foodToDelete.Calories,
+                        Grams: foodToDelete.Grams
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    excludeFood: {
+                        Food: foodToDelete.Food,
+                        Calories: foodToDelete.Calories,
+                        Grams: foodToDelete.Grams
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/mealFilters');
 });
 
-
-
-// Remove excluded Food
-app.post('/deleteFoodExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('food');
-        const foodName = req.body.item;
-        const userId = req.session.USER.id
-
-        collection.findOne({ Food: foodName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                excludeFood: {
-                                    Food: item.Food,
-                                    Calories: item.Calories, Grams: item.Grams
-                                }
-                            }
-                        }
-                    )
-                        .then((result) => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/mealFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
 
 app.get('/favourites', (req, res) => {
     res.render('favourites')

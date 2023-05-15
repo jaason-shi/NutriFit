@@ -77,9 +77,10 @@
                                     <span class="ms-auto">
                                         <%= foodItem.Calories %> cal
                                     </span>
-                                    <form action="/deleteFoodInclude" method="post">
+                                    <form action="/deleteFood" method="post">
                                         <input type="hidden" name="item" value="<%= foodItem.Food %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <input type="hidden" name="type" value="include">
                                         <button type="submit">Remove</button>
                                     </form>
 
@@ -155,9 +156,10 @@
                                     <span class="ms-auto">
                                         <%= foodItem.Calories %> cal
                                     </span>
-                                    <form action="/deleteFoodExclude" method="post">
+                                    <form action="/deleteFood" method="post">
                                         <input type="hidden" name="item" value="<%= foodItem.Food %>">
                                         <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                        <input type="hidden" name="type" value="exclude">
                                         <button type="submit">Remove</button>
                                     </form>
 
