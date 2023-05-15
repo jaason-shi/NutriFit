@@ -1,3 +1,8 @@
+/**
+ * Main server file
+ */
+
+// Set up dependencies
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
@@ -7,27 +12,26 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10
 const { ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
-
+const MongoClient = require('mongodb').MongoClient;
+const url = require('url');
 require('dotenv').config();
 
+// Set up app (express)
 const app = express();
-const Schema = mongoose.Schema;
-const MongoClient = require('mongodb').MongoClient;
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(express.static('public'))
 app.use(bodyParser.json());
 
-
-// Set up MongoDB
+// Set up MongoDB connection
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true });
 mongoose.connection.once('open', () => {
     console.log("Connected to MongoDB Atlas.")
 })
 
+// Set up MongoDB Session store
 var sessionStore = MongoStore.create({
     mongoUrl: uri,
     cypto: {
@@ -44,26 +48,22 @@ app.use(session({
     cookie: { maxAge: 60 * 60 * 1000 }
 }))
 
-
-// The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
-const idSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
+/**
+ * Set up form field validation to protect against DB query attacks.
+ * The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
+ */
+const basicStringSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
+// User model
+const User = require('./models/userModel')
 
-// User Model
-const userSchema = new Schema({
-    id: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    answer: { type: String, required: true },
-    foodTagInclude: { type: Schema.Types.Mixed },
-    foodTagExclude: { type: Schema.Types.Mixed },
-    includeExercise: { type: Schema.Types.Mixed },
-    excludeExercise: { type: Schema.Types.Mixed }
-});
+// Food model
+const Food = require('./models/foodModel')
 
-const User = mongoose.model('User', userSchema);
+// Exercise model
+const Exercise = require('./models/exerciseModel')
 
 // Basic landing page 
 app.get('/', (req, res) => {
@@ -91,7 +91,7 @@ app.post('/signup', async (req, res) => {
     let password = req.body.password;
     let answer = req.body.answer;
 
-    if (idSchema.validate(id).error != null) {
+    if (basicStringSchema.validate(id).error != null) {
         req.session.INVALID_FIELD = 'ID'
         res.redirect('/invalidFormData')
     } else if (emailSchema.validate(email).error != null) {
@@ -100,7 +100,7 @@ app.post('/signup', async (req, res) => {
     } else if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
         res.redirect('/invalidFormData')
-    } else if (idSchema.validate(answer).error != null) {
+    } else if (basicStringSchema.validate(answer).error != null) {
         req.session.INVALID_FIELD = 'Answer'
         res.redirect('/invalidFormData')
     } else {
@@ -220,39 +220,38 @@ app.get('/changePasswordSuccess', (req, res) => {
 
 
 // Post login page
-app.post(('/login'), (req, res) => {
+app.post(('/login'), async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const emailValidationResult = idSchema.validate(email);
+    const emailValidationResult = basicStringSchema.validate(email);
     const passwordValidationResult = passwordSchema.validate(password);
 
-    User.find({ $or: [{ email: email }, { id: email }] }).exec().then(async (users) => {
-
-        if (emailValidationResult.error != null) {
-            req.session.INVALID_FIELD = 'Email or ID'
-            res.redirect('/invalidFormData')
-        } else if (passwordValidationResult.error != null) {
-            req.session.INVALID_FIELD = 'Password'
-            res.redirect('/invalidFormData')
+    let user = await User.findOne({ $or: [{ email: email }, { id: email }] })
+    if (emailValidationResult.error != null) {
+        req.session.INVALID_FIELD = 'Email or ID'
+        res.redirect('/invalidFormData')
+    } else if (passwordValidationResult.error != null) {
+        req.session.INVALID_FIELD = 'Password'
+        res.redirect('/invalidFormData')
+    } else {
+        if (user === undefined) {
+            req.session.AUTH = false;
+            req.session.FAIL_FORM = true;
         } else {
-            if (users.length === 0) {
+            if (await bcrypt.compare(password, user.password)) {
+                req.session.AUTH = true;
+                req.session.ROLE = user.role;
+                req.session.USER = user
+            } else {
                 req.session.AUTH = false;
                 req.session.FAIL_FORM = true;
-            } else {
-                if (await bcrypt.compare(password, users[0].password)) {
-                    req.session.AUTH = true;
-                    req.session.ROLE = users[0].role;
-                    req.session.USER = users[0]
-                } else {
-                    req.session.AUTH = false;
-                    req.session.FAIL_FORM = true;
-                }
             }
-            res.redirect('/members');
         }
-    })
-});
+        res.redirect('/members');
+    }
+})
+
 
 
 // Get invalid form data page
@@ -462,143 +461,108 @@ app.get('/foodCatalogInclude', (req, res) => {
 })
 
 
-// Food catalog search function
-app.get('/searchFood', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(client => {
-            db = client.db('NutriFit');
-            foodCollection = db.collection('food');
+// Search for food
+app.get('/searchFood', async (req, res) => {
+    const searchQuery = req.query.q;
+    let foodQuery = await Food.find({ Food: new RegExp(searchQuery, 'i') })
+    let parsedResponse = foodQuery.map((foodObject) => {
+        return {
+            name: foodObject.Food,
+            measure: foodObject.Measure,
+            id: foodObject._id
+        }
+    })
 
-            const searchQuery = req.query.q;
-            foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
-                .then(results => {
-                    res.json(results.map(item => ({ name: item.Food, measure: item.Measure, id: item._id })));
-                }).catch(error => console.error(error));
-        })
-        .catch(error => console.error(error));
+    res.json(parsedResponse)
 });
 
 
-// Select included food
-app.post('/selectFoodInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const Food = client.db('NutriFit').collection('food');
+// Select food to include or exclude
+app.post('/selectFood', async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) })
 
-        const itemId = req.body.item;
-        const userId = req.session.USER.id;
-        const collection = Food
-        let selectedItems = [];
+    let reqUrl = req.get('Referrer')
+    let parsedUrl = url.parse(reqUrl)
+    let path = parsedUrl.pathname;
 
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                includeFood: {
-                                    $each: [{
-                                        Food: item.Food,
-                                        Calories: item.Calories, Grams: item.Grams
-                                    }]
-                                }
-                            }
-                        },
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/mealFilters');
-                            })
-
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    if (path === '/foodCatalogInclude') {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    includeFood: {
+                        $each: [{
+                            Food: foodToAdd.Food,
+                            Calories: foodToAdd.Calories,
+                            Grams: foodToAdd.Grams
+                        }]
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    excludeFood: {
+                        $each: [{
+                            Food: foodToAdd.Food,
+                            Calories: foodToAdd.Calories,
+                            Grams: foodToAdd.Grams
+                        }]
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/mealFilters');
 });
 
 
-// Add food tag to include
-app.post('/addFoodTagInclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const foodTag = req.body.foodTag;
-        const userId = req.session.USER.id
+// Modify food tag
+app.post('/modifyFoodTag', async (req, res) => {
+    const foodTag = req.body.foodTag;
+    const userId = req.session.USER.id
+    const type = req.body.type
+    let user = await User.findOne({ id: userId });
 
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-
-            if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { foodTagInclude: foodTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { foodTagInclude: foodTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/mealFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    if (type === 'include') {
+        if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { foodTagInclude: foodTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { foodTagInclude: foodTag } }
+            );
         }
-    })
-});
-
-
-// Add food tag to exclude
-app.post('/addFoodTagExclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const foodTag = req.body.foodTag;
-        const userId = req.session.USER.id
-
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-
-            if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { foodTagExclude: foodTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { foodTagExclude: foodTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/mealFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    } else {
+        if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { foodTagExclude: foodTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { foodTagExclude: foodTag } }
+            );
         }
-    })
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/mealFilters');
 });
 
 
@@ -608,129 +572,47 @@ app.get('/foodCatalogExclude', (req, res) => {
 })
 
 
-// Select excluded food
-app.post('/selectFoodExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('food');
+// Remove food item from filter
+app.post('/deleteFood', async (req, res) => {
+    const foodName = req.body.item;
+    const userId = req.session.USER.id
+    const type = req.body.type
 
-        const itemId = req.body.item;
-        const userId = req.session.USER.id
-        let selectedItems = []
+    let foodToDelete = await Food.findOne({ Food: foodName })
 
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                excludeFood: {
-                                    $each: [{
-                                        Food: item.Food,
-                                        Calories: item.Calories, Grams: item.Grams
-                                    }]
-                                }
-                            }
-                        }
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                return res.redirect('/mealFilters');
-
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    if (type === 'include') {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    includeFood: {
+                        Food: foodToDelete.Food,
+                        Calories: foodToDelete.Calories,
+                        Grams: foodToDelete.Grams
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    excludeFood: {
+                        Food: foodToDelete.Food,
+                        Calories: foodToDelete.Calories,
+                        Grams: foodToDelete.Grams
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/mealFilters');
 });
 
-
-// Remove included food
-app.post('/deleteFoodInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('food');
-        const foodName = req.body.item;
-        const userId = req.session.USER.id
-
-        collection.findOne({ Food: foodName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                includeFood: {
-                                    Food: item.Food,
-                                    Calories: item.Calories, Grams: item.Grams
-                                }
-                            }
-                        }
-                    )
-                        .then(() => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/mealFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
-
-
-
-// Remove excluded Food
-app.post('/deleteFoodExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('food');
-        const foodName = req.body.item;
-        const userId = req.session.USER.id
-
-        collection.findOne({ Food: foodName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                excludeFood: {
-                                    Food: item.Food,
-                                    Calories: item.Calories, Grams: item.Grams
-                                }
-                            }
-                        }
-                    )
-                        .then((result) => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/mealFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
-
-app.get('/logs', (req, res) => {
-    res.render('logs')
-})
 
 app.get('/favourites', (req, res) => {
     res.render('favourites')
@@ -843,83 +725,48 @@ app.get('/workoutFilters', (req, res) => {
 })
 
 
-// User selects exercise tag to include
-app.post('/addExerciseTagInclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const exerciseTag = req.body.exerciseTag;
-        const userId = req.session.USER.id
+// Modify exercise tag
+app.post('/modifyExerciseTag', async (req, res) => {
 
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
+    const exerciseTag = req.body.exerciseTag;
+    const userId = req.session.USER.id
+    const type = req.body.type
+    let user = await User.findOne({ id: userId });
 
-            if (user.exerciseTagInclude && user.exerciseTagInclude.includes(exerciseTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { exerciseTagInclude: exerciseTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { exerciseTagInclude: exerciseTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/workoutFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    if (type === 'include') {
+        if (user.exerciseTagInclude && user.exerciseTagInclude.includes(exerciseTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { exerciseTagInclude: exerciseTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { exerciseTagInclude: exerciseTag } }
+            );
         }
-    })
-});
-
-
-// User selects exercise tag to exclude
-app.post('/addExerciseTagExclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const exerciseTag = req.body.exerciseTag;
-        const userId = req.session.USER.id
-
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-
-            if (user.exerciseTagExclude && user.exerciseTagExclude.includes(exerciseTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { exerciseTagExclude: exerciseTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { exerciseTagExclude: exerciseTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/workoutFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    } else {
+        if (user.exerciseTagExclude && user.exerciseTagExclude.includes(exerciseTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { exerciseTagExclude: exerciseTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { exerciseTagExclude: exerciseTag } }
+            );
         }
-    })
-});
+    }
 
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/workoutFilters');
+});
 
 
 // Get exercise catalog Include
@@ -928,102 +775,103 @@ app.get('/exerciseCatalogInclude', (req, res) => {
 })
 
 
-// Catalog search function
-app.get('/searchExercise', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(client => {
-            db = client.db('NutriFit');
-            exerciseCollection = db.collection('exercise');
+// Search for exercises
+app.get('/searchExercise', async (req, res) => {
+    const searchQuery = req.query.q;
+    let exerciseQuery = await Exercise.find({ name: new RegExp(searchQuery, 'i') })
+    let parsedResponse = exerciseQuery.map((exerciseObject) => {
+        return {
+            name: exerciseObject.name,
+            bodyPart: exerciseObject.bodyPart,
+            id: exerciseObject._id
+        }
+    })
 
-            const searchQuery = req.query.q;
-            exerciseCollection.find({ name: new RegExp(searchQuery, 'i') }).toArray()
-                .then(results => {
-                    res.json(results.map(item => ({ name: item.name, bodyPart: item.bodyPart, id: item._id })));
-                }).catch(error => console.error(error));
-        })
-        .catch(error => console.error(error));
+    res.json(parsedResponse)
 });
 
 
-// Select included exercises
-app.post('/selectExerciseInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
-        const itemId = req.body.item;
-        const userId = req.session.USER.id;
-        let selectedItems = [];
+// Select exercise to include or exclude
+app.post('/selectExercise', async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let exerciseToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) })
 
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                includeExercise: {
-                                    $each: [{
-                                        name: item.name,
-                                        bodyPart: item.bodyPart
-                                    }]
-                                }
-                            }
-                        },
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
+    let reqUrl = req.get('Referrer')
+    let parsedUrl = url.parse(reqUrl)
+    let path = parsedUrl.pathname;
 
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    if (path === '/exerciseCatalogInclude') {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    includeExercise: {
+                        $each: [{
+                            name: exerciseToAdd.name,
+                            bodyPart: exerciseToAdd.bodyPart
+                        }]
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    excludeExercise: {
+                        $each: [{
+                            name: exerciseToAdd.name,
+                            bodyPart: exerciseToAdd.bodyPart
+                        }]
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/workoutFilters');
 });
 
 
-// Remove included exercises
-app.post('/deleteExerciseInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
+// Remove exercise from filter
+app.post('/deleteExercise', async (req, res) => {
+    const exerciseName = req.body.item;
+    const userId = req.session.USER.id
+    const type = req.body.type
 
-        const exerciseName = req.body.item;
+    let exerciseToDelete = await Exercise.findOne({ name: exerciseName })
 
-        const userId = req.session.USER.id
-        collection.findOne({ name: exerciseName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                includeExercise: {
-                                    name: item.name,
-                                    bodyPart: item.bodyPart
-                                }
-                            }
-                        }
-                    )
-                        .then(() => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    if (type === 'include') {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    includeExercise: {
+                        name: exerciseToDelete.name,
+                        bodyPart: exerciseToDelete.bodyPart
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne(
+            { id: userId },
+            {
+                $pull: {
+                    excludeExercise: {
+                        name: exerciseToDelete.name,
+                        bodyPart: exerciseToDelete.bodyPart
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/workoutFilters');
 });
 
 
@@ -1031,88 +879,6 @@ app.post('/deleteExerciseInclude', (req, res) => {
 app.get('/exerciseCatalogExclude', (req, res) => {
     res.render('exerciseCatalogExclude')
 })
-
-
-// Select excluded exercises
-app.post('/selectExerciseExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
-        const itemId = req.body.item;
-        const userId = req.session.USER.id;
-        let selectedItems = [];
-
-
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                excludeExercise: {
-                                    $each: [{
-                                        name: item.name,
-                                        bodyPart: item.bodyPart
-                                    }]
-                                }
-                            }
-                        },
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
-
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
-
-
-// Remove excluded exercises
-app.post('/deleteExerciseExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
-
-        const exerciseName = req.body.item;
-
-        const userId = req.session.USER.id
-        collection.findOne({ name: exerciseName })
-            .then(item => {
-                if (item) {
-                    // Remove from users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $pull: {
-                                excludeExercise: {
-                                    name: item.name,
-                                    bodyPart: item.bodyPart
-                                }
-                            }
-                        }
-                    )
-                        .then(() => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
 
 
 // Get workout logs

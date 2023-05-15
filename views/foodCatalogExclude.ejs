@@ -19,7 +19,7 @@
                             </div>
                         </div>
                         <form id="search-form">
-                            <input class="mb-3 w-100" name="searchFood" type="text" id="search-bar"
+                            <input class="mb-3 w-100" name="searchFood" type="text" id="searchBar"
                                 placeholder="Search for food...">
                         </form>
                         <div id="foodResults"></div>
@@ -29,43 +29,10 @@
         </div>
         </div>
 
+        <!-- Bootstrap JS -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-        <script>
-            $(document).ready(function () {
-                $('#search-bar').on('input', function () {
-                    const searchQuery = $(this).val();
-                    $.get('/searchFood', { q: searchQuery }, function (data) {
-                        $('#foodResults').empty();
-                        data.forEach(item => {
-                            $('#foodResults').append(`
-                                <div class="card">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h5 class="card-title">${item.name}</h5>
-                                                <p class="card-text">${item.measure}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button onclick="addItem('${item.id}')" class="btn btn rounded-pill btn-dark mt-4">Add</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
-                        });
-                    });
-                });
-            });
-
-
-            function addItem(id) {
-                $.post('/selectFoodExclude', { item: id }, function () {
-                    // Redirect to selected page or show a message
-                    window.location.href = "/mealFilters";
-                });
-            }
-        </script>
+        <!-- Personal JS -->
+        <script src="./scripts/foodCatalog.js"></script>
     </body>
 
 </html>

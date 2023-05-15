@@ -19,7 +19,8 @@
               </div>
             </div>
             <form id="search-form">
-              <input class="mb-3 w-100" name="searchFood" type="text" id="search-bar" placeholder="Search for food...">
+              <input class="mb-3 w-100" name="searchExercise" type="text" id="searchBar"
+                placeholder="Search for Exercise...">
             </form>
             <div id="exerciseResults"></div>
           </div>
@@ -28,43 +29,10 @@
     </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <script>
-      $(document).ready(function () {
-        $('#search-bar').on('input', function () {
-          const searchQuery = $(this).val();
-          $.get('/searchExercise', { q: searchQuery }, function (data) {
-            $('#exerciseResults').empty();
-            data.forEach(item => {
-              $('#exerciseResults').append(`
-                                <div class="card">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h5 class="card-title">${item.name}</h5>
-                                                <p class="card-text">${item.bodyPart}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button onclick="addItem('${item.id}')" class="btn btn rounded-pill btn-dark mt-4">Add</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
-            });
-          });
-        });
-      });
-
-
-      function addItem(id) {
-        $.post('/selectExerciseInclude', { item: id }, function () {
-          // Redirect to selected page or show a message
-          window.location.href = "/workoutFilters";
-        });
-      }
-    </script>
+    <!-- Personal JS -->
+    <script src="./scripts/exerciseCatalog.js"></script>
   </body>
 
 </html>
