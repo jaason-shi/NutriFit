@@ -462,19 +462,19 @@ app.get('/foodCatalogInclude', (req, res) => {
 
 
 // Food catalog search function
-app.get('/searchFood', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(client => {
-            db = client.db('NutriFit');
-            foodCollection = db.collection('food');
+app.get('/searchFood', async (req, res) => {
+    const searchQuery = req.query.q;
+    let foodQuery = await Food.find({ Food: new RegExp(searchQuery, 'i') })
+    let parsedResponse = foodQuery.map((foodObject) => {
+        console.log(foodObject)
+        return {
+            name: foodObject.Food,
+            measure: foodObject.Measure,
+            id: foodObject._id
+        }
+    })
 
-            const searchQuery = req.query.q;
-            foodCollection.find({ Food: new RegExp(searchQuery, 'i') }).toArray()
-                .then(results => {
-                    res.json(results.map(item => ({ name: item.Food, measure: item.Measure, id: item._id })));
-                }).catch(error => console.error(error));
-        })
-        .catch(error => console.error(error));
+    res.json(parsedResponse)
 });
 
 
