@@ -4,19 +4,28 @@
 
 
 function addItem(id) {
-    $.post('/selectFoodInclude', { item: id }, function () {
-        // Redirect to selected page or show a message
-        window.location.href = "/mealFilters";
-    });
+    // Include or exclude item logic based on url
+    if (window.location.pathName === '/foodCatalogInclude') {
+        $.post('/selectFoodInclude', { item: id }, function () {
+            window.location.href = "/mealFilters";
+        });
+    } else {
+        $.post('/selectFoodExclude', { item: id }, function () {
+            window.location.href = "/mealFilters";
+        });
+    }
+
 }
 
 const setup = () => {
+    let url = window.location.pathname
+    console.log("url")
+    console.log(url)
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
         $.get('/searchFood', { q: searchQuery }, function (data) {
             $('#foodResults').empty();
-            console.log(data)
             data.forEach(item => {
                 $('#foodResults').append(`
                     <div class="card">
