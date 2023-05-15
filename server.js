@@ -66,12 +66,26 @@ const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~
 // User model
 const User = require('./models/userModel')
 
+// Food model
+const Food = require('./models/foodModel')
+
 const testUser = async () => {
     let test = await User.find({ id: "SeanGuy" })
+    console.log("User test:")
+    console.log(test)
+}
+
+const testFood = async () => {
+    console.log(Food)
+    console.log(User)
+
+    let test = await Food.find().limit(1)
+    console.log("Food test:")
     console.log(test)
 }
 
 testUser()
+testFood()
 
 
 // Basic landing page 
