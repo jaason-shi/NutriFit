@@ -523,81 +523,46 @@ app.post('/selectFood', async (req, res) => {
 });
 
 
-// Add food tag to include
-app.post('/addFoodTagInclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const foodTag = req.body.foodTag;
-        const userId = req.session.USER.id
+// Modify food tag
+app.post('/modifyFoodTag', async (req, res) => {
+    const foodTag = req.body.foodTag;
+    const userId = req.session.USER.id
+    const type = req.body.type
+    let user = await User.findOne({ id: userId });
 
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-
-            if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { foodTagInclude: foodTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { foodTagInclude: foodTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/mealFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    if (type === 'include') {
+        if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { foodTagInclude: foodTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { foodTagInclude: foodTag } }
+            );
         }
-    })
-});
-
-
-// Add food tag to exclude
-app.post('/addFoodTagExclude', async (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(async (client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const foodTag = req.body.foodTag;
-        const userId = req.session.USER.id
-
-        try {
-            const user = await usersCollection.findOne({ id: userId });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-
-            if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
-                // If the tag is already present, remove it
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $pull: { foodTagExclude: foodTag } }
-                );
-            } else {
-                // Otherwise, add the tag
-                await usersCollection.updateOne(
-                    { id: userId },
-                    { $addToSet: { foodTagExclude: foodTag } }
-                );
-            }
-            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                console.log(`User Updated: ${user}\n\n`);
-                req.session.USER = user;
-                res.redirect('/mealFilters');
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal server error');
+    } else {
+        if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
+            // If the tag is already present, remove it
+            await User.updateOne(
+                { id: userId },
+                { $pull: { foodTagExclude: foodTag } }
+            );
+        } else {
+            // Otherwise, add the tag
+            await User.updateOne(
+                { id: userId },
+                { $addToSet: { foodTagExclude: foodTag } }
+            );
         }
-    })
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/mealFilters');
 });
 
 
@@ -605,9 +570,6 @@ app.post('/addFoodTagExclude', async (req, res) => {
 app.get('/foodCatalogExclude', (req, res) => {
     res.render('foodCatalogExclude')
 })
-
-
-
 
 
 // Remove included food
