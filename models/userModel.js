@@ -10,6 +10,12 @@ const userSchema = new Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     answer: { type: String, required: true },
+    foodTagInclude: [Schema.Types.Mixed],
+    foodTagExclude: [Schema.Types.Mixed],
+    exerciseTagInclude: [Schema.Types.Mixed],
+    exerciseTagExclude: [Schema.Types.Mixed],
+    includeExercise: [Schema.Types.Mixed],
+    excludeExercise: [Schema.Types.Mixed]
 });
 
 const User = mongoose.model('User', userSchema)
