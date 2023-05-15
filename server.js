@@ -461,7 +461,7 @@ app.get('/foodCatalogInclude', (req, res) => {
 })
 
 
-// Food catalog search function
+// Search for food
 app.get('/searchFood', async (req, res) => {
     const searchQuery = req.query.q;
     let foodQuery = await Food.find({ Food: new RegExp(searchQuery, 'i') })
@@ -775,20 +775,18 @@ app.get('/exerciseCatalogInclude', (req, res) => {
 })
 
 
-// Catalog search function
-app.get('/searchExercise', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(client => {
-            db = client.db('NutriFit');
-            exerciseCollection = db.collection('exercise');
+// Search for exercises
+app.get('/searchExercise', async (req, res) => {
+    const searchQuery = req.query.q;
+    let exerciseQuery = await Exercise.find({ name: new RegExp(searchQuery, 'i') })
+    let parsedResponse = exerciseQuery.map((exerciseObject) => {
+        return {
+            name: exerciseObject.name,
+            bodyPart: exerciseObject.bodyPart
+        }
+    })
 
-            const searchQuery = req.query.q;
-            exerciseCollection.find({ name: new RegExp(searchQuery, 'i') }).toArray()
-                .then(results => {
-                    res.json(results.map(item => ({ name: item.name, bodyPart: item.bodyPart, id: item._id })));
-                }).catch(error => console.error(error));
-        })
-        .catch(error => console.error(error));
+    res.json(parsedResponse)
 });
 
 
