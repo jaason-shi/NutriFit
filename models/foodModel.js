@@ -15,7 +15,7 @@ const foodSchema = new Schema({
     'Sat.Fat': String,
     Fiber: String,
     Carbs: String,
-    Category: String
+    Category: [Schema.Types.Mixed]
 }, { collection: 'food' });
 
 const Food = mongoose.model('Food', foodSchema)
