@@ -4,18 +4,9 @@
 
 
 function addItem(id) {
-    let url = window.location.pathname
-    // Include or exclude item logic based on url
-    if (url === '/foodCatalogInclude') {
-        $.post('/selectFoodInclude', { item: id }, function () {
-            window.location.href = "/mealFilters";
-        });
-    } else {
-        $.post('/selectFoodExclude', { item: id }, function () {
-            window.location.href = "/mealFilters";
-        });
-    }
-
+    $.post('/selectFood', { item: id }, function () {
+        window.location.href = "/mealFilters";
+    })
 }
 
 const setup = () => {

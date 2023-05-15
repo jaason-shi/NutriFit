@@ -13,6 +13,7 @@ const saltRounds = 10
 const { ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
+const url = require('url');
 require('dotenv').config();
 
 // Set up app (express)
@@ -477,27 +478,46 @@ app.get('/searchFood', async (req, res) => {
 
 
 // Select included food
-app.post('/selectFoodInclude', async (req, res) => {
+app.post('/selectFood', async (req, res) => {
     const itemId = req.body.item;
     const userId = req.session.USER.id;
     let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) })
 
-    await User.updateOne({ id: userId },
-        {
-            $addToSet: {
-                includeFood: {
-                    $each: [{
-                        Food: foodToAdd.Food,
-                        Calories: foodToAdd.Calories,
-                        Grams: foodToAdd.Grams
-                    }]
+    let reqUrl = req.get('Referrer')
+    let parsedUrl = url.parse(reqUrl)
+    let path = parsedUrl.pathname;
+
+    if (path === '/foodCatalogInclude') {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    includeFood: {
+                        $each: [{
+                            Food: foodToAdd.Food,
+                            Calories: foodToAdd.Calories,
+                            Grams: foodToAdd.Grams
+                        }]
+                    }
                 }
             }
-        }
-    )
+        )
+    } else {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    excludeFood: {
+                        $each: [{
+                            Food: foodToAdd.Food,
+                            Calories: foodToAdd.Calories,
+                            Grams: foodToAdd.Grams
+                        }]
+                    }
+                }
+            }
+        )
+    }
 
     let updatedUser = await User.findOne({ id: userId })
-    console.log(`User Updated: ${updatedUser}\n\n`);
     req.session.USER = updatedUser;
     res.redirect('/mealFilters');
 });
@@ -587,48 +607,7 @@ app.get('/foodCatalogExclude', (req, res) => {
 })
 
 
-// Select excluded food
-app.post('/selectFoodExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('food');
 
-        const itemId = req.body.item;
-        const userId = req.session.USER.id
-        let selectedItems = []
-
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                excludeFood: {
-                                    $each: [{
-                                        Food: item.Food,
-                                        Calories: item.Calories, Grams: item.Grams
-                                    }]
-                                }
-                            }
-                        }
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                return res.redirect('/mealFilters');
-
-                            })
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
 
 
 // Remove included food
