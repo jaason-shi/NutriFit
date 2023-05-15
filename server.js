@@ -477,7 +477,7 @@ app.get('/searchFood', async (req, res) => {
 });
 
 
-// Select included food
+// Select food to include or exclude
 app.post('/selectFood', async (req, res) => {
     const itemId = req.body.item;
     const userId = req.session.USER.id;
@@ -782,7 +782,8 @@ app.get('/searchExercise', async (req, res) => {
     let parsedResponse = exerciseQuery.map((exerciseObject) => {
         return {
             name: exerciseObject.name,
-            bodyPart: exerciseObject.bodyPart
+            bodyPart: exerciseObject.bodyPart,
+            id: exerciseObject._id
         }
     })
 
@@ -790,46 +791,47 @@ app.get('/searchExercise', async (req, res) => {
 });
 
 
-// Select included exercises
-app.post('/selectExerciseInclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
-        const itemId = req.body.item;
-        const userId = req.session.USER.id;
-        let selectedItems = [];
+// Select exercise to include or exclude
+app.post('/selectExercise', async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let exerciseToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) })
 
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                includeExercise: {
-                                    $each: [{
-                                        name: item.name,
-                                        bodyPart: item.bodyPart
-                                    }]
-                                }
-                            }
-                        },
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
+    let reqUrl = req.get('Referrer')
+    let parsedUrl = url.parse(reqUrl)
+    let path = parsedUrl.pathname;
 
-                        })
-                } else {
-                    res.status(404).send('Item not found');
+    if (path === '/exerciseCatalogInclude') {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    includeExercise: {
+                        $each: [{
+                            name: exerciseToAdd.name,
+                            bodyPart: exerciseToAdd.bodyPart
+                        }]
+                    }
                 }
-            })
-    })
+            }
+        )
+    } else {
+        await User.updateOne({ id: userId },
+            {
+                $addToSet: {
+                    excludeExercise: {
+                        $each: [{
+                            name: exerciseToAdd.name,
+                            bodyPart: exerciseToAdd.bodyPart
+                        }]
+                    }
+                }
+            }
+        )
+    }
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/workoutFilters');
 });
 
 
