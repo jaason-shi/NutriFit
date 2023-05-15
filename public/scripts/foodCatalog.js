@@ -4,8 +4,9 @@
 
 
 function addItem(id) {
+    let url = window.location.pathname
     // Include or exclude item logic based on url
-    if (window.location.pathName === '/foodCatalogInclude') {
+    if (url === '/foodCatalogInclude') {
         $.post('/selectFoodInclude', { item: id }, function () {
             window.location.href = "/mealFilters";
         });
@@ -18,9 +19,6 @@ function addItem(id) {
 }
 
 const setup = () => {
-    let url = window.location.pathname
-    console.log("url")
-    console.log(url)
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
