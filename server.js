@@ -880,50 +880,6 @@ app.get('/exerciseCatalogExclude', (req, res) => {
 })
 
 
-// Select excluded exercises
-app.post('/selectExerciseExclude', (req, res) => {
-    MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
-        const usersCollection = client.db('NutriFit').collection('users');
-        const collection = client.db('NutriFit').collection('exercise');
-        const itemId = req.body.item;
-        const userId = req.session.USER.id;
-        let selectedItems = [];
-
-
-        collection.findOne({ _id: new ObjectId(itemId) })
-            .then(item => {
-                if (item) {
-                    selectedItems.push(item);
-                    // Add to users collection
-                    usersCollection.updateOne(
-                        { id: userId },
-                        {
-                            $addToSet: {
-                                excludeExercise: {
-                                    $each: [{
-                                        name: item.name,
-                                        bodyPart: item.bodyPart
-                                    }]
-                                }
-                            }
-                        },
-                    )
-                        .then(result => {
-                            usersCollection.findOne({ email: req.session.USER.email }).then((user) => {
-                                console.log(`User Updated: ${user}\n\n`);
-                                req.session.USER = user;
-                                res.redirect('/workoutFilters');
-                            })
-
-                        })
-                } else {
-                    res.status(404).send('Item not found');
-                }
-            })
-    })
-});
-
-
 // Remove excluded exercises
 app.post('/deleteExerciseExclude', (req, res) => {
     MongoClient.connect(uri, { useNewUrlParser: true }).then((client) => {
