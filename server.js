@@ -52,18 +52,26 @@ const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~
 
 
 // User Model
-const userSchema = new Schema({
-    id: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    answer: { type: String, required: true },
-    foodTagInclude: { type: Schema.Types.Mixed },
-    foodTagExclude: { type: Schema.Types.Mixed },
-    includeExercise: { type: Schema.Types.Mixed },
-    excludeExercise: { type: Schema.Types.Mixed }
-});
+// const userSchema = new Schema({
+//     id: { type: String, required: true },
+//     email: { type: String, required: true },
+//     password: { type: String, required: true },
+//     answer: { type: String, required: true },
+//     foodTagInclude: { type: Schema.Types.Mixed },
+//     foodTagExclude: { type: Schema.Types.Mixed },
+//     includeExercise: { type: Schema.Types.Mixed },
+//     excludeExercise: { type: Schema.Types.Mixed }
+// });
 
-const User = mongoose.model('User', userSchema);
+const User = require('./models/userModel')
+
+const testUser = async () => {
+    let test = await User.find({ id: "SeanGuy" })
+    console.log(test)
+}
+
+testUser()
+
 
 // Basic landing page 
 app.get('/', (req, res) => {
