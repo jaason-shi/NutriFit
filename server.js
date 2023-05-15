@@ -69,6 +69,9 @@ const User = require('./models/userModel')
 // Food model
 const Food = require('./models/foodModel')
 
+// Exercise model
+const Exercise = require('./models/exerciseModel')
+
 const testUser = async () => {
     let test = await User.find({ id: "SeanGuy" })
     console.log("User test:")
@@ -76,16 +79,20 @@ const testUser = async () => {
 }
 
 const testFood = async () => {
-    console.log(Food)
-    console.log(User)
-
     let test = await Food.find().limit(1)
     console.log("Food test:")
     console.log(test)
 }
 
+const testExercise = async () => {
+    let test = await Exercise.find().limit(1)
+    console.log("Exercise test:")
+    console.log(test)
+}
+
 testUser()
 testFood()
+testExercise()
 
 
 // Basic landing page 
