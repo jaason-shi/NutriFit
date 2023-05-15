@@ -64,17 +64,6 @@ const Food = require('./models/foodModel')
 // Exercise model
 const Exercise = require('./models/exerciseModel')
 
-const testAll = async () => {
-    let user = await User.find().limit(1)
-    let food = await Food.find().limit(1)
-    let exercise = await Exercise.find().limit(1)
-    console.log(user)
-    console.log(food)
-    console.log(exercise)
-}
-
-testAll()
-
 // Basic landing page 
 app.get('/', (req, res) => {
     if (req.session.AUTH) {
