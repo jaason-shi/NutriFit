@@ -219,39 +219,38 @@ app.get('/changePasswordSuccess', (req, res) => {
 
 
 // Post login page
-app.post(('/login'), (req, res) => {
+app.post(('/login'), async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
     const emailValidationResult = basicStringSchema.validate(email);
     const passwordValidationResult = passwordSchema.validate(password);
 
-    User.find({ $or: [{ email: email }, { id: email }] }).exec().then(async (users) => {
-
-        if (emailValidationResult.error != null) {
-            req.session.INVALID_FIELD = 'Email or ID'
-            res.redirect('/invalidFormData')
-        } else if (passwordValidationResult.error != null) {
-            req.session.INVALID_FIELD = 'Password'
-            res.redirect('/invalidFormData')
+    let user = await User.findOne({ $or: [{ email: email }, { id: email }] })
+    if (emailValidationResult.error != null) {
+        req.session.INVALID_FIELD = 'Email or ID'
+        res.redirect('/invalidFormData')
+    } else if (passwordValidationResult.error != null) {
+        req.session.INVALID_FIELD = 'Password'
+        res.redirect('/invalidFormData')
+    } else {
+        if (user === undefined) {
+            req.session.AUTH = false;
+            req.session.FAIL_FORM = true;
         } else {
-            if (users.length === 0) {
+            if (await bcrypt.compare(password, user.password)) {
+                req.session.AUTH = true;
+                req.session.ROLE = user.role;
+                req.session.USER = user
+            } else {
                 req.session.AUTH = false;
                 req.session.FAIL_FORM = true;
-            } else {
-                if (await bcrypt.compare(password, users[0].password)) {
-                    req.session.AUTH = true;
-                    req.session.ROLE = users[0].role;
-                    req.session.USER = users[0]
-                } else {
-                    req.session.AUTH = false;
-                    req.session.FAIL_FORM = true;
-                }
             }
-            res.redirect('/members');
         }
-    })
-});
+        res.redirect('/members');
+    }
+})
+
 
 
 // Get invalid form data page
