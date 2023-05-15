@@ -63,6 +63,7 @@ const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~
 //     excludeExercise: { type: Schema.Types.Mixed }
 // });
 
+// User model
 const User = require('./models/userModel')
 
 const testUser = async () => {
