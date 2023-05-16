@@ -634,6 +634,13 @@ app.get('/favourites', (req, res) => {
     res.render('favourites')
 })
 
+// Get favorite workouts
+app.get('/favoriteWorkouts', (req, res) => {
+    
+    res.render('favoriteWorkouts')
+})
+
+
 // Get favorite meals
 app.get('/favoriteMeals', (req, res) => {
     res.render('favoriteMeals')
