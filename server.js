@@ -660,8 +660,10 @@ async function workoutGenerationQuery(duration, user) {
         excludedTags = [];
     }
 
-    const exercisesPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a sample ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
+    // const exercisesPrompt =
+    //     `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a sample ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
+
+    const exercisesPrompt = "hi"
 
     console.log(`Initial Prompt: ${exercisesPrompt}\n\n`)
 
@@ -679,6 +681,10 @@ async function workoutGenerationQuery(duration, user) {
         console.log(`\n\nAfter regex filter Second: ${matches}\n\n`)
     }
 
+    if (matches == null) {
+        return undefined;
+    }
+
     let codeBlockContent;
 
     if (matches && matches.length > 0) {
@@ -686,32 +692,37 @@ async function workoutGenerationQuery(duration, user) {
     }
 
     const workoutParsed = JSON.parse(codeBlockContent[0])
-    const stringify = JSON.stringify(workoutParsed)
+
+    console.log("Final Product\n")
+    console.log(workoutParsed)
 
     return workoutParsed;
 }
 
 
 // Get generated exercises
-app.get('/generatedWorkouts', (req, res) => {
+app.get('/generatedWorkouts', async (req, res) => {
     let duration;
+    let user = req.session.USER
     if (req.query.duration != undefined) {
         duration = req.query.duration;
     } else {
         duration = 10;
     }
-    console.log(`Duration: ${duration}\n\n`)
-    console.log("\n\n\nBREAK\n\n\n")
-    workoutGenerationQuery(duration, req.session.USER).then((workout) => {
-        let totalDuration = 0;
-        workout.forEach((item) => {
-            totalDuration += item.duration
+    let workout = await workoutGenerationQuery(duration, user)
+
+    if (workout === undefined) {
+        return res.redirect('/badApiResponse')
+    } else {
+        let totalDuration = 0
+        workout.forEach((exercise) => {
+            totalDuration += exercise.duration
         })
         res.render('generatedWorkouts', {
             workout: workout,
             totalDuration: totalDuration
         })
-    })
+    }
 })
 
 // Exercise tags
