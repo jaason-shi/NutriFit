@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
         <!-- Header -->
-        <%- include('partials/header.ejs')%>
+        <%- include('../partials/header.ejs')%>
 
             <!-- Content -->
             <div class="container-fluid text-center mt-3">
                 <%= invalidField %> is invalid. <br><br>
                     <a href="<%= referer %>">Try again</a>.
             </div>
-            <%- include('partials/navbar') %>
+            <%- include('../partials/navbar') %>
     </body>
 
 </html>
