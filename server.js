@@ -645,17 +645,23 @@ app.get("/favoriteWorkouts", (req, res) => {
 // Workout Logs
 app.get("/workoutLogs", (req, res) => {
   console.log(req.session.WORKOUT);
+  // get total duration of the workouts
+  let totalDuration = 0;
+  req.session.WORKOUT.forEach((exercise) => {
+    totalDuration += Number(exercise.duration);
+  });
   // add the workout to the user's favorite workouts
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
   User.updateOne({ id: userId }, { $addToSet: { workoutLogs: workout } }).then(
     () => {
-      res.redirect("/workoutLogs");
+      res.render("/workoutLogs", { totalDuration: totalDuration });
     }
   );
   // delete session variables
   delete req.session.WORKOUT;
 });
+
 
 // Get favorite meals
 app.get("/favoriteMeals", (req, res) => {
@@ -675,11 +681,16 @@ app.get("/favoriteMeals", (req, res) => {
 // Food Logs
 app.get("/foodLogs", (req, res) => {
   console.log(req.session.MEAL);
+  // get calories from the meal
+  let totalCalories = 0;
+  req.session.MEAL.forEach((food) => {
+    totalCalories += Number(food.Calories);
+  });
   // add the meal to the user's logs
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
   User.updateOne({ id: userId }, { $addToSet: { foodLogs: meal } }).then(() => {
-    res.redirect("/foodLogs");
+    res.render("/foodLogs", { totalCalories: totalCalories });
   });
   // delete session variables
   delete req.session.MEAL;
