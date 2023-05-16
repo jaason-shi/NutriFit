@@ -13,10 +13,21 @@
                 </div>
             </li>
             <li>
-                <h1 class="fw-bold">NutriFit</h1>
+                <h1 class="fw-bold" id="easterEgg">NutriFit</h1>
             </li>
         </ul>
     </div>
+    <script>
+        let clickCount = 0;
+        const easterEggElement = document.getElementById("easterEgg");
+        easterEggElement.addEventListener("click", () => {
+            clickCount++;
+            if (clickCount === 5) {
+                window.location.href = "../../snake.html";
+                clickCount = 0;
+            }
+        });
+    </script>
     <style>
         .navbar-bottom {
             position: fixed;
