@@ -364,7 +364,8 @@ async function mealGenerationQuery(calories, user) {
     }
 
     const mealsPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal. Give me a response`
+        `Respond to me in this format:` + ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`
+
 
     console.log(`Initial Prompt: ${mealsPrompt}\n\n`)
 
@@ -383,8 +384,7 @@ async function mealGenerationQuery(calories, user) {
     }
 
     if (matches == null) {
-        console.log("REGENERATING\n\n")
-        return mealGenerationQuery(calories, user)
+        return undefined;
     }
     let codeBlockContent;
 
@@ -393,7 +393,8 @@ async function mealGenerationQuery(calories, user) {
     }
 
     const mealPlanParsed = JSON.parse(codeBlockContent[0])
-    const stringify = JSON.stringify(mealPlanParsed)
+    console.log("Final Product\n")
+    console.log(mealPlanParsed)
 
     return mealPlanParsed;
 }
@@ -402,23 +403,34 @@ async function mealGenerationQuery(calories, user) {
 // Get generated meals
 app.get('/generatedMeals', async (req, res) => {
     let calories;
+    let user = req.session.USER
     if (req.query.calories != undefined) {
         calories = req.query.calories;
     } else {
         calories = 500;
     }
     console.log(`Calories: ${calories}\n\n`)
-    mealGenerationQuery(calories, req.session.USER).then((mealPlan) => {
+    let meal = await mealGenerationQuery(calories, user);
+
+    if (meal === undefined) {
+        return res.redirect('/badApiResponse')
+    } else {
         let totalCalories = 0;
-        mealPlan.forEach((item) => {
-            totalCalories += item.calories
+        meal.forEach((food) => {
+            totalCalories += Number(food.Calories)
         })
         res.render('generatedMeals', {
-            foodItems: mealPlan,
+            foodItems: meal,
             totalCalories: totalCalories,
             userSpecifiedCalories: req.query.calories
         })
-    })
+    }
+})
+
+
+// Get bad api response page
+app.get('/badApiResponse', (req, res) => {
+    res.render('badApiResponse')
 })
 
 
@@ -649,7 +661,7 @@ async function workoutGenerationQuery(duration, user) {
     }
 
     const exercisesPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a sample ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `Include these exercises: ${includedExercise}. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
+        `Respond to me in this format:` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String}, ...]```' + `. Make me a sample ${duration} minute workout. The unit of the duration field is in minutes. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "duration": int, "bodyPart": String }, ...]```.' + `These json objects must be included: ${includedExercise}. Give them a duration. Include these categories: ${includedTags}. Exclude these exercises: ${excludedExercise}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the duration of the workout.`
 
     console.log(`Initial Prompt: ${exercisesPrompt}\n\n`)
 
@@ -667,6 +679,10 @@ async function workoutGenerationQuery(duration, user) {
         console.log(`\n\nAfter regex filter Second: ${matches}\n\n`)
     }
 
+    if (matches == null) {
+        return undefined;
+    }
+
     let codeBlockContent;
 
     if (matches && matches.length > 0) {
@@ -674,32 +690,37 @@ async function workoutGenerationQuery(duration, user) {
     }
 
     const workoutParsed = JSON.parse(codeBlockContent[0])
-    const stringify = JSON.stringify(workoutParsed)
+
+    console.log("Final Product\n")
+    console.log(workoutParsed)
 
     return workoutParsed;
 }
 
 
 // Get generated exercises
-app.get('/generatedWorkouts', (req, res) => {
+app.get('/generatedWorkouts', async (req, res) => {
     let duration;
+    let user = req.session.USER
     if (req.query.duration != undefined) {
         duration = req.query.duration;
     } else {
         duration = 10;
     }
-    console.log(`Duration: ${duration}\n\n`)
-    console.log("\n\n\nBREAK\n\n\n")
-    workoutGenerationQuery(duration, req.session.USER).then((workout) => {
-        let totalDuration = 0;
-        workout.forEach((item) => {
-            totalDuration += item.duration
+    let workout = await workoutGenerationQuery(duration, user)
+
+    if (workout === undefined) {
+        return res.redirect('/badApiResponse')
+    } else {
+        let totalDuration = 0
+        workout.forEach((exercise) => {
+            totalDuration += exercise.duration
         })
         res.render('generatedWorkouts', {
             workout: workout,
             totalDuration: totalDuration
         })
-    })
+    }
 })
 
 // Exercise tags
