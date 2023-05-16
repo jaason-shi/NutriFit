@@ -7,7 +7,8 @@ function addItem(id) {
     var formType = $('#formType').val();
 
     if (formType === 'quickAddWorkout') {
-        $.post('/quickAddWorkout', { item: id }, function () {
+        var duration = $('#duration').val();
+        $.post('/quickAddWorkout', { item: id, duration: duration }, function () {
             window.location.href = "/quickAddWorkout";
         });
     } else {

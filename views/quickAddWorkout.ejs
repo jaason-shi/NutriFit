@@ -4,37 +4,39 @@
 <%- include('partials/meta') %>
 
 
-    <body>
-        <div class="bg-body-tertiary" style="height: 100vh">
+<body>
+    <div class="bg-body-tertiary" style="height: 100vh">
 
-            <div class="row w-100 m-0">
-                <div class="mx-auto col-lg-5 col-12">
-                    <div class="card mx-auto mt-5 p-3 w-75">
-                        <div class="card-body pb-2 mb-2">
-                            <div class="d-inline-flex align-items-center justify-content-center">
-                                <a href="/members"><img src="/images/less-than.svg" alt=""></a>
-                            </div>
-                            <div class="ms-2 fs-6 fw-medium d-inline-flex">
-                                Quick Add Workout
-                            </div>
+        <div class="row w-100 m-0">
+            <div class="mx-auto col-lg-5 col-12">
+                <div class="card mx-auto mt-5 p-3 w-75">
+                    <div class="card-body pb-2 mb-2">
+                        <div class="d-inline-flex align-items-center justify-content-center">
+                            <a href="/members"><img src="/images/less-than.svg" alt=""></a>
                         </div>
-                        <form id="search-form">
-                            <input type="hidden" name="formType" id="formType" value="quickAddWorkout" />
-                            <input class="mb-3 w-100" name="searchFood" type="text" id="searchBar"
-                                placeholder="Search for exercise...">
-                        </form>
-                        <div id="exerciseResults"></div>
+                        <div class="ms-2 fs-6 fw-medium d-inline-flex">
+                            Quick Add Workout
+                        </div>
                     </div>
+                    <form id="search-form">
+                        <input type="hidden" name="formType" id="formType" value="quickAddWorkout" />
+                        <input class="mb-3 w-100" name="searchFood" type="text" id="searchBar"
+                            placeholder="Search for exercise...">
+                        <input class="mb-3 w-100" name="duration" type="number" id="duration"
+                            placeholder="Duration (in minutes)">
+                    </form>
+                    <div id="exerciseResults"></div>
                 </div>
             </div>
         </div>
-        </div>
+    </div>
+    </div>
 
-        <!-- Bootstrap JS -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <!-- Personal JS -->
-        <script src="./scripts/exerciseCatalog.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Personal JS -->
+    <script src="./scripts/exerciseCatalog.js"></script>
 
-    </body>
+</body>
 
 </html>
