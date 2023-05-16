@@ -7,9 +7,6 @@ const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
-const Joi = require('joi');
-const bcrypt = require('bcrypt');
-const saltRounds = 10
 const { ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
@@ -48,13 +45,7 @@ app.use(session({
     cookie: { maxAge: 60 * 60 * 1000 }
 }))
 
-/**
- * Set up form field validation to protect against DB query attacks.
- * The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
- */
-const basicStringSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
-const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
-const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
+
 
 // User model
 const User = require('./models/userModel')

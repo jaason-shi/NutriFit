@@ -4,6 +4,18 @@
 
 const express = require('express');
 const userRouter = express.Router();
+const Joi = require('joi');
+const bcrypt = require('bcrypt');
+const saltRounds = 10
+const User = require('../models/userModel')
+
+/**
+ * Set up form field validation to protect against DB query attacks.
+ * The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
+ */
+const basicStringSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
+const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
+const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
 // Get login page
 userRouter.get('/login', (req, res) => {
