@@ -626,6 +626,39 @@ app.get('/favoriteMeals', (req, res) => {
     res.render('favoriteMeals')
 })
 
+app.get('/quickAddMeal', (req, res) => {
+    res.render('quickAddMeal')
+})
+
+app.post('/quickAddMeal', async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) })
+
+    // get current date and time as a string
+    const date = new Date();
+    const dateString = date.toISOString();
+
+    await User.updateOne({ id: userId },
+        {
+            $push: {
+                meals: {
+                    mealName: foodToAdd.Food,
+                    items: [{
+                        foodName: foodToAdd.Food,
+                        calories: foodToAdd.Calories,
+                        grams: foodToAdd.Grams
+                    }],
+                    expireTime: dateString                }
+            }
+        }
+    )
+
+    let updatedUser = await User.findOne({ id: userId })
+    req.session.USER = updatedUser;
+    res.redirect('/quickAddMeal'); 
+});
+
 
 async function workoutGenerationQuery(duration, user) {
 
