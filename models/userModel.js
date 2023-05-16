@@ -17,7 +17,20 @@ const userSchema = new Schema({
     includeExercise: [Schema.Types.Mixed],
     excludeExercise: [Schema.Types.Mixed],
     includeFood: [Schema.Types.Mixed],
-    excludeFood: [Schema.Types.Mixed]
+    excludeFood: [Schema.Types.Mixed],
+    meals: [
+        {
+            mealName: String,
+            items: [
+                {
+                    foodName: String,
+                    calories: Number,
+                    grams: Number
+                }
+            ],
+            expireTime: Date
+        }
+    ]
 });
 
 const User = mongoose.model('User', userSchema)
