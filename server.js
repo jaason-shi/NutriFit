@@ -642,6 +642,24 @@ app.get("/favoriteWorkouts", (req, res) => {
     delete req.session.WORKOUT;    
 });
 
+// Workout Logs
+app.get("/workoutLogs", (req, res) => {
+  console.log(req.session.WORKOUT);
+  // add the workout to the user's favorite workouts
+  const workout = req.session.WORKOUT;
+  const userId = req.session.USER.id;
+  User.updateOne(
+    { id: userId },
+    { $addToSet: { workoutLogs: workout } }
+  ).then(() => {
+    res.redirect("/workoutLogs");
+  });
+  // delete session variables
+  delete req.session.WORKOUT;
+});
+
+
+
 
 // Get favorite meals
 app.get("/favoriteMeals", (req, res) => {
@@ -658,6 +676,24 @@ app.get("/favoriteMeals", (req, res) => {
     // delete session variables
     delete req.session.MEAL;
 });
+
+// Food Logs
+app.get("/foodLogs", (req, res) => {
+    console.log(req.session.MEAL);
+    // add the meal to the user's logs
+    const meal = req.session.MEAL;
+    const userId = req.session.USER.id;
+    User.updateOne(
+        { id: userId },
+        {   $addToSet: { foodLogs: meal } }
+    ).then(() => {
+        res.redirect("/foodLogs");
+    });
+    // delete session variables
+    delete req.session.MEAL;
+});
+
+
 
 async function workoutGenerationQuery(duration, user) {
   let includedExercise = JSON.stringify(user.includeExercise);
