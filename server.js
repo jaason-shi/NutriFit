@@ -634,9 +634,10 @@ app.get('/favourites', (req, res) => {
     res.render('favourites')
 })
 
-// Get favorite workouts
+// Get favorite workouts  favoriteWorkouts
 app.get('/favoriteWorkouts', (req, res) => {
     
+
     res.render('favoriteWorkouts')
 })
 
@@ -715,6 +716,27 @@ app.get('/generatedWorkouts', async (req, res) => {
         duration = 10;
     }
     let workout = await workoutGenerationQuery(duration, user)
+    // add workout to user's favorites
+    if (workout != undefined) {
+        let workoutName = workout.map((exercise) => {
+            return exercise.name
+        })
+        await User.updateOne({ id: user.id },
+            {
+                $addToSet: {
+                    favoriteWorkouts: {
+                        $each: [{
+                            name: workoutName,
+                            duration: duration
+                        }]
+                    }
+                }
+            }
+        )
+    }
+
+
+
 
     if (workout === undefined) {
         return res.redirect('/badApiResponse')
