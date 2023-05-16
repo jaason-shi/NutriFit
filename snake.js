@@ -15,21 +15,6 @@ let snakeBody = [];
 let intervalId;
 let score = 0;
 
-// Getting high score from local storage
-let highScore = localStorage.getItem("high-score") || 0;
-highScoreElement.innerText = `High Score: ${highScore}`;
-const updateFoodPosition = () => {
-  foodX = Math.floor(Math.random() * GRID_SIZE) + 1;
-  foodY = Math.floor(Math.random() * GRID_SIZE) + 1;
-};
-
-// Handling game over situation
-const handleGameOver = () => {
-  clearInterval(intervalId);
-  alert("Game Over! Press OK to replay...");
-  location.reload();
-};
-
 // Changing the snake's direction and velocity based on the button clicked
 const changeDirection = (event) => {
   if (event.key === "ArrowUp" && velocityY != 1) {
@@ -53,6 +38,21 @@ controls.forEach((button) =>
     changeDirection({ key: button.dataset.key })
   )
 );
+
+// Handling game over situation
+const handleGameOver = () => {
+  clearInterval(intervalId);
+  alert("Game Over! Press OK to replay...");
+  location.reload();
+};
+
+// Getting high score from local storage
+let highScore = localStorage.getItem("high-score") || 0;
+highScoreElement.innerText = `High Score: ${highScore}`;
+const updateFoodPosition = () => {
+  foodX = Math.floor(Math.random() * GRID_SIZE) + 1;
+  foodY = Math.floor(Math.random() * GRID_SIZE) + 1;
+};
 
 // Initializing the game
 const initGame = () => {
