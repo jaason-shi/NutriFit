@@ -97,7 +97,8 @@
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/exerciseCatalogInclude">
+                                <form class=" mb-2" action="/exerciseCatalog">
+                                    <input type="hidden" name="type" id="type" value="include">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
                                 </form>
@@ -175,7 +176,8 @@
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/exerciseCatalogExclude">
+                                <form class=" mb-2" action="/exerciseCatalog">
+                                    <input type="hidden" name="type" id="type" value="exclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
                                 </form>
