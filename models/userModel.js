@@ -18,8 +18,6 @@ const userSchema = new Schema({
     excludeExercise: [Schema.Types.Mixed],
     includeFood: [Schema.Types.Mixed],
     excludeFood: [Schema.Types.Mixed],
-    generatedWorkouts: [Schema.Types.Mixed],
-    generatedMeals: [Schema.Types.Mixed],
     favouriteWorkouts: [Schema.Types.Mixed],
     favouriteFoods: [Schema.Types.Mixed],
     workoutLogs: [Schema.Types.Mixed],
