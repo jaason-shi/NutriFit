@@ -17,19 +17,30 @@ const setup = () => {
             $('#foodResults').empty();
             data.forEach(item => {
                 $('#foodResults').append(`
-                    <div class="card">
-                        <div class="row no-gutters">
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title">${item.name}</h5>
-                                    <p class="card-text">${item.measure}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <button onclick="addItem('${item.id}')" class="btn btn rounded-pill btn-dark mt-4">Add</button>
-                            </div>
+
+                <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                    <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                        <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                            style="height: 30px; width: 30px"></button>
+                    </div>
+
+                    <div class="w-50 vstack gap-0">
+                        <div class="d-inline-flex">
+                            <span>
+                                ${item.name}, ${item.measure}
+                            </span>
+
+                        </div>
+                        <div class="d-inline text-secondary" style="font-size: 14px">
+                            ${item.calories} cal
                         </div>
                     </div>
+
+                    <div>
+                        <button onclick="addItem('${item.id}')" class="btn btn-light m-0 p-0 ms-auto"><img
+                                src="./images/plus-circle.svg" alt="Add" height="30px"></button>
+                    </div>
+                </div>
                     `);
             });
         })
