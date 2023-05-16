@@ -3,18 +3,15 @@
  */
 
 // Set up dependencies
-const express = require("express");
-const session = require("express-session");
-const mongoose = require("mongoose");
-const MongoStore = require("connect-mongo");
-const Joi = require("joi");
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
-const { ObjectId } = require("mongodb");
-const bodyParser = require("body-parser");
-const MongoClient = require("mongodb").MongoClient;
-const url = require("url");
-require("dotenv").config();
+const express = require('express');
+const session = require('express-session');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
+const { ObjectId } = require('mongodb');
+const bodyParser = require('body-parser');
+const MongoClient = require('mongodb').MongoClient;
+const url = require('url');
+require('dotenv').config();
 
 // Set up app (express)
 const app = express();
@@ -50,20 +47,6 @@ app.use(
   })
 );
 
-/**
- * Set up form field validation to protect against DB query attacks.
- * The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
- */
-const basicStringSchema = Joi.string()
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
-const emailSchema = Joi.string()
-  .email({ minDomainSegments: 2 })
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
-const passwordSchema = Joi.string()
-  .regex(/^[a-zA-Z0-9!@#%^&*_+=[\]\\|;'",.<>/?~`-]+$/)
-  .required();
 
 // User model
 const User = require("./models/userModel");
@@ -74,206 +57,43 @@ const Food = require("./models/foodModel");
 // Exercise model
 const Exercise = require("./models/exerciseModel");
 
-// Basic landing page
-app.get("/", (req, res) => {
+// Basic landing page 
+app.get('/', (req, res) => {
   if (req.session.AUTH) {
-    return res.redirect("/members");
+    return res.redirect('/members')
   }
-  res.render("home");
-});
+  res.render('home')
+})
 
-// Get login page
-app.get("/login", (req, res) => {
-  res.render("login");
-});
+// Routers
+const userRouter = require('./routes/userRoute')
 
-// Get signup page
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
+/**
+ * Route handlers
+ */
 
-// Post signup page data
-app.post("/signup", async (req, res) => {
-  const id = req.body.id;
-  const email = req.body.email;
-  let password = req.body.password;
-  let answer = req.body.answer;
+// User route
+app.use('/user', userRouter)
 
-  if (basicStringSchema.validate(id).error != null) {
-    req.session.INVALID_FIELD = "ID";
-    res.redirect("/invalidFormData");
-  } else if (emailSchema.validate(email).error != null) {
-    req.session.INVALID_FIELD = "Email";
-    res.redirect("/invalidFormData");
-  } else if (passwordSchema.validate(password).error != null) {
-    req.session.INVALID_FIELD = "Password";
-    res.redirect("/invalidFormData");
-  } else if (basicStringSchema.validate(answer).error != null) {
-    req.session.INVALID_FIELD = "Answer";
-    res.redirect("/invalidFormData");
-  } else {
-    password = await bcrypt.hash(password, saltRounds);
-    answer = await bcrypt.hash(answer, saltRounds);
+// Authenticated Route
 
-    // Check if the fields already exist in the database
-    const matchID = await User.findOne({ id: id });
-    const matchEmail = await User.findOne({ email: email });
 
-    if (matchID != undefined) {
-      req.session.MATCH = "name";
-      return res.redirect("/alreadyExists");
-    }
 
-    if (matchEmail != undefined) {
-      req.session.MATCH = "email";
-      return res.redirect("/alreadyExists");
-    }
-
-    const newUser = new User({
-      id: id,
-      email: email,
-      password: password,
-      answer: answer,
-    });
-
-    newUser.save().then(async () => {
-      req.session.USER = await User.findOne({ id: req.body.id });
-      req.session.AUTH = true;
-      req.session.ROLE = "User";
-      res.redirect("/members");
-    });
-  }
-});
-
-// Get login page
-app.get("/login", (req, res) => {
-  res.render("login", { primaryUser: req.session.USER });
-});
-
-// Get email page for changing passwords
-app.get("/getEmail", (req, res) => {
-  res.render("getEmail");
-});
-
-// Post email page data for changing passwords
-app.post("/getEmail", async (req, res) => {
-  const email = req.body.email;
-  if (emailSchema.validate(email).error != null) {
-    req.session.INVALID_FIELD = "Email";
-    return res.redirect("/invalidFormData");
-  }
-  User.findOne({ email: email }).then((user) => {
-    req.session.USER = user;
-    return res.redirect("/checkSecurity");
-  });
-});
-
-// Get answer security question page
-app.get("/checkSecurity", (req, res) => {
-  res.render("checkSecurity", {
-    primaryUser: req.session.USER,
-  });
-});
-
-// Post answer security question page
-app.post("/checkSecurity", async (req, res) => {
-  let answer = req.body.answer;
-  answer = await bcrypt.hash(answer, saltRounds);
-  if (bcrypt.compare(answer, req.session.USER.answer)) {
-    return res.redirect("/changePassword");
-  } else {
-    return res.redirect("/incorrectAnswer");
-  }
-});
-
-// Get incorrect answer page
-app.get("/incorrectAnswer", (req, res) => {
-  res.render("incorrectAnswer", {
-    referer: req.headers.referer,
-  });
-});
-
-// Get change password page
-app.get("/changePassword", (req, res) => {
-  res.render("changePassword.ejs");
-});
-
-// Post change password page
-app.post("/changePassword", async (req, res) => {
-  let password = req.body.password;
-  if (passwordSchema.validate(password).error != null) {
-    req.session.INVALID_FIELD = "Password";
-    return res.redirect("/invalidFormData");
-  }
-  password = await bcrypt.hash(req.body.password, saltRounds);
-  await User.updateOne(
-    { email: req.session.USER.email },
-    { $set: { password: password } }
-  );
-  const user = await User.findOne({ email: req.session.USER.email });
-  delete req.session.USER;
-  return res.redirect("/changePasswordSuccess");
-});
-
-// Get change password success page
-app.get("/changePasswordSuccess", (req, res) => {
-  res.render("changePasswordSuccess");
-});
-
-// Post login page
-app.post("/login", async (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-  const emailValidationResult = basicStringSchema.validate(email);
-  const passwordValidationResult = passwordSchema.validate(password);
-
-  let user = await User.findOne({ $or: [{ email: email }, { id: email }] });
-  if (emailValidationResult.error != null) {
-    req.session.INVALID_FIELD = "Email or ID";
-    res.redirect("/invalidFormData");
-  } else if (passwordValidationResult.error != null) {
-    req.session.INVALID_FIELD = "Password";
-    res.redirect("/invalidFormData");
-  } else {
-    if (user === undefined) {
-      req.session.AUTH = false;
-      req.session.FAIL_FORM = true;
-    } else {
-      if (await bcrypt.compare(password, user.password)) {
-        req.session.AUTH = true;
-        req.session.ROLE = user.role;
-        req.session.USER = user;
-      } else {
-        req.session.AUTH = false;
-        req.session.FAIL_FORM = true;
-      }
-    }
-    res.redirect("/members");
-  }
-});
-
-// Get invalid form data page
-app.get("/invalidFormData", (req, res) => {
-  res.render("invalidFormData", {
-    invalidField: req.session.INVALID_FIELD,
-    referer: req.headers.referer,
-  });
-});
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
   if (!req.session.AUTH) {
     if (req.session.FAIL_FORM) {
-      delete req.session.FAIL_FORM;
-      return res.redirect("/authFail");
+      delete req.session.FAIL_FORM
+      return res.redirect('user/invalidFormData');
     } else {
-      delete req.session.FAIL_FORM;
-      return res.redirect("/login");
+      return res.redirect('/authFail');
     }
   }
   next();
-};
+}
+
+
 
 // Post logout page
 app.post("/logOut", (req, res) => {
