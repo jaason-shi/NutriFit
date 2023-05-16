@@ -936,6 +936,40 @@ app.post('/deleteExercise', async (req, res) => {
     res.redirect('/workoutFilters');
 });
 
+// Quick add workout
+app.get('/quickAddWorkout', async (req, res) => {
+    res.render('quickAddWorkout')
+})
+
+// Add workout
+app.post('/quickAddWorkout', async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
+
+    // Get current date and time as a string
+    const date = new Date();
+    const dateString = date.toISOString();
+
+    await User.updateOne({ id: userId },
+        {
+            $push: {
+                workouts: {
+                    exercises: [{
+                        name: workoutToAdd.name,
+                        // duration: workoutToAdd.duration,
+                        bodyPart: workoutToAdd.bodyPart
+                    }],
+                    expireTime: dateString
+                }
+            }
+        }
+    );
+
+    let updatedUser = await User.findOne({ id: userId });
+    req.session.USER = updatedUser;
+    res.redirect('/quickAddWorkout');
+});
 
 
 

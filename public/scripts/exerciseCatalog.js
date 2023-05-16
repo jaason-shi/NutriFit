@@ -4,9 +4,17 @@
 
 
 function addItem(id) {
-    $.post('/selectExercise', { item: id }, function () {
-        window.location.href = "/workoutFilters";
-    })
+    var formType = $('#formType').val();
+
+    if (formType === 'quickAddWorkout') {
+        $.post('/quickAddWorkout', { item: id }, function () {
+            window.location.href = "/quickAddWorkout";
+        });
+    } else {
+        $.post('/selectExercise', { item: id }, function () {
+            window.location.href = "/workoutFilters";
+        });
+    }
 }
 
 const setup = () => {
