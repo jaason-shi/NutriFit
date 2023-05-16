@@ -363,10 +363,9 @@ async function mealGenerationQuery(calories, user) {
         excludedTags = [];
     }
 
-    // const mealsPrompt =
-    //     `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal. Give me a response`
+    const mealsPrompt =
+        `Respond to me in this format:` + ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`
 
-    const mealsPrompt = "test"
 
     console.log(`Initial Prompt: ${mealsPrompt}\n\n`)
 
@@ -394,7 +393,8 @@ async function mealGenerationQuery(calories, user) {
     }
 
     const mealPlanParsed = JSON.parse(codeBlockContent[0])
-    const stringify = JSON.stringify(mealPlanParsed)
+    console.log("Final Product\n")
+    console.log(mealPlanParsed)
 
     return mealPlanParsed;
 }
@@ -415,10 +415,9 @@ app.get('/generatedMeals', async (req, res) => {
     if (meal === undefined) {
         return res.redirect('/badApiResponse')
     } else {
-        console.log(meal)
         let totalCalories = 0;
         meal.forEach((food) => {
-            totalCalories += food.calories
+            totalCalories += Number(food.Calories)
         })
         res.render('generatedMeals', {
             foodItems: meal,
