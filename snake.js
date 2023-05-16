@@ -46,3 +46,10 @@ const changeDirection = (event) => {
     velocityY = 0;
   }
 };
+
+// Adding event listeners to change the direction on button click
+controls.forEach((button) =>
+  button.addEventListener("click", () =>
+    changeDirection({ key: button.dataset.key })
+  )
+);
