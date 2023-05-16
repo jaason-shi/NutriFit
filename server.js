@@ -84,10 +84,9 @@ const checkAuth = (req, res, next) => {
     if (!req.session.AUTH) {
         if (req.session.FAIL_FORM) {
             delete req.session.FAIL_FORM
-            return res.redirect('/authFail');
+            return res.redirect('user/invalidFormData');
         } else {
-            delete req.session.FAIL_FORM
-            return res.redirect('/login');
+            return res.redirect('/authFail');
         }
     }
     next();

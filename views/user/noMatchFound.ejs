@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
-
         <div class="bg-body-tertiary" style="height: 100vh">
-
             <!-- Header -->
-            <%- include('partials/header') %>
+            <%- include('../partials/header.ejs')%>
 
+                <!-- Content -->
                 <div class="row w-100 m-0">
                     <div class="mx-auto col-lg-5 col-12">
 
                         <div class="card mx-auto mt-5 p-3 w-75">
 
                             <div class="card-body">
+
                                 <div class="container-fluid text-center mt-3">
-                                    <h4>Please Log In</h4>
-                                    <a href="user/login">Log In</a>
+                                    No matching <%= invalidField %>. <br><br>
+                                        <a href="<%= referer %>">Try again</a>
                                 </div>
 
                             </div>
@@ -26,10 +26,8 @@
 
                     </div>
                 </div>
-
-                <%- include('partials/navbar') %>
+                <%- include('../partials/navbar') %>
         </div>
-
     </body>
 
 </html>

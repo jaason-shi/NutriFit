@@ -57,6 +57,14 @@ userRouter.get('/invalidFormData', (req, res) => {
     })
 })
 
+// Get no match page
+userRouter.get('/noMatchFound', (req, res) => {
+    res.render('user/noMatchFound', {
+        referer: req.headers.referer,
+        invalidField: req.session.INVALID_FIELD
+    })
+})
+
 // Post signup page data
 userRouter.post('/signup', async (req, res) => {
     const id = req.body.id;
@@ -105,13 +113,13 @@ userRouter.post('/signup', async (req, res) => {
             req.session.USER = await User.findOne({ id: req.body.id })
             req.session.AUTH = true;
             req.session.ROLE = 'User'
-            res.redirect('./members')
+            res.redirect('/members')
         })
     }
 });
 
 // Post login page
-userRouter.post(('./login'), async (req, res) => {
+userRouter.post(('/login'), async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
@@ -137,9 +145,11 @@ userRouter.post(('./login'), async (req, res) => {
             } else {
                 req.session.AUTH = false;
                 req.session.FAIL_FORM = true;
+                req.session.INVALID_FIELD = 'Email and Password'
+                return res.redirect('./noMatchFound')
             }
         }
-        res.redirect('./members');
+        res.redirect('/members');
     }
 })
 
@@ -150,6 +160,11 @@ userRouter.post('/getEmail', async (req, res) => {
         req.session.INVALID_FIELD = 'Email'
         return res.redirect('./invalidFormData')
     }
+    let user = await User.findOne({ email: email })
+    if (!user) {
+        req.session.INVALID_FIELD = 'Email'
+        return res.redirect('./noMatchFound')
+    }
     User.findOne({ email: email }).then((user) => {
         req.session.USER = user;
         return res.redirect('./checkSecurity')
@@ -158,7 +173,7 @@ userRouter.post('/getEmail', async (req, res) => {
 })
 
 // Post answer security question page
-userRouter.post('./checkSecurity', async (req, res) => {
+userRouter.post('/checkSecurity', async (req, res) => {
     let answer = req.body.answer;
     answer = await bcrypt.hash(answer, saltRounds)
     if (bcrypt.compare(answer, req.session.USER.answer)) {
@@ -169,7 +184,7 @@ userRouter.post('./checkSecurity', async (req, res) => {
 })
 
 // Post change password page
-userRouter.post('./changePassword', async (req, res) => {
+userRouter.post('/changePassword', async (req, res) => {
     let password = req.body.password
     if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
