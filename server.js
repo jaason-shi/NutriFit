@@ -944,8 +944,11 @@ app.get('/quickAddWorkout', async (req, res) => {
 // Add workout
 app.post('/quickAddWorkout', async (req, res) => {
     const itemId = req.body.item;
+    const duration = req.body.duration;
     const userId = req.session.USER.id;
     let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
+    console.log(duration)
+    console.log(workoutToAdd)
 
     // Get current date and time as a string
     const date = new Date();
@@ -957,7 +960,7 @@ app.post('/quickAddWorkout', async (req, res) => {
                 workouts: {
                     exercises: [{
                         name: workoutToAdd.name,
-                        // duration: workoutToAdd.duration,
+                        duration: duration,
                         bodyPart: workoutToAdd.bodyPart
                     }],
                     expireTime: dateString
