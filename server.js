@@ -456,8 +456,11 @@ app.get('/mealFilters', async (req, res) => {
 
 
 // Get meal catalog page to include
-app.get('/foodCatalogInclude', (req, res) => {
-    res.render('foodCatalogInclude')
+app.get('/foodCatalog', (req, res) => {
+    let type = req.query.type;
+    res.render('foodCatalog', {
+        type: type
+    })
 })
 
 
@@ -469,6 +472,7 @@ app.get('/searchFood', async (req, res) => {
         return {
             name: foodObject.Food,
             measure: foodObject.Measure,
+            calories: foodObject.Calories,
             id: foodObject._id
         }
     })
@@ -484,10 +488,11 @@ app.post('/selectFood', async (req, res) => {
     let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) })
 
     let reqUrl = req.get('Referrer')
-    let parsedUrl = url.parse(reqUrl)
-    let path = parsedUrl.pathname;
+    let parsedUrl = new URL(reqUrl)
+    let params = parsedUrl.searchParams;
+    let type = params.get('type')
 
-    if (path === '/foodCatalogInclude') {
+    if (type === 'include') {
         await User.updateOne({ id: userId },
             {
                 $addToSet: {
@@ -566,10 +571,6 @@ app.post('/modifyFoodTag', async (req, res) => {
 });
 
 
-// Get meal catalog page to exclude
-app.get('/foodCatalogExclude', (req, res) => {
-    res.render('foodCatalogExclude')
-})
 
 
 // Remove food item from filter

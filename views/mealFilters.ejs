@@ -94,7 +94,8 @@
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/foodCatalogInclude">
+                                <form class=" mb-2" action="/foodCatalog" method="get">
+                                    <input type="hidden" name="type" value="include">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
                                 </form>
@@ -174,7 +175,8 @@
                         <% }) %>
 
                             <% } %>
-                                <form class=" mb-2" action="/foodCatalogExclude">
+                                <form class=" mb-2" action="/foodCatalog">
+                                    <input type="hidden" name="type" value="exclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
                                 </form>
