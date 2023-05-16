@@ -363,8 +363,10 @@ async function mealGenerationQuery(calories, user) {
         excludedTags = [];
     }
 
-    const mealsPrompt =
-        `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal. Give me a response`
+    // const mealsPrompt =
+    //     `Respond to me in this format:` + ' ```javascript[{ "name": String, "calories": int, "grams": int}, ...]```' + `. Make me a sample ${calories} calorie meal. Do not provide any extra text outside of` + ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' + `Include these food items: ${includedFood}. Include these categories: ${includedTags}. Exclude these food items: ${excludedFood}. Exclude these categories: ${excludedTags}. Remove all white space. Do not go over the calorie limit of the meal. Give me a response`
+
+    const mealsPrompt = "test"
 
     console.log(`Initial Prompt: ${mealsPrompt}\n\n`)
 
@@ -383,8 +385,7 @@ async function mealGenerationQuery(calories, user) {
     }
 
     if (matches == null) {
-        console.log("REGENERATING\n\n")
-        return mealGenerationQuery(calories, user)
+        return undefined;
     }
     let codeBlockContent;
 
@@ -402,23 +403,35 @@ async function mealGenerationQuery(calories, user) {
 // Get generated meals
 app.get('/generatedMeals', async (req, res) => {
     let calories;
+    let user = req.session.USER
     if (req.query.calories != undefined) {
         calories = req.query.calories;
     } else {
         calories = 500;
     }
     console.log(`Calories: ${calories}\n\n`)
-    mealGenerationQuery(calories, req.session.USER).then((mealPlan) => {
+    let meal = await mealGenerationQuery(calories, user);
+
+    if (meal === undefined) {
+        return res.redirect('/badApiResponse')
+    } else {
+        console.log(meal)
         let totalCalories = 0;
-        mealPlan.forEach((item) => {
-            totalCalories += item.calories
+        meal.forEach((food) => {
+            totalCalories += food.calories
         })
         res.render('generatedMeals', {
-            foodItems: mealPlan,
+            foodItems: meal,
             totalCalories: totalCalories,
             userSpecifiedCalories: req.query.calories
         })
-    })
+    }
+})
+
+
+// Get bad api response page
+app.get('/badApiResponse', (req, res) => {
+    res.render('badApiResponse')
 })
 
 
