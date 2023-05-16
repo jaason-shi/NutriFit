@@ -4,15 +4,30 @@
 <%- include('../partials/meta') %>
 
     <body>
-        <!-- Header -->
-        <%- include('../partials/header.ejs')%>
+        <div class="bg-body-tertiary" style="height: 100vh">
+            <!-- Header -->
+            <%- include('../partials/header.ejs')%>
 
-            <!-- Content -->
-            <div class="container-fluid text-center mt-3">
-                <%= invalidField %> is invalid. <br><br>
-                    <a href="<%= referer %>">Try again</a>.
-            </div>
-            <%- include('../partials/navbar') %>
+                <!-- Content -->
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-5 col-12">
+
+                        <div class="card mx-auto mt-5 p-3 w-75">
+
+                            <div class="card-body">
+
+                                <div class="container-fluid text-center mt-3">
+                                    <%= invalidField %> is invalid. <br><br>
+                                        <a href="<%= referer %>">Try again</a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <%- include('../partials/navbar') %>
+        </div>
     </body>
 
 </html>

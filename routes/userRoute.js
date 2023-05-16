@@ -49,6 +49,14 @@ userRouter.get('/changePasswordSuccess', (req, res) => {
     res.render('user/changePasswordSuccess')
 })
 
+// Get invalid form data page
+userRouter.get('/invalidFormData', (req, res) => {
+    res.render('user/invalidFormData', {
+        referer: req.headers.referer,
+        invalidField: req.session.INVALID_FIELD
+    })
+})
+
 // Post signup page data
 userRouter.post('/signup', async (req, res) => {
     const id = req.body.id;
@@ -58,16 +66,16 @@ userRouter.post('/signup', async (req, res) => {
 
     if (basicStringSchema.validate(id).error != null) {
         req.session.INVALID_FIELD = 'ID'
-        res.redirect('/invalidFormData')
+        res.redirect('./invalidFormData')
     } else if (emailSchema.validate(email).error != null) {
         req.session.INVALID_FIELD = 'Email'
-        res.redirect('/invalidFormData')
+        res.redirect('./invalidFormData')
     } else if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
-        res.redirect('/invalidFormData')
+        res.redirect('./invalidFormData')
     } else if (basicStringSchema.validate(answer).error != null) {
         req.session.INVALID_FIELD = 'Answer'
-        res.redirect('/invalidFormData')
+        res.redirect('./invalidFormData')
     } else {
         password = await bcrypt.hash(password, saltRounds);
         answer = await bcrypt.hash(answer, saltRounds)
@@ -78,12 +86,12 @@ userRouter.post('/signup', async (req, res) => {
 
         if (matchID != undefined) {
             req.session.MATCH = 'name';
-            return res.redirect('/alreadyExists')
+            return res.redirect('./alreadyExists')
         }
 
         if (matchEmail != undefined) {
             req.session.MATCH = 'email';
-            return res.redirect('/alreadyExists')
+            return res.redirect('./alreadyExists')
         }
 
         const newUser = new User({
@@ -97,13 +105,13 @@ userRouter.post('/signup', async (req, res) => {
             req.session.USER = await User.findOne({ id: req.body.id })
             req.session.AUTH = true;
             req.session.ROLE = 'User'
-            res.redirect('/members')
+            res.redirect('./members')
         })
     }
 });
 
 // Post login page
-userRouter.post(('/login'), async (req, res) => {
+userRouter.post(('./login'), async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
@@ -113,10 +121,10 @@ userRouter.post(('/login'), async (req, res) => {
     let user = await User.findOne({ $or: [{ email: email }, { id: email }] })
     if (emailValidationResult.error != null) {
         req.session.INVALID_FIELD = 'Email or ID'
-        res.redirect('/invalidFormData')
+        res.redirect('./invalidFormData')
     } else if (passwordValidationResult.error != null) {
         req.session.INVALID_FIELD = 'Password'
-        res.redirect('/invalidFormData')
+        res.redirect('./invalidFormData')
     } else {
         if (user === undefined) {
             req.session.AUTH = false;
@@ -131,7 +139,7 @@ userRouter.post(('/login'), async (req, res) => {
                 req.session.FAIL_FORM = true;
             }
         }
-        res.redirect('/members');
+        res.redirect('./members');
     }
 })
 
@@ -140,38 +148,38 @@ userRouter.post('/getEmail', async (req, res) => {
     const email = req.body.email;
     if (emailSchema.validate(email).error != null) {
         req.session.INVALID_FIELD = 'Email'
-        return res.redirect('/invalidFormData')
+        return res.redirect('./invalidFormData')
     }
     User.findOne({ email: email }).then((user) => {
         req.session.USER = user;
-        return res.redirect('/checkSecurity')
+        return res.redirect('./checkSecurity')
     })
 
 })
 
 // Post answer security question page
-userRouter.post('/checkSecurity', async (req, res) => {
+userRouter.post('./checkSecurity', async (req, res) => {
     let answer = req.body.answer;
     answer = await bcrypt.hash(answer, saltRounds)
     if (bcrypt.compare(answer, req.session.USER.answer)) {
-        return res.redirect('/changePassword')
+        return res.redirect('./changePassword')
     } else {
-        return res.redirect('/incorrectAnswer')
+        return res.redirect('./incorrectAnswer')
     }
 })
 
 // Post change password page
-userRouter.post('/changePassword', async (req, res) => {
+userRouter.post('./changePassword', async (req, res) => {
     let password = req.body.password
     if (passwordSchema.validate(password).error != null) {
         req.session.INVALID_FIELD = 'Password'
-        return res.redirect('/invalidFormData')
+        return res.redirect('./invalidFormData')
     }
     password = await bcrypt.hash(req.body.password, saltRounds);
     await User.updateOne({ email: req.session.USER.email }, { $set: { password: password } })
     const user = await User.findOne({ email: req.session.USER.email })
     delete req.session.USER
-    return res.redirect('/changePasswordSuccess')
+    return res.redirect('./changePasswordSuccess')
 })
 
 
