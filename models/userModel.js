@@ -30,6 +30,18 @@ const userSchema = new Schema({
             ],
             expireTime: Date
         }
+    ],
+    workouts: [
+        {
+            exercises: [
+                {
+                    name: String,
+                    duration: Number,
+                    bodyPart: String
+                }
+            ],
+            expireTime: Date
+        }
     ]
 });
 
