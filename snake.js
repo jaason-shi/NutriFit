@@ -29,3 +29,20 @@ const handleGameOver = () => {
   alert("Game Over! Press OK to replay...");
   location.reload();
 };
+
+// Changing the snake's direction and velocity based on the button clicked
+const changeDirection = (event) => {
+  if (event.key === "ArrowUp" && velocityY != 1) {
+    velocityX = 0;
+    velocityY = -1;
+  } else if (event.key === "ArrowDown" && velocityY != -1) {
+    velocityX = 0;
+    velocityY = 1;
+  } else if (event.key === "ArrowLeft" && velocityX != 1) {
+    velocityX = -1;
+    velocityY = 0;
+  } else if (event.key === "ArrowRight" && velocityX != -1) {
+    velocityX = 1;
+    velocityY = 0;
+  }
+};
