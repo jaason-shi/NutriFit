@@ -2,6 +2,7 @@ const express = require('express');
 const generatedMealsRouter = express.Router();
 const User = require('../models/userModel')
 const Food = require('../models/foodModel')
+const { ObjectId } = require('mongodb');
 
 
 // Available food tags
@@ -243,7 +244,7 @@ generatedMealsRouter.post("/selectFood", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("/mealFilters");
+    res.redirect("./mealFilters");
 });
 
 
@@ -286,7 +287,7 @@ generatedMealsRouter.post("/modifyFoodTag", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("/mealFilters");
+    res.redirect("./mealFilters");
 });
 
 
@@ -328,7 +329,7 @@ generatedMealsRouter.post("/deleteFood", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("/mealFilters");
+    res.redirect("./mealFilters");
 });
 
 
