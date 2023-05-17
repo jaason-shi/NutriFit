@@ -28,17 +28,12 @@
 
             <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
                 <span>
-                    Exercises
+                    Total Workout Time
                 </span>
 
-                <span class="ms-auto">
-                    <%= totalDuration %> min
-                </span>
-            </div>
+                <div class="container h-25 mb-4 overflow-auto border">
 
-            <div class="container h-25 mb-4 overflow-auto border">
-
-                <% workout.forEach( (exercise)=> { %>
+                    <!-- workout.forEach( (exercise)=> {  --> ejs syntax
                     <div class="container m-0 p-0 border-bottom d-flex align-items-center">
                         <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
                             <button class="rounded-circle border-0 m-0 p-0 my-auto"
@@ -48,25 +43,72 @@
                         <div class="w-50 vstack gap-0">
                             <div class="d-inline-flex">
                                 <span>
-                                    <%= exercise.name %>
+                                    (Total Duration) min
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <span>
+                    Exercise
+                </span>
+                <div class="container h-25 mb-4 overflow-auto border">
+
+                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"></button>
+                        </div>
+
+                        <div class="w-50 vstack gap-0">
+                            <div class="d-inline-flex">
+                                <span>
+                                    exercise name
                                 </span>
 
                                 <span class="ms-auto">
-                                    <%= exercise.duration %> min
+                                    minutes
                                 </span>
 
                             </div>
                             <div class="d-inline text-secondary" style="font-size: 14px">
-                                <%= exercise.bodyPart %>
+                                body part
                             </div>
                         </div>
 
                     </div>
-                    <% }) %>
 
+
+                </div>
+                <span>
+                    Focused Body Part
+                </span>
+
+                <div class="container h-25 mb-4 overflow-auto border">
+
+                    <!-- workout.forEach( (exercise)=> {  --> ejs syntax
+                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"></button>
+                        </div>
+
+                        <div class="w-50 vstack gap-0">
+                            <div class="d-inline-flex">
+                                <span>
+                                    Body part
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <%- include('partials/navbar') %>
             </div>
-            <%- include('partials/navbar') %>
-        </div>
     </body>
 
 </html>
