@@ -121,7 +121,7 @@ async function mealGenerationQuery(calories, user) {
 
 
 // Get generated meals page
-generatedMealsRouter.get("/generatedMeals", async (req, res) => {
+generatedMealsRouter.get("/", async (req, res) => {
     let calories;
     let user = req.session.USER;
     if (req.query.calories != undefined) {
@@ -141,7 +141,7 @@ generatedMealsRouter.get("/generatedMeals", async (req, res) => {
         meal.forEach((food) => {
             totalCalories += Number(food.Calories);
         });
-        res.render("generatedMeals", {
+        res.render("generatedMeals/generatedMeals", {
             foodItems: meal,
             totalCalories: totalCalories,
             userSpecifiedCalories: req.query.calories,
@@ -159,7 +159,7 @@ generatedMealsRouter.get("/badApiResponse", (req, res) => {
 // Get meal filters page
 generatedMealsRouter.get("/mealFilters", async (req, res) => {
     const user = req.session.USER;
-    res.render("mealFilters", {
+    res.render("generatedMeals/mealFilters", {
         tagsList: foodCategory,
         userInclude: user.includeFood,
         userExclude: user.excludeFood,
@@ -171,7 +171,7 @@ generatedMealsRouter.get("/mealFilters", async (req, res) => {
 // Get meal catalog pages
 generatedMealsRouter.get("/foodCatalog", (req, res) => {
     let type = req.query.type;
-    res.render("foodCatalog", {
+    res.render("generatedMeals/foodCatalog", {
         type: type,
     });
 });
