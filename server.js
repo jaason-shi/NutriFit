@@ -159,12 +159,12 @@ app.post("/favoriteWorkouts", async (req, res) => {
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
   // ADD workout to FavoriteWorkout collection
-    const favWorkout = new FavoriteWorkout({
-        userId: userId,
-        workoutName: workout[0].name,
-        exercises: workout
-    });
-    await favWorkout.save();
+  const favWorkout = new FavoriteWorkout({
+    userId: userId,
+    workoutName: workout[0].name,
+    exercises: workout
+  });
+  await favWorkout.save();
   // delete session variables
   delete req.session.WORKOUT;
   res.redirect("/");
@@ -188,12 +188,12 @@ app.post("/workoutLogs", async (req, res) => {
     workoutName: workout[0].name,
     exercises: workout,
     totalDuration: totalDuration,
-    });
-    await workoutLog.save();
-    
+  });
+  await workoutLog.save();
+
   // delete session variables
   delete req.session.WORKOUT;
-    res.redirect("/");
+  res.redirect("/");
 
 });
 
@@ -201,28 +201,29 @@ app.post("/workoutLogs", async (req, res) => {
 
 // POST favorite meals
 app.post("/favoriteMeals", async (req, res) => {
-    console.log("session meal: ");
+  console.log("session meal: ");
   console.log(req.session.MEAL);
   // add the meal to the user's favorite meals
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
- // ADD meal to FavoriteMeal collection
-    const favMeal = new FavoriteMeal({
-        userId: userId,
-        mealName: meal[0].mealName,
-        items: meal,
-    });
-    await favMeal.save();
+  // ADD meal to FavoriteMeal collection
+  const favMeal = new FavoriteMeal({
+    userId: userId,
+    mealName: meal[0].Food,
+    items: meal
+  });
+  await favMeal.save();
+  console.log("Saved")
 
   // delete session variables
   delete req.session.MEAL;
-    res.redirect("/");
+  res.redirect("/");
 });
 
 
 // POST Meal Logs page
 app.post("/foodLogs", async (req, res) => {
-    console.log("session meal logs: ");
+  console.log("session meal logs: ");
   console.log(req.session.MEAL);
   // get calories from the meal
   let totalCalories = 0;
@@ -230,20 +231,20 @@ app.post("/foodLogs", async (req, res) => {
     totalCalories += Number(food.Calories);
   });
   // add the meal to meal collection
-    const meal = req.session.MEAL;
-    const userId = req.session.USER.id;
-    const mealLog = new Meal({
-        userId: userId,
-        mealName: meal[0].mealName,
-        items: meal,
-        totalCalories: totalCalories,
-    });
-    await mealLog.save();
+  const meal = req.session.MEAL;
+  const userId = req.session.USER.id;
+  const mealLog = new Meal({
+    userId: userId,
+    mealName: meal[0].mealName,
+    items: meal,
+    totalCalories: totalCalories,
+  });
+  await mealLog.save();
 
- 
+
   // delete session variables
   delete req.session.MEAL;
-    res.redirect("/");
+  res.redirect("/");
 });
 
 

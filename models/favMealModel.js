@@ -4,14 +4,8 @@ const Schema = mongoose.Schema;
 const favMealSchema = new Schema({
   userId: { type: String, ref: "User" },
   mealName: String,
-  items: [
-    {
-      foodName: String,
-      calories: Number,
-      grams: Number,
-    },
-  ],
-  
+  items: [Schema.Types.Mixed]
+
 });
 
 const favMeal = mongoose.model("FavouriteMeal", favMealSchema);
