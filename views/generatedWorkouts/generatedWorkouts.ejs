@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
   <body>
     <div class="container p-3" style="height: 100vh;">
@@ -75,15 +75,15 @@
           <input class="btn btn-dark w-100" type="submit" value="Add to Log">
         </form>
 
-        <form class="mb-4" action="/generatedWorkouts">
+        <form class="mb-4" action="/">
           <input class="btn btn-dark w-100" type="submit" value="Regenerate">
         </form>
 
-        <form class="mb-4" action="/workoutFilters">
+        <form class="mb-4" action="generatedWorkouts/workoutFilters">
           <input class="btn btn-dark w-100" type="submit" value="Customize Workout">
         </form>
       </div>
-      <%- include('partials/navbar') %>
+      <%- include('../partials/navbar') %>
     </div>
 
 

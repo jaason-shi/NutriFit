@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
         <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
@@ -38,7 +38,7 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/ModifyExerciseTag" method="post">
+                        <form action="./ModifyExerciseTag" method="post">
                             <input type="hidden" name="exerciseTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
                             <input type="hidden" name="type" value="include">
@@ -87,12 +87,12 @@
                             </div>
 
                             <div>
-                                <form class="ms-auto" action="/deleteExercise" method="post">
+                                <form class="ms-auto" action="./deleteExercise" method="post">
                                     <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                     <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                     <input type="hidden" name="type" value="include">
                                     <button type="submit" class="btn btn-light m-0 p-0"><img
-                                            src="images/minus-circle.svg" alt="Remove" height="30px"></button>
+                                            src="/images/minus-circle.svg" alt="Remove" height="30px"></button>
                                 </form>
                             </div>
 
@@ -100,7 +100,7 @@
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/exerciseCatalog">
+                                <form class=" mb-2" action="./exerciseCatalog">
                                     <input type="hidden" name="type" id="type" value="include">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
@@ -120,7 +120,7 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/modifyExerciseTag" method="post">
+                        <form action="./modifyExerciseTag" method="post">
                             <input type="hidden" name="exerciseTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
                             <input type="hidden" name="type" value="exclude">
@@ -169,12 +169,12 @@
                             </div>
 
                             <div>
-                                <form class="ms-auto" action="/deleteExercise" method="post">
+                                <form class="ms-auto" action="./deleteExercise" method="post">
                                     <input type="hidden" name="item" value="<%= exerciseItem.name %>">
                                     <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                     <input type="hidden" name="type" value="exclude">
                                     <button type="submit" class="btn btn-light m-0 p-0"><img
-                                            src="images/minus-circle.svg" alt="Remove" height="30px"></button>
+                                            src="/images/minus-circle.svg" alt="Remove" height="30px"></button>
                                 </form>
                             </div>
 
@@ -182,7 +182,7 @@
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/exerciseCatalog">
+                                <form class=" mb-2" action="./exerciseCatalog">
                                     <input type="hidden" name="type" id="type" value="exclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
@@ -195,7 +195,7 @@
 
             <input class="btn btn-dark w-100" type="submit" value="Generate Workout" onclick="sendDuration()">
 
-            <%- include('partials/navbar') %>
+            <%- include('../partials/navbar') %>
 
         </div>
 

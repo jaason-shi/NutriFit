@@ -160,7 +160,7 @@ generatedMealsRouter.get("/workoutFilters", (req, res) => {
 // Get exercise catalog pages
 generatedMealsRouter.get("/exerciseCatalog", (req, res) => {
     let type = req.query.type;
-    res.render("exerciseCatalog", {
+    res.render("generatedWorkouts/exerciseCatalog", {
         type: type,
     });
 });
@@ -217,7 +217,7 @@ generatedMealsRouter.post("/modifyExerciseTag", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("/workoutFilters");
+    res.redirect("./workoutFilters");
 });
 
 
@@ -286,7 +286,7 @@ generatedMealsRouter.post("/selectExercise", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("/workoutFilters");
+    res.redirect("./workoutFilters");
 });
 
 
@@ -326,7 +326,7 @@ generatedMealsRouter.post("/deleteExercise", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("/workoutFilters");
+    res.redirect("./workoutFilters");
 });
 
 
