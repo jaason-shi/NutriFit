@@ -76,8 +76,10 @@ const generatedMealsRouter = require('./routes/generatedMealsRoute')
 // User route
 app.use('/user', userRouter)
 
-// Authenticated Route
+// Generated Meal route
 app.use('/generatedMeals', generatedMealsRouter)
+
+// Generated Workout route
 
 
 
