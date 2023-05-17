@@ -136,7 +136,7 @@ generatedMealsRouter.get("/", async (req, res) => {
         workout.forEach((exercise) => {
             totalDuration += exercise.duration;
         });
-        res.render("generatedWorkouts", {
+        res.render("generatedWorkouts/generatedWorkouts", {
             workout: workout,
             totalDuration: totalDuration,
         });
@@ -148,7 +148,7 @@ generatedMealsRouter.get("/", async (req, res) => {
 generatedMealsRouter.get("/workoutFilters", (req, res) => {
     let user = req.session.USER;
 
-    res.render("workoutFilters", {
+    res.render("generatedWorkouts/workoutFilters", {
         tagsList: exerciseCategory,
         primaryUser: user,
         userInclude: user.includeExercise,
