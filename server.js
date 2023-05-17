@@ -67,6 +67,7 @@ app.get('/', (req, res) => {
 
 // Routers
 const userRouter = require('./routes/userRoute')
+const generatedMealsRouter = require('./routes/generatedMealsRoute')
 
 /**
  * Route handlers
@@ -76,6 +77,7 @@ const userRouter = require('./routes/userRoute')
 app.use('/user', userRouter)
 
 // Authenticated Route
+app.use('/generatedMeals', generatedMealsRouter)
 
 
 
