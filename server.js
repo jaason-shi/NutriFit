@@ -338,6 +338,43 @@ app.get('/snake', (req, res) => {
 })
 
 
+// Get favorite meals page
+app.get('/favoriteMeals', async (req, res) => {
+  let userId = req.session.USER.id
+  // console.log(userId)
+  let meals = await FavoriteMeal.find({ userId: userId })
+  // console.log(meals)
+  let mealsParsed = meals.map((meal) => {
+    return meal.items
+  })
+  // console.log(meals[0])
+  // console.log("Parsed")
+  // console.log(mealsParsed)
+  let totalCalories = 0;
+  mealParsedWithCalories = mealsParsed.map(meal => {
+    let totalCalories = 0;
+    meal.forEach(item => {
+      totalCalories += item.Calories
+    })
+    // console.log("Total calories")
+    // console.log(totalCalories)
+    return {
+      name: meal[0].Food + " Meal",
+      calories: totalCalories,
+      items: meal
+    }
+  })
+
+  console.log("Meal parsed with calories")
+  console.log(mealParsedWithCalories)
+  console.log(mealParsedWithCalories[0].items)
+
+  res.render('favoriteMeals', {
+    meals: mealParsedWithCalories
+  })
+})
+
+
 // Connect to port
 const port = 3000;
 app.listen(port, () => {
