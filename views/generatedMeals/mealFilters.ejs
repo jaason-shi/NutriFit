@@ -40,7 +40,7 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/modifyFoodTag" method="post">
+                        <form action="./modifyFoodTag" method="post">
                             <input type="hidden" name="foodTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
                             <input type="hidden" name="type" value="include">
