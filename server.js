@@ -3,15 +3,15 @@
  */
 
 // Set up dependencies
-const express = require('express');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo');
-const { ObjectId } = require('mongodb');
-const bodyParser = require('body-parser');
-const MongoClient = require('mongodb').MongoClient;
-const url = require('url');
-require('dotenv').config();
+const express = require("express");
+const session = require("express-session");
+const mongoose = require("mongoose");
+const MongoStore = require("connect-mongo");
+const { ObjectId } = require("mongodb");
+const bodyParser = require("body-parser");
+const MongoClient = require("mongodb").MongoClient;
+const url = require("url");
+require("dotenv").config();
 
 // Set up app (express)
 const app = express();
@@ -47,7 +47,6 @@ app.use(
   })
 );
 
-
 // User model
 const User = require("./models/userModel");
 
@@ -69,46 +68,44 @@ const FavoriteMeal = require("./models/favMealModel");
 // FavoriteWorkout model
 const FavoriteWorkout = require("./models/favWorkoutModel");
 
-// Basic landing page 
-app.get('/', (req, res) => {
+// Basic landing page
+app.get("/", (req, res) => {
   if (req.session.AUTH) {
-    return res.redirect('/members')
+    return res.redirect("/members");
   }
-  res.render('home')
-})
+  res.render("home");
+});
 
 // Routers
-const userRouter = require('./routes/userRoute')
-const generatedMealsRouter = require('./routes/generatedMealsRoute')
-const generatedWorkoutsRouter = require('./routes/generatedWorkoutsRoute')
+const userRouter = require("./routes/userRoute");
+const generatedMealsRouter = require("./routes/generatedMealsRoute");
+const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 
 /**
  * Route handlers
  */
 
 // User route
-app.use('/user', userRouter)
+app.use("/user", userRouter);
 
 // Generated Meal route
-app.use('/generatedMeals', generatedMealsRouter)
+app.use("/generatedMeals", generatedMealsRouter);
 
 // Generated Workout route
-app.use('/generatedWorkouts', generatedWorkoutsRouter)
-
+app.use("/generatedWorkouts", generatedWorkoutsRouter);
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
   if (!req.session.AUTH) {
     if (req.session.FAIL_FORM) {
-      delete req.session.FAIL_FORM
-      return res.redirect('user/invalidFormData');
+      delete req.session.FAIL_FORM;
+      return res.redirect("user/invalidFormData");
     } else {
-      return res.redirect('/authFail');
+      return res.redirect("/authFail");
     }
   }
   next();
-}
-
+};
 
 // Post logout page
 app.post("/logOut", (req, res) => {
@@ -138,18 +135,23 @@ app.get("/userProfile", (req, res) => {
   });
 });
 
-
 // Get logs page
 app.get("/logs", async (req, res) => {
   res.render("logs");
 });
 
+app.get("/mealLogs", async (req, res) => {
+  res.render("mealLogs");
+});
+
+app.get("/exerciseLogs", async (req, res) => {
+  res.render("exerciseLogs");
+});
 
 // Get favorites page
 app.get("/favourites", (req, res) => {
   res.render("favourites");
 });
-
 
 // POST favorite workouts  favoriteWorkouts
 app.post("/favoriteWorkouts", async (req, res) => {
@@ -162,14 +164,13 @@ app.post("/favoriteWorkouts", async (req, res) => {
   const favWorkout = new FavoriteWorkout({
     userId: userId,
     workoutName: workout[0].name,
-    exercises: workout
+    exercises: workout,
   });
   await favWorkout.save();
   // delete session variables
   delete req.session.WORKOUT;
   res.redirect("/");
 });
-
 
 // POST Workout Logs page
 app.post("/workoutLogs", async (req, res) => {
@@ -194,10 +195,7 @@ app.post("/workoutLogs", async (req, res) => {
   // delete session variables
   delete req.session.WORKOUT;
   res.redirect("/");
-
 });
-
-
 
 // POST favorite meals
 app.post("/favoriteMeals", async (req, res) => {
@@ -210,16 +208,15 @@ app.post("/favoriteMeals", async (req, res) => {
   const favMeal = new FavoriteMeal({
     userId: userId,
     mealName: meal[0].Food,
-    items: meal
+    items: meal,
   });
   await favMeal.save();
-  console.log("Saved")
+  console.log("Saved");
 
   // delete session variables
   delete req.session.MEAL;
   res.redirect("/");
 });
-
 
 // POST Meal Logs page
 app.post("/foodLogs", async (req, res) => {
@@ -228,18 +225,18 @@ app.post("/foodLogs", async (req, res) => {
   const date = new Date();
   if (req.body.meal) {
     let stringMeal = req.body.meal;
-    let parsedMeal = JSON.parse(stringMeal)
-    parsedMeal = parsedMeal.map(item => {
+    let parsedMeal = JSON.parse(stringMeal);
+    parsedMeal = parsedMeal.map((item) => {
       return {
         _id: item._id,
         Food: item.Food,
         Calories: item.Calories,
         Grams: item.Grams,
-      }
-    })
-    req.session.MEAL = parsedMeal
-    console.log("parsed")
-    console.log(parsedMeal)
+      };
+    });
+    req.session.MEAL = parsedMeal;
+    console.log("parsed");
+    console.log(parsedMeal);
     // req.session.MEAL = req.body.meal
     // console.log("Testing add from fav: " + typeof (req.session.MEAL))
     // console.log(req.session.MEAL)
@@ -259,24 +256,20 @@ app.post("/foodLogs", async (req, res) => {
     mealName: meal[0].mealName,
     items: meal,
     totalCalories: totalCalories,
-    expireTime: new Date(date.getTime() + 5 * 60 * 1000)
+    expireTime: new Date(date.getTime() + 5 * 60 * 1000),
   });
   await mealLog.save();
-  console.log("Saved")
-
+  console.log("Saved");
 
   // delete session variables
   delete req.session.MEAL;
   res.redirect("/");
 });
 
-
 // Get quick add meal page
 app.get("/quickAddMeal", (req, res) => {
   res.render("quickAddMeal");
 });
-
-
 
 // Post quick add meal data
 app.post("/quickAddMeal", async (req, res) => {
@@ -296,9 +289,9 @@ app.post("/quickAddMeal", async (req, res) => {
         foodName: foodToAdd.Food,
         calories: foodToAdd.Calories,
         grams: foodToAdd.Grams,
-      }
+      },
     ],
-    expireTime: new Date(date.getTime() + 5 * 60 * 1000) // set the expiry time 5 minutes from now
+    expireTime: new Date(date.getTime() + 5 * 60 * 1000), // set the expiry time 5 minutes from now
   });
 
   // Save the meal document
@@ -309,12 +302,10 @@ app.post("/quickAddMeal", async (req, res) => {
   res.redirect("/quickAddMeal");
 });
 
-
 // Get Quick add workout page
 app.get("/quickAddWorkout", async (req, res) => {
   res.render("quickAddWorkout");
 });
-
 
 // Post quick add workout data
 app.post("/quickAddWorkout", async (req, res) => {
@@ -347,60 +338,55 @@ app.post("/quickAddWorkout", async (req, res) => {
   res.redirect("/quickAddWorkout");
 });
 
-
 // Get workout logs
 app.get("/workoutLogs", (req, res) => {
   res.render("workoutLogs");
 });
 
-
 // Get snake game
-app.get('/snake', (req, res) => {
-  res.sendFile('public/snake.html', { root: __dirname });
-})
-
+app.get("/snake", (req, res) => {
+  res.sendFile("public/snake.html", { root: __dirname });
+});
 
 // Get favorite meals page
-app.get('/favoriteMeals', async (req, res) => {
-  let userId = req.session.USER.id
-  let meals = await FavoriteMeal.find({ userId: userId })
+app.get("/favoriteMeals", async (req, res) => {
+  let userId = req.session.USER.id;
+  let meals = await FavoriteMeal.find({ userId: userId });
   let mealsParsed = meals.map((meal) => {
-    return meal.items
-  })
+    return meal.items;
+  });
 
   let totalCalories = 0;
-  mealParsedWithCalories = mealsParsed.map(meal => {
+  mealParsedWithCalories = mealsParsed.map((meal) => {
     let totalCalories = 0;
-    meal.forEach(item => {
-      totalCalories += item.Calories
-    })
-    let parsedItems = meal.map(item => {
+    meal.forEach((item) => {
+      totalCalories += item.Calories;
+    });
+    let parsedItems = meal.map((item) => {
       return {
         _id: item._id.toString(),
         Food: item.Food,
         Calories: item.Calories,
-        Grams: item.Grams
-      }
-    })
+        Grams: item.Grams,
+      };
+    });
     return {
       name: meal[0].Food + " Meal",
       calories: totalCalories,
       items: parsedItems,
-      hiddenItems: JSON.stringify(parsedItems)
-    }
-  })
+      hiddenItems: JSON.stringify(parsedItems),
+    };
+  });
 
-  let hiddenMeals = mealParsedWithCalories.map(meal => {
-    return meal.items
-  })
+  let hiddenMeals = mealParsedWithCalories.map((meal) => {
+    return meal.items;
+  });
 
-
-  res.render('favoriteMeals', {
+  res.render("favoriteMeals", {
     meals: mealParsedWithCalories,
-    hiddenMeals: JSON.stringify(hiddenMeals)
-  })
-})
-
+    hiddenMeals: JSON.stringify(hiddenMeals),
+  });
+});
 
 // Connect to port
 const port = 3000;
