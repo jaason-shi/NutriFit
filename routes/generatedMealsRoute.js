@@ -121,7 +121,7 @@ async function mealGenerationQuery(calories, user) {
 
 
 // Get generated meals page
-app.get("/generatedMeals", async (req, res) => {
+generatedMealsRouter.get("/generatedMeals", async (req, res) => {
     let calories;
     let user = req.session.USER;
     if (req.query.calories != undefined) {
@@ -151,13 +151,13 @@ app.get("/generatedMeals", async (req, res) => {
 
 
 // Get bad api response page
-app.get("/badApiResponse", (req, res) => {
+generatedMealsRouter.get("/badApiResponse", (req, res) => {
     res.render("badApiResponse");
 });
 
 
 // Get meal filters page
-app.get("/mealFilters", async (req, res) => {
+generatedMealsRouter.get("/mealFilters", async (req, res) => {
     const user = req.session.USER;
     res.render("mealFilters", {
         tagsList: foodCategory,
@@ -169,7 +169,7 @@ app.get("/mealFilters", async (req, res) => {
 
 
 // Get meal catalog pages
-app.get("/foodCatalog", (req, res) => {
+generatedMealsRouter.get("/foodCatalog", (req, res) => {
     let type = req.query.type;
     res.render("foodCatalog", {
         type: type,
@@ -178,7 +178,7 @@ app.get("/foodCatalog", (req, res) => {
 
 
 // Search for food
-app.get("/searchFood", async (req, res) => {
+generatedMealsRouter.get("/searchFood", async (req, res) => {
     const searchQuery = req.query.q;
     let foodQuery = await Food.find({ Food: new RegExp(searchQuery, "i") });
     let parsedResponse = foodQuery.map((foodObject) => {
@@ -195,7 +195,7 @@ app.get("/searchFood", async (req, res) => {
 
 
 // Select food to include or exclude
-app.post("/selectFood", async (req, res) => {
+generatedMealsRouter.post("/selectFood", async (req, res) => {
     const itemId = req.body.item;
     const userId = req.session.USER.id;
     let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
@@ -248,7 +248,7 @@ app.post("/selectFood", async (req, res) => {
 
 
 // Modify food tag
-app.post("/modifyFoodTag", async (req, res) => {
+generatedMealsRouter.post("/modifyFoodTag", async (req, res) => {
     const foodTag = req.body.foodTag;
     const userId = req.session.USER.id;
     const type = req.body.type;
@@ -291,7 +291,7 @@ app.post("/modifyFoodTag", async (req, res) => {
 
 
 // Remove food item from filter
-app.post("/deleteFood", async (req, res) => {
+generatedMealsRouter.post("/deleteFood", async (req, res) => {
     const foodName = req.body.item;
     const userId = req.session.USER.id;
     const type = req.body.type;
