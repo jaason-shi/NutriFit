@@ -12,8 +12,8 @@ function addItem(id) {
             window.location.href = "/quickAddWorkout";
         });
     } else {
-        $.post('/selectExercise', { item: id }, function () {
-            window.location.href = "/workoutFilters";
+        $.post('./selectExercise', { item: id }, function () {
+            window.location.href = "./workoutFilters";
         });
     }
 }
@@ -22,7 +22,7 @@ const setup = () => {
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
-        $.get('/searchExercise', { q: searchQuery }, function (data) {
+        $.get('generatedWorkouts/searchExercise', { q: searchQuery }, function (data) {
             $('#exerciseResults').empty();
             data.forEach(item => {
                 $('#exerciseResults').append(`
@@ -47,7 +47,7 @@ const setup = () => {
 
                     <div>
                         <button onclick="addItem('${item.id}')" class="btn btn-light m-0 p-0 ms-auto"><img
-                                src="./images/plus-circle.svg" alt="Add" height="30px"></button>
+                                src="/images/plus-circle.svg" alt="Add" height="30px"></button>
                     </div>
                 </div>
                     `);
