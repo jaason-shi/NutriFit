@@ -21,7 +21,7 @@ const setup = () => {
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
-        $.get('./searchFood', { q: searchQuery }, function (data) {
+        $.get('generatedMeals/searchFood', { q: searchQuery }, function (data) {
             $('#foodResults').empty();
             data.forEach(item => {
                 $('#foodResults').append(`
