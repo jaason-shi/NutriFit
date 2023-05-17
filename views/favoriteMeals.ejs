@@ -72,7 +72,11 @@
 
                                     </div>
                                     <a href="" style="text-decoration: none; color: inherit;"></a>
-                                    <button class="btn btn-light">+</button>
+                                    <form action="/foodLogs" method="post">
+                                        <input type="hidden" name="meal" value="<%= meal.items %>">
+                                        <input type="submit" class="btn btn-light h-100" value="+">
+                                    </form>
+
                                 </div>
                             </div>
                         </a>

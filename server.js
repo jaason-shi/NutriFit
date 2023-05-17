@@ -223,6 +223,13 @@ app.post("/favoriteMeals", async (req, res) => {
 
 // POST Meal Logs page
 app.post("/foodLogs", async (req, res) => {
+  // console.log("Testing add from fav")
+  // console.log(req.body.meal)
+  if (req.body.meal) {
+    req.session.MEAL = req.body.meal
+    console.log("Testing add from fav: " + typeof (req.session.MEAL))
+    console.log(req.session.MEAL)
+  }
   console.log("session meal logs: ");
   console.log(req.session.MEAL);
   // get calories from the meal
@@ -356,17 +363,22 @@ app.get('/favoriteMeals', async (req, res) => {
     meal.forEach(item => {
       totalCalories += item.Calories
     })
-    // console.log("Total calories")
-    // console.log(totalCalories)
+    let parsedItems = meal.map(item => {
+      return {
+        Food: item.Food,
+        Calories: item.Calories,
+        Grams: item.Grams
+      }
+    })
     return {
       name: meal[0].Food + " Meal",
       calories: totalCalories,
-      items: meal
+      items: parsedItems
     }
   })
 
-  console.log("Meal parsed with calories")
-  console.log(mealParsedWithCalories)
+  // console.log("Meal parsed with calories")
+  // console.log(mealParsedWithCalories)
   console.log(mealParsedWithCalories[0].items)
 
   res.render('favoriteMeals', {
