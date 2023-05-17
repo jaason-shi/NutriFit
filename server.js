@@ -240,6 +240,7 @@ app.post("/foodLogs", async (req, res) => {
     totalCalories: totalCalories,
   });
   await mealLog.save();
+  console.log("Saved")
 
 
   // delete session variables

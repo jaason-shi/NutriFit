@@ -4,7 +4,11 @@ const Schema = mongoose.Schema;
 const favMealSchema = new Schema({
   userId: { type: String, ref: "User" },
   mealName: String,
-  items: [Schema.Types.Mixed]
+  items: [{
+    Food: String,
+    Calories: Number,
+    Grams: Number,
+  }]
 
 });
 

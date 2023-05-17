@@ -6,9 +6,9 @@ const mealSchema = new Schema({
   mealName: String,
   items: [
     {
-      foodName: String,
-      calories: Number,
-      grams: Number,
+      Food: String,
+      Calories: Number,
+      Grams: Number,
     },
   ],
   expireTime: { type: Date, expires: 0 }
