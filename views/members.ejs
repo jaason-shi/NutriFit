@@ -4,65 +4,60 @@
 <%- include('partials/meta') %>
 
     <body>
-        <div class="container p-3" style="height: 100vh;">
-            <!-- Header -->
-            <%- include('partials/header.ejs')%>
-                <div class="row">
+        <!-- Header -->
+        <%- include('partials/header.ejs')%>
 
-                    <div class="col-3">
-                        <a href="/userProfile">
-                            <img src="/images/profile-circle.svg" alt="" height="50">
-                        </a>
-                    </div>
-
-                    <div class="col d-flex align-items-center">
-                        <span>
-                            <%= primaryUser.id %>
-                        </span>
-                    </div>
-
-                    <div class="col-5 d-flex align-items-center justify-content-end">
-                        <form action="/logout" method="post">
-                            <button type="submit" class="btn btn-light border border-dark">Sign out <img
-                                    src="images\greater-than-solid.svg" alt="" height="20"></button>
-                        </form>
-                    </div>
-
+        <div class="container-fluid" style="height: calc(100vh - 60px); overflow-y: auto;">
+            <div class="row">
+                <div class="col-3">
+                    <a href="/userProfile">
+                        <img src="/images/profile-circle.svg" alt="" height="50">
+                    </a>
                 </div>
+                <div class="col d-flex align-items-center">
+                    <span>
+                        <%= primaryUser.id %>
+                    </span>
+                </div>
+                <div class="col-5 d-flex align-items-center justify-content-end">
+                    <form action="/logout" method="post">
+                        <button type="submit" class="btn btn-light border border-dark">Sign out <img
+                                src="images\greater-than-solid.svg" alt="" height="20"></button>
+                    </form>
+                </div>
+            </div>
 
+            <form class="mb-4" action="">
+                <span>Search</span> <br>
+                <input class="mt-1 w-100" type="text" placeholder="Please Enter">
+            </form>
 
-                <form class="mb-4" action="">
-                    <span>Search</span> <br>
-                    <input class="mt-1 w-100" type="text" placeholder="Please Enter">
-                </form>
+            <form class="mb-4" action="/generatedMeals">
+                <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
+            </form>
 
-                <form class="mb-4" action="/generatedMeals">
-                    <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
-                </form>
+            <form class="mb-4" action="/quickAddMeal">
+                <input class="btn btn-light border w-100" type="submit" value="Quick Add Food Item">
+            </form>
 
-                <form class="mb-4" action="/quickAddMeal">
-                    <input class="btn btn-light border w-100" type="submit" value="Quick Add Food Item">
-                </form>
+            <form class="mb-4" action="/generatedWorkouts">
+                <input class="btn btn-dark w-100" type="submit" value="Generate Workout">
+            </form>
 
-                <form class="mb-4" action="/generatedWorkouts">
-                    <input class="btn btn-dark w-100" type="submit" value="Generate Workout">
-                </form>
+            <form class="mb-4" action="/quickAddWorkout">
+                <input class="btn btn-light border w-100" type="submit" value="Quick Add Exercise">
+            </form>
 
-                <form class="mb-4" action="/quickAddWorkout">
-                    <input class="btn btn-light border w-100" type="submit" value="Quick Add Exercise">
-                </form>
+            <form class="mb-4" action="/favourites">
+                <input class="btn btn-dark w-100" type="submit" value="Favorites">
+            </form>
 
-                <form class="mb-4" action="/favourites">
-                    <input class="btn btn-dark w-100" type="submit" value="Favorites">
-                </form>
-
-                <form class="mb-4" action="">
-                    <input class="btn btn-dark w-100" type="submit" value="Logs">
-                </form>
-
-                <%- include('partials/navbar') %>
+            <form class="mb-4" action="">
+                <input class="btn btn-dark w-100" type="submit" value="Logs">
+            </form>
         </div>
 
+        <%- include('partials/navbar') %>
 
     </body>
 
