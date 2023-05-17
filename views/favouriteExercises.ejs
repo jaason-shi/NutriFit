@@ -38,7 +38,7 @@
     </head>
 
     <body>
-        <div class="bg-body-tertiary" style="height: 100vh">
+        <div class="bg-body-tertiary overflow-auto" style="height: 100vh">
 
             <div class="row w-100 m-0">
                 <div class="mx-auto col-lg-9 col-12">
@@ -51,24 +51,39 @@
                         <h1 class="mx-auto" style="transform: translateX(-10px);">Favorite Exercises</h1>
                     </div>
 
-                    <!-- Exercise Card -->
-                    <a href="" style="text-decoration: none; color: inherit;">
-                        <div class="card mb-3">
-                            <div class="card-text d-flex justify-content-between">
-                                <div>
-                                    <h5 class="exercise-name">Push Ups</h5>
-                                    <p class="text-muted">Duration: 5 min</p>
+                    <!-- Exercise Cards -->
+                    <% workout.forEach( (exercise)=> { %>
+                        <a href="" style="text-decoration: none; color: inherit;">
+                            <div class="card mb-3">
+                                <div class="card-text d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="exercise-name">
+                                            <%= exercise.name %>
+                                        </h5>
+                                        <p class="text-muted">Exercise Duration: <%= exercise.duration %> min
+                                        </p>
+                                        <ul>
+                                            <%= exercise.bodyPart %>
+                                        </ul>
+
+                                    </div>
+                                    <a href="" style="text-decoration: none; color: inherit;"></a>
+                                    <form action="/exerciseLogs" method="post">
+                                        <input type="hidden" name="exercise" value="<%= workout.items %>">
+                                        <input type="submit" class="btn btn-light h-100" value="+">
+                                    </form>
+
                                 </div>
-                                <a href="" style="text-decoration: none; color: inherit;"></a>
-                                <button class="btn btn-light">+</button>
-                    </a>
+                            </div>
+                        </a>
+                        <% }) %>
                 </div>
             </div>
-            </a>
-        </div>
-        </div>
-        <%- include('partials/navbar') %>
+            <div style="height: 85px">
+
             </div>
+            <%- include('partials/navbar') %>
+        </div>
 
     </body>
 
