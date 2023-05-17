@@ -269,7 +269,6 @@ app.post("/quickAddMeal", async (req, res) => {
   
     // get current date and time as a string
     const date = new Date();
-    const dateString = date.toISOString();
   
     // Create a new meal document
     const meal = new Meal({
@@ -589,7 +588,7 @@ app.get("/quickAddWorkout", async (req, res) => {
 // Post quick add workout data
 app.post("/quickAddWorkout", async (req, res) => {
     const itemId = req.body.item;
-    const duration = req.body.duration;
+    const duration = req.body.duration || 0; // If no duration is specified, set it to 0
     const userId = req.session.USER.id;
     let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
   
