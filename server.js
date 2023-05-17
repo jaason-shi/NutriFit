@@ -68,6 +68,7 @@ app.get('/', (req, res) => {
 // Routers
 const userRouter = require('./routes/userRoute')
 const generatedMealsRouter = require('./routes/generatedMealsRoute')
+const generatedWorkoutsRouter = require('./routes/generatedWorkoutsRoute')
 
 /**
  * Route handlers
@@ -80,7 +81,7 @@ app.use('/user', userRouter)
 app.use('/generatedMeals', generatedMealsRouter)
 
 // Generated Workout route
-
+app.use('/generatedWorkouts', generatedWorkoutsRouter)
 
 
 
