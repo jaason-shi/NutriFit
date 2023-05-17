@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
         <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
@@ -82,7 +82,7 @@
                             </div>
 
                             <div>
-                                <form class="ms-auto" action="/deleteFood" method="post">
+                                <form class="ms-auto" action="./deleteFood" method="post">
                                     <input type="hidden" name="item" value="<%= foodItem.Food %>">
                                     <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                     <input type="hidden" name="type" value="include">
@@ -95,7 +95,7 @@
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/foodCatalog" method="get">
+                                <form class=" mb-2" action="./foodCatalog" method="get">
                                     <input type="hidden" name="type" value="include">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
@@ -116,7 +116,7 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/modifyFoodTag" method="post">
+                        <form action="./modifyFoodTag" method="post">
                             <input type="hidden" name="foodTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
                             <input type="hidden" name="type" value="exclude">
@@ -163,7 +163,7 @@
                             </div>
 
                             <div>
-                                <form class="ms-auto" action="/deleteFood" method="post">
+                                <form class="ms-auto" action="./deleteFood" method="post">
                                     <input type="hidden" name="item" value="<%= foodItem.Food %>">
                                     <input type="hidden" name="user" value="<%= primaryUser.id %>">
                                     <input type="hidden" name="type" value="exclude">
@@ -176,7 +176,7 @@
                         <% }) %>
 
                             <% } %>
-                                <form class=" mb-2" action="/foodCatalog">
+                                <form class=" mb-2" action="./foodCatalog">
                                     <input type="hidden" name="type" value="exclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
@@ -190,11 +190,7 @@
 
             <input class="btn btn-dark w-100" type="submit" value="Generate Meal" onclick="sendCalories()">
 
-            <%- include('partials/navbar') %>
-
-
-
-                <!-- <%#- include('partials/navbar') %> -->
+            <%- include('../partials/navbar') %>
         </div>
 
         <script>
