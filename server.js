@@ -227,34 +227,34 @@ app.get("/quickAddMeal", (req, res) => {
 
 // Post quick add meal data
 app.post("/quickAddMeal", async (req, res) => {
-    const itemId = req.body.item;
-    const userId = req.session.USER.id;
-    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
-  
-    // get current date and time as a string
-    const date = new Date();
-  
-    // Create a new meal document
-    const meal = new Meal({
-      userId: userId,
-      mealName: foodToAdd.Food,
-      items: [
-        {
-          foodName: foodToAdd.Food,
-          calories: foodToAdd.Calories,
-          grams: foodToAdd.Grams,
-        }
-      ],
-      expireTime: new Date(date.getTime() + 5*60*1000) // set the expiry time 5 minutes from now
-    });
-  
-    // Save the meal document
-    await meal.save();
-  
-    let updatedUser = await User.findOne({ id: userId });
-    req.session.USER = updatedUser;
-    res.redirect("/quickAddMeal");
+  const itemId = req.body.item;
+  const userId = req.session.USER.id;
+  let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
+
+  // get current date and time as a string
+  const date = new Date();
+
+  // Create a new meal document
+  const meal = new Meal({
+    userId: userId,
+    mealName: foodToAdd.Food,
+    items: [
+      {
+        foodName: foodToAdd.Food,
+        calories: foodToAdd.Calories,
+        grams: foodToAdd.Grams,
+      }
+    ],
+    expireTime: new Date(date.getTime() + 5 * 60 * 1000) // set the expiry time 5 minutes from now
   });
+
+  // Save the meal document
+  await meal.save();
+
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("/quickAddMeal");
+});
 
 
 // Get Quick add workout page
@@ -265,40 +265,46 @@ app.get("/quickAddWorkout", async (req, res) => {
 
 // Post quick add workout data
 app.post("/quickAddWorkout", async (req, res) => {
-    const itemId = req.body.item;
-    const duration = req.body.duration || 0; // If no duration is specified, set it to 0
-    const userId = req.session.USER.id;
-    let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
-  
-    // Get current date and time
-    const date = new Date();
-  
-    // Create a new workout document
-    const workout = new Workout({
-      userId: userId,
-      exercises: [
-        {
-          name: workoutToAdd.name,
-          duration: duration,
-          bodyPart: workoutToAdd.bodyPart,
-        },
-      ],
-      expireTime: new Date(date.getTime() + 5*60*1000), // Set the expiry time 5 minutes from now
-    });
-  
-    // Save the workout document
-    await workout.save();
-  
-    let updatedUser = await User.findOne({ id: userId });
-    req.session.USER = updatedUser;
-    res.redirect("/quickAddWorkout");
+  const itemId = req.body.item;
+  const duration = req.body.duration || 0; // If no duration is specified, set it to 0
+  const userId = req.session.USER.id;
+  let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
+
+  // Get current date and time
+  const date = new Date();
+
+  // Create a new workout document
+  const workout = new Workout({
+    userId: userId,
+    exercises: [
+      {
+        name: workoutToAdd.name,
+        duration: duration,
+        bodyPart: workoutToAdd.bodyPart,
+      },
+    ],
+    expireTime: new Date(date.getTime() + 5 * 60 * 1000), // Set the expiry time 5 minutes from now
   });
+
+  // Save the workout document
+  await workout.save();
+
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("/quickAddWorkout");
+});
 
 
 // Get workout logs
 app.get("/workoutLogs", (req, res) => {
   res.render("workoutLogs");
 });
+
+
+// Get snake game
+app.get('/snake', (req, res) => {
+  res.sendFile('public/snake.html', { root: __dirname });
+})
 
 
 // Connect to port
