@@ -225,10 +225,24 @@ app.post("/favoriteMeals", async (req, res) => {
 app.post("/foodLogs", async (req, res) => {
   // console.log("Testing add from fav")
   // console.log(req.body.meal)
+  const date = new Date();
   if (req.body.meal) {
-    req.session.MEAL = req.body.meal
-    console.log("Testing add from fav: " + typeof (req.session.MEAL))
-    console.log(req.session.MEAL)
+    let stringMeal = req.body.meal;
+    let parsedMeal = JSON.parse(stringMeal)
+    parsedMeal = parsedMeal.map(item => {
+      return {
+        _id: item._id,
+        Food: item.Food,
+        Calories: item.Calories,
+        Grams: item.Grams,
+      }
+    })
+    req.session.MEAL = parsedMeal
+    console.log("parsed")
+    console.log(parsedMeal)
+    // req.session.MEAL = req.body.meal
+    // console.log("Testing add from fav: " + typeof (req.session.MEAL))
+    // console.log(req.session.MEAL)
   }
   console.log("session meal logs: ");
   console.log(req.session.MEAL);
@@ -245,6 +259,7 @@ app.post("/foodLogs", async (req, res) => {
     mealName: meal[0].mealName,
     items: meal,
     totalCalories: totalCalories,
+    expireTime: new Date(date.getTime() + 5 * 60 * 1000)
   });
   await mealLog.save();
   console.log("Saved")
@@ -348,15 +363,11 @@ app.get('/snake', (req, res) => {
 // Get favorite meals page
 app.get('/favoriteMeals', async (req, res) => {
   let userId = req.session.USER.id
-  // console.log(userId)
   let meals = await FavoriteMeal.find({ userId: userId })
-  // console.log(meals)
   let mealsParsed = meals.map((meal) => {
     return meal.items
   })
-  // console.log(meals[0])
-  // console.log("Parsed")
-  // console.log(mealsParsed)
+
   let totalCalories = 0;
   mealParsedWithCalories = mealsParsed.map(meal => {
     let totalCalories = 0;
@@ -365,6 +376,7 @@ app.get('/favoriteMeals', async (req, res) => {
     })
     let parsedItems = meal.map(item => {
       return {
+        _id: item._id.toString(),
         Food: item.Food,
         Calories: item.Calories,
         Grams: item.Grams
@@ -373,16 +385,19 @@ app.get('/favoriteMeals', async (req, res) => {
     return {
       name: meal[0].Food + " Meal",
       calories: totalCalories,
-      items: parsedItems
+      items: parsedItems,
+      hiddenItems: JSON.stringify(parsedItems)
     }
   })
 
-  // console.log("Meal parsed with calories")
-  // console.log(mealParsedWithCalories)
-  console.log(mealParsedWithCalories[0].items)
+  let hiddenMeals = mealParsedWithCalories.map(meal => {
+    return meal.items
+  })
+
 
   res.render('favoriteMeals', {
-    meals: mealParsedWithCalories
+    meals: mealParsedWithCalories,
+    hiddenMeals: JSON.stringify(hiddenMeals)
   })
 })
 
