@@ -63,6 +63,12 @@ const Meal = require("./models/mealModel");
 // Workout model
 const Workout = require("./models/workoutModel");
 
+// FavoriteMeal model
+const FavoriteMeal = require("./models/favMealModel");
+
+// FavoriteWorkout model
+const FavoriteWorkout = require("./models/favWorkoutModel");
+
 // Basic landing page 
 app.get('/', (req, res) => {
   if (req.session.AUTH) {
@@ -145,76 +151,99 @@ app.get("/favourites", (req, res) => {
 });
 
 
-// Get favorite workouts  favoriteWorkouts
-app.get("/favoriteWorkouts", (req, res) => {
+// POST favorite workouts  favoriteWorkouts
+app.post("/favoriteWorkouts", async (req, res) => {
+  console.log("session workout: ");
   console.log(req.session.WORKOUT);
   // add the workout to the user's favorite workouts
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
-  User.updateOne(
-    { id: userId },
-    { $addToSet: { favouriteWorkouts: workout } }
-  ).then(() => {
-    res.redirect("/favoriteWorkouts");
-  });
+  // ADD workout to FavoriteWorkout collection
+    const favWorkout = new FavoriteWorkout({
+        userId: userId,
+        workoutName: workout[0].name,
+        exercises: workout
+    });
+    await favWorkout.save();
   // delete session variables
   delete req.session.WORKOUT;
+  res.redirect("/");
 });
 
 
-// Get Workout Logs page
-app.get("/workoutLogs", (req, res) => {
+// POST Workout Logs page
+app.post("/workoutLogs", async (req, res) => {
+  console.log("session workout logs: ");
   console.log(req.session.WORKOUT);
   // get total duration of the workouts
   let totalDuration = 0;
   req.session.WORKOUT.forEach((exercise) => {
     totalDuration += Number(exercise.duration);
   });
-  // add the workout to the user's favorite workouts
+  // add the workout to the Workout collection
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
-  User.updateOne({ id: userId }, { $addToSet: { workoutLogs: workout } }).then(
-    () => {
-      res.render("/workoutLogs", { totalDuration: totalDuration });
-    }
-  );
+  const workoutLog = new Workout({
+    userId: userId,
+    workoutName: workout[0].name,
+    exercises: workout,
+    totalDuration: totalDuration,
+    });
+    await workoutLog.save();
+    
   // delete session variables
   delete req.session.WORKOUT;
+    res.redirect("/");
+
 });
 
 
-// Get favorite meals
-app.get("/favoriteMeals", (req, res) => {
+
+// POST favorite meals
+app.post("/favoriteMeals", async (req, res) => {
+    console.log("session meal: ");
   console.log(req.session.MEAL);
   // add the meal to the user's favorite meals
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
-  User.updateOne({ id: userId }, { $addToSet: { favouriteMeals: meal } }).then(
-    () => {
-      res.redirect("/favoriteMeals");
-    }
-  );
+ // ADD meal to FavoriteMeal collection
+    const favMeal = new FavoriteMeal({
+        userId: userId,
+        mealName: meal[0].mealName,
+        items: meal,
+    });
+    await favMeal.save();
+
   // delete session variables
   delete req.session.MEAL;
+    res.redirect("/");
 });
 
 
-// Get Meal Logs page
-app.get("/foodLogs", (req, res) => {
+// POST Meal Logs page
+app.post("/foodLogs", async (req, res) => {
+    console.log("session meal logs: ");
   console.log(req.session.MEAL);
   // get calories from the meal
   let totalCalories = 0;
   req.session.MEAL.forEach((food) => {
     totalCalories += Number(food.Calories);
   });
-  // add the meal to the user's logs
-  const meal = req.session.MEAL;
-  const userId = req.session.USER.id;
-  User.updateOne({ id: userId }, { $addToSet: { foodLogs: meal } }).then(() => {
-    res.render("/foodLogs", { totalCalories: totalCalories });
-  });
+  // add the meal to meal collection
+    const meal = req.session.MEAL;
+    const userId = req.session.USER.id;
+    const mealLog = new Meal({
+        userId: userId,
+        mealName: meal[0].mealName,
+        items: meal,
+        totalCalories: totalCalories,
+    });
+    await mealLog.save();
+
+ 
   // delete session variables
   delete req.session.MEAL;
+    res.redirect("/");
 });
 
 
