@@ -7,12 +7,12 @@ function addItem(id) {
     var formType = $('#formType').val();
 
     if (formType === 'quickAddMeal') {
-        $.post('/quickAddMeal', { item: id }, function () {
+        $.post('./quickAddMeal', { item: id }, function () {
             window.location.href = "/quickAddMeal";
         });
     } else {
-        $.post('/selectFood', { item: id }, function () {
-            window.location.href = "/mealFilters";
+        $.post('./selectFood', { item: id }, function () {
+            window.location.href = "./mealFilters";
         });
     }
 }
@@ -21,7 +21,7 @@ const setup = () => {
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
-        $.get('/searchFood', { q: searchQuery }, function (data) {
+        $.get('./searchFood', { q: searchQuery }, function (data) {
             $('#foodResults').empty();
             data.forEach(item => {
                 $('#foodResults').append(`
@@ -46,7 +46,7 @@ const setup = () => {
 
                     <div>
                         <button onclick="addItem('${item.id}')" class="btn btn-light m-0 p-0 ms-auto"><img
-                                src="./images/plus-circle.svg" alt="Add" height="30px"></button>
+                                src="/images/plus-circle.svg" alt="Add" height="30px"></button>
                     </div>
                 </div>
                     `);
