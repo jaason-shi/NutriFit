@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
         <div class="container p-3" style="height: 100vh;">
@@ -47,14 +47,16 @@
 
                         <div class="w-50 vstack gap-0">
                             <div class="d-inline-flex">
-                                <span>
-                                    <%= foodItem.Food %>
-                                </span>
-
-                                <span class="ms-auto">
-                                    <%= foodItem.Calories %> cal
-                                </span>
-
+                                <div class="w-75">
+                                    <span>
+                                        <%= foodItem.Food %>
+                                    </span>
+                                </div>
+                                <div class="ms-auto overflow-x-auto">
+                                    <span>
+                                        <%= foodItem.Calories %> cal
+                                    </span>
+                                </div>
                             </div>
                             <div class="d-inline text-secondary" style="font-size: 14px">
                                 <%= foodItem.Grams %>g
@@ -79,11 +81,11 @@
                     <input class="btn btn-dark w-100" type="submit" value="Regenerate">
                 </form>
 
-                <form class="mb-4" action="/mealFilters">
+                <form class="mb-4" action="generatedMeals/mealFilters">
                     <input class="btn btn-dark w-100" type="submit" value="Customize Meal">
                 </form>
             </div>
-            <%- include('partials/navbar') %>
+            <%- include('../partials/navbar') %>
         </div>
 
 

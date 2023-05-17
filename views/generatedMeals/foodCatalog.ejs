@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
         <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
@@ -9,7 +9,7 @@
 
             <div class="fs-5 fw-semibold d-flex mb-4 align-items-center">
                 <div>
-                    <a href="/mealFilters"><img src="/images/less-than.svg" alt=""></a>
+                    <a href="./mealFilters"><img src="/images/less-than.svg" alt=""></a>
                 </div>
                 <div class="ms-3">
                     Select food to <%= type %>
@@ -41,7 +41,7 @@
         <!-- Bootstrap JS -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- Personal JS -->
-        <script src="./scripts/foodCatalog.js"></script>
+        <script src="/scripts/foodCatalog.js"></script>
 
     </body>
 
