@@ -80,6 +80,7 @@ app.get("/", (req, res) => {
 const userRouter = require("./routes/userRoute");
 const generatedMealsRouter = require("./routes/generatedMealsRoute");
 const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
+const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
 const { parse } = require("path");
 
 /**
@@ -94,6 +95,9 @@ app.use("/generatedMeals", generatedMealsRouter);
 
 // Generated Workout route
 app.use("/generatedWorkouts", generatedWorkoutsRouter);
+
+// Workout Tracking route
+app.use("/workoutTracking", workoutTrackingRouter);
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
@@ -173,70 +177,6 @@ app.post("/favoriteWorkouts", async (req, res) => {
   res.redirect("/");
 });
 
-// POST Workout Logs page
-app.post("/workoutLogs", async (req, res) => {
-  const date = new Date();
-
-  if (req.body.favoriteWorkoutId) {
-    let favoriteWorkoutId = req.body.favoriteWorkoutId;
-    let favoriteWorkout = await FavoriteWorkout.findById(favoriteWorkoutId);
-    let parsedWorkout = favoriteWorkout.exercises.map((item) => {
-      return {
-        _id: item._id,
-        name: item.name,
-        duration: item.duration,
-        bodyPart: item.bodyPart,
-      };
-    });
-    req.session.WORKOUT = parsedWorkout;  
-    console.log("Parsed workout: ");
-    console.log(parsedWorkout);
-  }
-  else if (req.body.workout) {
-    let stringWorkout = req.body.workout;
-    let parsedWorkout = JSON.parse(stringWorkout);
-    parsedWorkout = parsedWorkout.map((item) => {
-      return {
-        _id: item._id,
-        name: item.name,
-        duration: item.duration,
-        bodyPart: item.bodyPart,
-      };
-    });
-    req.session.WORKOUT = parsedWorkout;
-    console.log("Parsed workout: ");
-    console.log(parsedWorkout);
-  }
-
-  console.log("session workout logs: ");
-  console.log(req.session.WORKOUT);
-
-  // get total duration of the workouts
-  let totalDuration = 0;
-  req.session.WORKOUT.forEach((exercise) => {
-    totalDuration += Number(exercise.duration);
-  });
-
-  // add the workout to the Workout collection
-  const workout = req.session.WORKOUT;
-  const userId = req.session.USER.id;
-  const workoutLog = new Workout({
-    userId: userId,
-    workoutName: workout[0].name,
-    exercises: workout,
-    totalDuration: totalDuration,
-    expireTime: new Date(date.getTime() + 5 * 60 * 1000),
-  });
-
-  await workoutLog.save();
-  console.log("Saved");
-
-  // delete session variables
-  delete req.session.WORKOUT;
-
-  res.redirect("/");
-});
-
 // POST favorite meals
 app.post("/favoriteMeals", async (req, res) => {
   console.log("session meal: ");
@@ -261,7 +201,7 @@ app.post("/favoriteMeals", async (req, res) => {
 // POST Meal Logs page
 app.post("/foodLogs", async (req, res) => {
   const date = new Date();
-  
+
   if (req.body.favoriteMealId) {
     let favoriteMealId = req.body.favoriteMealId;
     let favoriteMeal = await FavoriteMeal.findById(favoriteMealId);
@@ -276,8 +216,7 @@ app.post("/foodLogs", async (req, res) => {
     req.session.MEAL = parsedMeal;
     console.log("Parsed favorite meal");
     console.log(parsedMeal);
-  } 
-  else if (req.body.meal) {
+  } else if (req.body.meal) {
     let stringMeal = req.body.meal;
     let parsedMeal = JSON.parse(stringMeal);
     parsedMeal = parsedMeal.map((item) => {
@@ -295,7 +234,7 @@ app.post("/foodLogs", async (req, res) => {
 
   console.log("Session meal logs: ");
   console.log(req.session.MEAL);
-  
+
   // Get calories from the meal
   let totalCalories = 0;
   req.session.MEAL.forEach((food) => {
@@ -318,7 +257,7 @@ app.post("/foodLogs", async (req, res) => {
 
   // Delete session variables
   delete req.session.MEAL;
-  
+
   res.redirect("/");
 });
 
@@ -408,7 +347,7 @@ app.get("/snake", (req, res) => {
 app.get("/favoriteMeals", async (req, res) => {
   let userId = req.session.USER.id;
   let meals = await FavoriteMeal.find({ userId: userId });
-  
+
   let mealsParsed = meals.map((meal) => {
     let totalCalories = 0;
     meal.items.forEach((item) => {
@@ -445,12 +384,10 @@ app.get("/favoriteWorkouts", async (req, res) => {
       duration: totalDuration,
       exercises: workout.exercises,
     };
-
   });
 
   res.render("favoriteWorkouts", { workouts: workoutsParsed });
 });
-
 
 // Connect to port
 const port = 3000;
