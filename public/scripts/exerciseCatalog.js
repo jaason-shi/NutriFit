@@ -22,7 +22,7 @@ const setup = () => {
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
-        $.get('generatedWorkouts/searchExercise', { q: searchQuery }, function (data) {
+        $.get('./searchExercise', { q: searchQuery }, function (data) {
             $('#exerciseResults').empty();
             data.forEach(item => {
                 $('#exerciseResults').append(`
