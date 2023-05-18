@@ -10,7 +10,14 @@ const FavoriteMeal = require("../models/favMealModel");
 // Get meal logs page
 mealTrackingRouter.get("/mealLogs", async (req, res) => {
     const userId = req.session.USER.id;
-    let userMeals = await Meal.find({ userId: userId });
+    let userMeals;
+
+    if (req.session.FILTERED_MEALS) {
+        userMeals = req.session.FILTERED_MEALS
+        delete req.session.FILTERED_MEALS
+    } else {
+        userMeals = await Meal.find({ userId: userId });
+    }
 
     // Get total calories of all meals
     let totalCalories = 0;
@@ -24,15 +31,12 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
             mealCalories += item.Calories;
         });
 
-        // Add the total calories of this meal to the meal object
-        meal = meal.toObject(); // convert the mongoose doc to a plain JS object
         meal.totalCalories = mealCalories;
 
         return meal;
     });
 
     req.session.MEALS_LOGGED = userMeals
-    //console.log(userMeals);
     res.render("mealLogs", {
         totalCalories: totalCalories,
         meals: userMeals
@@ -41,48 +45,30 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
 
 
 // GET meal logs depending on if the user clicks day, week, or month
-mealTrackingRouter.post("/filterMeals", (req, res) => {
-    // console.log("Testing filter")
-    // console.log(req.session.USER)
+mealTrackingRouter.post("/filterMeals", async (req, res) => {
+    req.session.MEALS_LOGGED = await Meal.find({ userId: req.session.USER.id });
     const filterType = req.body.filterType;
     const today = new Date();
     let startDate
-    console.log("Filter type")
-    console.log(filterType)
 
+    // Which filter was picked
     if (filterType === "day") {
-        startDate = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate() - 1
-        );
+        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
     } else if (filterType === "week") {
         const firstDayOfWeek = today.getDate() - today.getDay();
         startDate = new Date(today.getFullYear(), today.getMonth(), firstDayOfWeek - 7);
     } else if (filterType === "month") {
         startDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
     }
-
     const filteredMeals = req.session.MEALS_LOGGED.filter((meal) => {
-        console.log("Filter Start")
-        console.log(startDate)
-        console.log("Meal Creation time")
         let createdTime = new Date(Date.parse(meal.createdTime))
-        console.log(createdTime)
         return createdTime >= startDate
     });
-
-    console.log("Testing")
-    // console.log(req.session.MEALS_LOGGED)
-    console.log(filteredMeals)
 
     let totalCalories = 0;
     filteredMeals.forEach((meal) => {
         totalCalories += meal.totalCalories;
     });
-
-    // console.log(req.session.MEALS_LOGGED)
-    // console.log(filteredMeals)
 
     req.session.FILTERED_MEALS = filteredMeals;
     res.redirect('./mealLogs')
