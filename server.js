@@ -190,7 +190,7 @@ app.post("/workoutLogs", async (req, res) => {
 
   const workoutLog = new Workout({
     userId: userId,
-    // workoutName: workout[0].name,
+    workoutName: workout[0].name,
     exercises: workout,
     totalDuration: totalDuration,
     expireTime: expireTime, // Add expiration time
