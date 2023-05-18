@@ -11,6 +11,7 @@ const mealSchema = new Schema({
       Grams: Number,
     },
   ],
+  createdTime: { type: Date, default: Date.now },
   expireTime: { type: Date, expires: 0 }
 });
 
