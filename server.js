@@ -391,6 +391,31 @@ app.get("/favoriteMeals", async (req, res) => {
   res.render("favoriteMeals", { meals: mealsParsed });
 });
 
+// Get favorite workouts page
+app.get("/favoriteWorkouts", async (req, res) => {
+  let userId = req.session.USER.id;
+  let workouts = await FavoriteWorkout.find({ userId: userId });
+
+  console.log(workouts);
+
+  let workoutsParsed = workouts.map((workout) => {
+    let totalDuration = 0;
+    workout.exercises.forEach((exercise) => {
+      totalDuration += exercise.duration;
+    });
+
+    return {
+      _id: workout._id,
+      name: workout.exercises[0].name + " Workout",
+      duration: totalDuration,
+      exercises: workout.exercises,
+    };
+
+  });
+
+  res.render("favoriteWorkouts", { workout: workoutsParsed });
+});
+
 
 // Connect to port
 const port = 3000;
