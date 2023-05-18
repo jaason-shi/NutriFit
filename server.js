@@ -220,10 +220,24 @@ app.post("/favoriteMeals", async (req, res) => {
 
 // POST Meal Logs page
 app.post("/foodLogs", async (req, res) => {
-  // console.log("Testing add from fav")
-  // console.log(req.body.meal)
   const date = new Date();
-  if (req.body.meal) {
+  
+  if (req.body.favoriteMealId) {
+    let favoriteMealId = req.body.favoriteMealId;
+    let favoriteMeal = await FavoriteMeal.findById(favoriteMealId);
+    let parsedMeal = favoriteMeal.items.map((item) => {
+      return {
+        _id: item._id,
+        Food: item.Food,
+        Calories: item.Calories,
+        Grams: item.Grams,
+      };
+    });
+    req.session.MEAL = parsedMeal;
+    console.log("Parsed favorite meal");
+    console.log(parsedMeal);
+  } 
+  else if (req.body.meal) {
     let stringMeal = req.body.meal;
     let parsedMeal = JSON.parse(stringMeal);
     parsedMeal = parsedMeal.map((item) => {
@@ -235,34 +249,36 @@ app.post("/foodLogs", async (req, res) => {
       };
     });
     req.session.MEAL = parsedMeal;
-    console.log("parsed");
+    console.log("Parsed meal from body");
     console.log(parsedMeal);
-    // req.session.MEAL = req.body.meal
-    // console.log("Testing add from fav: " + typeof (req.session.MEAL))
-    // console.log(req.session.MEAL)
   }
-  console.log("session meal logs: ");
+
+  console.log("Session meal logs: ");
   console.log(req.session.MEAL);
-  // get calories from the meal
+  
+  // Get calories from the meal
   let totalCalories = 0;
   req.session.MEAL.forEach((food) => {
     totalCalories += Number(food.Calories);
   });
-  // add the meal to meal collection
+
+  // Add the meal to meal collection
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
   const mealLog = new Meal({
     userId: userId,
-    mealName: meal[0].mealName,
+    mealName: meal[0].Food,
     items: meal,
     totalCalories: totalCalories,
     expireTime: new Date(date.getTime() + 5 * 60 * 1000),
   });
+
   await mealLog.save();
   console.log("Saved");
 
-  // delete session variables
+  // Delete session variables
   delete req.session.MEAL;
+  
   res.redirect("/");
 });
 
