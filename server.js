@@ -80,6 +80,7 @@ app.get("/", (req, res) => {
 const userRouter = require("./routes/userRoute");
 const generatedMealsRouter = require("./routes/generatedMealsRoute");
 const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
+const { parse } = require("path");
 
 /**
  * Route handlers
@@ -174,31 +175,65 @@ app.post("/favoriteWorkouts", async (req, res) => {
 
 // POST Workout Logs page
 app.post("/workoutLogs", async (req, res) => {
+  const date = new Date();
+
+  if (req.body.favoriteWorkoutId) {
+    let favoriteWorkoutId = req.body.favoriteWorkoutId;
+    let favoriteWorkout = await FavoriteWorkout.findById(favoriteWorkoutId);
+    let parsedWorkout = favoriteWorkout.exercises.map((item) => {
+      return {
+        _id: item._id,
+        name: item.name,
+        duration: item.duration,
+        bodyPart: item.bodyPart,
+      };
+    });
+    req.session.WORKOUT = parsedWorkout;  
+    console.log("Parsed workout: ");
+    console.log(parsedWorkout);
+  }
+  else if (req.body.workout) {
+    let stringWorkout = req.body.workout;
+    let parsedWorkout = JSON.parse(stringWorkout);
+    parsedWorkout = parsedWorkout.map((item) => {
+      return {
+        _id: item._id,
+        name: item.name,
+        duration: item.duration,
+        bodyPart: item.bodyPart,
+      };
+    });
+    req.session.WORKOUT = parsedWorkout;
+    console.log("Parsed workout: ");
+    console.log(parsedWorkout);
+  }
+
   console.log("session workout logs: ");
   console.log(req.session.WORKOUT);
+
   // get total duration of the workouts
   let totalDuration = 0;
   req.session.WORKOUT.forEach((exercise) => {
     totalDuration += Number(exercise.duration);
   });
+
   // add the workout to the Workout collection
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
-
-  const date = new Date();
-  const expireTime = new Date(date.getTime() + 5 * 60 * 1000); // Add 5 minutes expiration time
-
   const workoutLog = new Workout({
     userId: userId,
     workoutName: workout[0].name,
     exercises: workout,
     totalDuration: totalDuration,
-    expireTime: expireTime, // Add expiration time
+    expireTime: new Date(date.getTime() + 5 * 60 * 1000),
   });
+
   await workoutLog.save();
+  console.log("Saved");
 
   // delete session variables
   delete req.session.WORKOUT;
+
   res.redirect("/");
 });
 
@@ -413,7 +448,7 @@ app.get("/favoriteWorkouts", async (req, res) => {
 
   });
 
-  res.render("favoriteWorkouts", { workout: workoutsParsed });
+  res.render("favoriteWorkouts", { workouts: workoutsParsed });
 });
 
 
