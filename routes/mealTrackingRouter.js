@@ -10,19 +10,32 @@ const FavoriteMeal = require("../models/favMealModel");
 // Get meal logs page
 mealTrackingRouter.get("/mealLogs", async (req, res) => {
 
-    const userId = req.session.USER.id
-    let userMeals = await Meal.find({ userId: userId })
-    let totalCalories = 0
-    userMeals.forEach(meal => {
+    const userId = req.session.USER.id;
+    let userMeals = await Meal.find({ userId: userId });
+
+    // Get total calories of all meals
+    let totalCalories = 0;
+
+    // Add a totalCalories field to each meal
+    userMeals = userMeals.map(meal => {
+        let mealCalories = 0;
+
         meal.items.forEach(item => {
-            totalCalories += item.Calories
-        })
-    })
-    console.log(userMeals)
+            totalCalories += item.Calories;
+            mealCalories += item.Calories;
+        });
+
+        // Add the total calories of this meal to the meal object
+        meal = meal.toObject(); // convert the mongoose doc to a plain JS object
+        meal.totalCalories = mealCalories;
+
+        return meal;
+    });
+
+    console.log(userMeals);
     res.render("mealLogs", {
         totalCalories: totalCalories,
         meals: userMeals
-
     });
 });
 
