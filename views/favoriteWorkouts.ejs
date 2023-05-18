@@ -3,85 +3,87 @@
 
 <%- include('partials/meta') %>
 
-<head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-        }
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f8f9fa;
+            }
 
-        .card {
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            transition: 0.3s;
-            border-radius: 5px;
-        }
+            .card {
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                transition: 0.3s;
+                border-radius: 5px;
+            }
 
-        .card:hover {
-            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-        }
+            .card:hover {
+                box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+            }
 
-        .card-text {
-            padding: 1em;
-        }
+            .card-text {
+                padding: 1em;
+            }
 
-        .header {
-            margin-top: 30px;
-        }
+            .header {
+                margin-top: 30px;
+            }
 
-        .exercise-name {
-            width: 250px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-    </style>
-</head>
+            .exercise-name {
+                width: 250px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+        </style>
+    </head>
 
-<body>
-    <div class="bg-body-tertiary overflow-auto" style="height: 100vh">
+    <body>
+        <div class="bg-body-tertiary overflow-auto" style="height: 100vh">
 
-        <div class="row w-100 m-0">
-            <div class="mx-auto col-lg-9 col-12">
+            <div class="row w-100 m-0">
+                <div class="mx-auto col-lg-9 col-12">
 
-                <!-- Header -->
-                <div class="header d-flex align-items-center mb-3">
-                    <a href="/favorites" style="text-decoration: none; color: inherit;">
-                        <button class="btn btn-light"><img src="/images/less-than.svg" alt="Go back"></button>
-                    </a>
-                    <h1 class="mx-auto" style="transform: translateX(-10px);">Favorite Exercises</h1>
-                </div>
-
-                <!-- Exercise Cards -->
-                <% workouts.forEach(workout => { %>
-                <a href="" style="text-decoration: none; color: inherit;">
-                    <div class="card mb-3">
-                        <div class="card-text d-flex justify-content-between">
-                            <div>
-                                <h5 class="exercise-name">
-                                    <%= workout.name %>
-                                </h5>
-                                <p class="text-muted">Exercise Duration: <%= workout.duration %> min
-                                </p>
-                                <ul>
-                                    <% workout.exercises.forEach(exercise => { %>
-                                    <li><%= exercise.name %> - <%= exercise.duration %> min</li>
-                                    <% }) %>
-                                </ul>
-                            </div>
-                            <a href="" style="text-decoration: none; color: inherit;"></a>
-                            <form action="/workoutLogs" method="post">
-                                <input type="hidden" name="favoriteWorkoutId" value="<%= workout._id %>">
-                                <input type="submit" class="btn btn-light h-100" value="+">
-                            </form>
-                        </div>
+                    <!-- Header -->
+                    <div class="header d-flex align-items-center mb-3">
+                        <a href="/favorites" style="text-decoration: none; color: inherit;">
+                            <button class="btn btn-light"><img src="/images/less-than.svg" alt="Go back"></button>
+                        </a>
+                        <h1 class="mx-auto" style="transform: translateX(-10px);">Favorite Exercises</h1>
                     </div>
-                </a>
-                <% }) %>
+
+                    <!-- Exercise Cards -->
+                    <% workouts.forEach(workout=> { %>
+                        <a href="" style="text-decoration: none; color: inherit;">
+                            <div class="card mb-3">
+                                <div class="card-text d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="exercise-name">
+                                            <%= workout.name %>
+                                        </h5>
+                                        <p class="text-muted">Exercise Duration: <%= workout.duration %> min
+                                        </p>
+                                        <ul>
+                                            <% workout.exercises.forEach(exercise=> { %>
+                                                <li>
+                                                    <%= exercise.name %> - <%= exercise.duration %> min
+                                                </li>
+                                                <% }) %>
+                                        </ul>
+                                    </div>
+                                    <a href="" style="text-decoration: none; color: inherit;"></a>
+                                    <form action="workoutTracking/workoutLogs" method="post">
+                                        <input type="hidden" name="favoriteWorkoutId" value="<%= workout._id %>">
+                                        <input type="submit" class="btn btn-light h-100" value="+">
+                                    </form>
+                                </div>
+                            </div>
+                        </a>
+                        <% }) %>
+                </div>
             </div>
+            <div style="height: 100px;"></div>
+            <%- include('partials/navbar') %>
         </div>
-        <div style="height: 100px;"></div>
-        <%- include('partials/navbar') %>
-    </div>
-</body>
+    </body>
 
 </html>

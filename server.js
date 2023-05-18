@@ -81,6 +81,7 @@ const userRouter = require("./routes/userRoute");
 const generatedMealsRouter = require("./routes/generatedMealsRoute");
 const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
+const mealTrackingRouter = require("./routes/mealTrackingRouter")
 const { parse } = require("path");
 
 /**
@@ -98,6 +99,9 @@ app.use("/generatedWorkouts", generatedWorkoutsRouter);
 
 // Workout Tracking route
 app.use("/workoutTracking", workoutTrackingRouter);
+
+// Meal Tracking route
+app.use("/mealTracking", mealTrackingRouter)
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
@@ -145,9 +149,6 @@ app.get("/logs", async (req, res) => {
   res.render("logs");
 });
 
-app.get("/mealLogs", async (req, res) => {
-  res.render("mealLogs");
-});
 
 app.get("/exerciseLogs", async (req, res) => {
   res.render("exerciseLogs");
@@ -240,68 +241,7 @@ app.post("/favoriteMeals", async (req, res) => {
   res.redirect("/");
 });
 
-// POST Meal Logs page
-app.post("/foodLogs", async (req, res) => {
-  const date = new Date();
 
-  if (req.body.favoriteMealId) {
-    let favoriteMealId = req.body.favoriteMealId;
-    let favoriteMeal = await FavoriteMeal.findById(favoriteMealId);
-    let parsedMeal = favoriteMeal.items.map((item) => {
-      return {
-        _id: item._id,
-        Food: item.Food,
-        Calories: item.Calories,
-        Grams: item.Grams,
-      };
-    });
-    req.session.MEAL = parsedMeal;
-    console.log("Parsed favorite meal");
-    console.log(parsedMeal);
-  } else if (req.body.meal) {
-    let stringMeal = req.body.meal;
-    let parsedMeal = JSON.parse(stringMeal);
-    parsedMeal = parsedMeal.map((item) => {
-      return {
-        _id: item._id,
-        Food: item.Food,
-        Calories: item.Calories,
-        Grams: item.Grams,
-      };
-    });
-    req.session.MEAL = parsedMeal;
-    console.log("Parsed meal from body");
-    console.log(parsedMeal);
-  }
-
-  console.log("Session meal logs: ");
-  console.log(req.session.MEAL);
-
-  // Get calories from the meal
-  let totalCalories = 0;
-  req.session.MEAL.forEach((food) => {
-    totalCalories += Number(food.Calories);
-  });
-
-  // Add the meal to meal collection
-  const meal = req.session.MEAL;
-  const userId = req.session.USER.id;
-  const mealLog = new Meal({
-    userId: userId,
-    mealName: meal[0].Food,
-    items: meal,
-    totalCalories: totalCalories,
-    expireTime: new Date(date.getTime() + 5 * 60 * 1000),
-  });
-
-  await mealLog.save();
-  console.log("Saved");
-
-  // Delete session variables
-  delete req.session.MEAL;
-
-  res.redirect("/");
-});
 
 // GET meal logs depending on if the user clicks day, week, or month
 app.get("/filterMeals", (req, res) => {
@@ -377,6 +317,8 @@ app.get("/favoriteMeals", async (req, res) => {
       items: meal.items,
     };
   });
+  console.log("Meals parsed")
+  console.log(mealsParsed)
 
   res.render("favoriteMeals", { meals: mealsParsed });
 });

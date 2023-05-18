@@ -38,33 +38,36 @@
                 </span>
             </div>
 
-            <div class="container h-25 mb-4 overflow-auto border">
-
-                <% foodItems.forEach( (foodItem)=> { %>
-                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
-                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"></button>
-                        </div>
-
-                        <div class="w-50 vstack gap-0">
-                            <div class="d-inline-flex">
-                                <span>
-                                    <%= foodItem.Food %>
-                                </span>
-
-                                <span class="ms-auto">
-                                    <%= foodItem.Calories %> cal
-                                </span>
-
+            <div class="container h-75 mb-4 overflow-auto border">
+                <% meals.forEach(meal=> { %>
+                    <% meal.items.forEach( (foodItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
                             </div>
-                            <div class="d-inline text-secondary" style="font-size: 14px">
-                                <%= foodItem.Grams %>g
-                            </div>
-                        </div>
 
-                    </div>
-                    <% }) %>
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= foodItem.Food %>
+                                    </span>
+
+                                    <span class="ms-auto">
+                                        <%= foodItem.Calories %> cal
+                                    </span>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= foodItem.Grams %>g
+                                </div>
+                            </div>
+
+                        </div>
+                        <% }) %>
+
+                            <% }) %>
+
 
             </div>
             <div style="height: 100px;"></div>

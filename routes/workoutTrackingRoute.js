@@ -4,6 +4,8 @@ const User = require("../models/userModel");
 const Workout = require("../models/workoutModel");
 const Exercise = require("../models/exerciseModel");
 const { ObjectID } = require("mongodb");
+// FavoriteWorkout model
+const FavoriteWorkout = require("../models/favWorkoutModel");
 
 // Available exercise tags
 const exerciseCategory = [
