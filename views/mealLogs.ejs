@@ -3,70 +3,79 @@
 
 <%- include('partials/meta') %>
 
-<body>
-    <div class="container p-3" style="height: 100vh;">
+    <body>
+        <div class="container p-3" style="height: 100vh;">
 
-        <!-- Header -->
-        <div class="fs-3 fw-semibold d-flex mb-4">
-            <div class="me-1">
-                <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+            <!-- Header -->
+            <div class="fs-3 fw-semibold d-flex mb-4">
+                <div class="me-1">
+                    <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+                </div>
+                <div class="ms-5">
+                    Meal Tracker
+                </div>
             </div>
-            <div class="ms-5">
-                Meal Tracker
+
+            <!-- Filter Section -->
+            <div class="container fs-4 fw-medium m-0 p-0 mb-1">
+                Filter By:
             </div>
-        </div>
+            <div class="container m-0 p-0 d-flex mb-2">
+                <form action="./filterMeals" method="post">
+                    <input type="hidden" name="filterType" value="day">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">Day</button>
+                </form>
 
-        <!-- Filter Section -->
-        <div class="container fs-4 fw-medium m-0 p-0 mb-1">
-            Filter By:
-        </div>
-        <div class="container m-0 p-0 d-flex mb-2">
-            <form method="GET" action="/filterMeals">
-                <button name="filterType" value="day" class="btn btn-light border fw-medium me-2">Day</button>
-                <button name="filterType" value="week" class="btn btn-light border fw-medium me-2">Week</button>
-                <button name="filterType" value="month" class="btn btn-light border fw-medium me-2">Month</button>
-            </form>
-        </div>
+                <form action="./filterMeals" method="post">
+                    <input type="hidden" name="filterType" value="week">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">Week</button>
+                </form>
 
-        <!-- Meals Section -->
-        <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
-            <span>
-                Meals
-            </span>
+                <form action="./filterMeals" method="post">
+                    <input type="hidden" name="filterType" value="month">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">Month</button>
+                </form>
+            </div>
 
-            <span class="ms-auto">
-                <%= totalCalories %> cal
-            </span>
-        </div>
+            <!-- Meals Section -->
+            <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
+                <span>
+                    Meals
+                </span>
 
-        <div class="container h-75 mb-4 overflow-auto border">
-            <% meals.forEach(meal=> { %>
-                <a href="" style="text-decoration: none; color: inherit;">
-                    <div class="card mb-3">
-                        <div class="card-text d-flex justify-content-between">
-                            <div>
-                                <h5 class="meal-name">
-                                    <%= meal.name %>
-                                </h5>
-                                <p class="text-muted">Meal Calories: <%= meal.totalCalories %>
-                                </p>
-                                <ul>
-                                    <% meal.items.forEach(item=> { %>
-                                        <li>
-                                            <%= item.Food %> - <%= item.Calories %> cal, <%= item.Grams %>g
-                                        </li>
-                                    <% }) %>
-                                </ul>
+                <span class="ms-auto">
+                    <%= totalCalories %> cal
+                </span>
+            </div>
+
+            <div class="container h-75 mb-4 overflow-auto border">
+                <% meals.forEach(meal=> { %>
+                    <a href="" style="text-decoration: none; color: inherit;">
+                        <div class="card mb-3">
+                            <div class="card-text d-flex justify-content-between">
+                                <div>
+                                    <h5 class="meal-name">
+                                        <%= meal.name %>
+                                    </h5>
+                                    <p class="text-muted">Meal Calories: <%= meal.totalCalories %>
+                                    </p>
+                                    <ul>
+                                        <% meal.items.forEach(item=> { %>
+                                            <li>
+                                                <%= item.Food %> - <%= item.Calories %> cal, <%= item.Grams %>g
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-            <% }) %>
-        </div>
+                    </a>
+                    <% }) %>
+            </div>
 
-        <div style="height: 100px;"></div>
-        <%- include('partials/navbar') %>
-    </div>
-</body>
+            <div style="height: 100px;"></div>
+            <%- include('partials/navbar') %>
+        </div>
+    </body>
 
 </html>

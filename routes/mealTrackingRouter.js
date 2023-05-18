@@ -9,7 +9,6 @@ const FavoriteMeal = require("../models/favMealModel");
 
 // Get meal logs page
 mealTrackingRouter.get("/mealLogs", async (req, res) => {
-
     const userId = req.session.USER.id;
     let userMeals = await Meal.find({ userId: userId });
 
@@ -32,7 +31,8 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
         return meal;
     });
 
-    console.log(userMeals);
+    req.session.MEALS_LOGGED = userMeals
+    //console.log(userMeals);
     res.render("mealLogs", {
         totalCalories: totalCalories,
         meals: userMeals
@@ -41,46 +41,99 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
 
 
 // GET meal logs depending on if the user clicks day, week, or month
-mealTrackingRouter.get("/filterMeals", (req, res) => {
-    const filterType = req.query.filterType;
+mealTrackingRouter.post("/filterMeals", (req, res) => {
+    // console.log("Testing filter")
+    // console.log(req.session.USER)
+    const filterType = req.body.filterType;
     const today = new Date();
-    let startDate, endDate;
+    let startDate
+    console.log("Filter type")
+    console.log(filterType)
 
     if (filterType === "day") {
         startDate = new Date(
             today.getFullYear(),
             today.getMonth(),
-            today.getDate()
-        );
-        endDate = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate() + 1
+            today.getDate() - 1
         );
     } else if (filterType === "week") {
         const firstDayOfWeek = today.getDate() - today.getDay();
-        startDate = new Date(today.getFullYear(), today.getMonth(), firstDayOfWeek);
-        endDate = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            firstDayOfWeek + 7
-        );
+        startDate = new Date(today.getFullYear(), today.getMonth(), firstDayOfWeek - 7);
     } else if (filterType === "month") {
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        startDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
     }
 
-    const filteredMeals = req.session.mealLog.filter((meal) => {
-        return meal.expireTime >= startDate && meal.expireTime <= endDate;
+    const filteredMeals = req.session.MEALS_LOGGED.filter((meal) => {
+        console.log("Filter Start")
+        console.log(startDate)
+        console.log("Meal Creation time")
+        let createdTime = new Date(Date.parse(meal.createdTime))
+        console.log(createdTime)
+        return createdTime >= startDate
     });
+
+    console.log("Testing")
+    // console.log(req.session.MEALS_LOGGED)
+    console.log(filteredMeals)
 
     let totalCalories = 0;
     filteredMeals.forEach((meal) => {
         totalCalories += meal.totalCalories;
     });
 
-    res.render("mealLogs", { meals: filteredMeals, totalCalories });
+    // console.log(req.session.MEALS_LOGGED)
+    // console.log(filteredMeals)
+
+    req.session.FILTERED_MEALS = filteredMeals;
+    res.redirect('./mealLogs')
 });
+
+
+// Get test populate button
+mealTrackingRouter.get('/testPopulate', (req, res) => {
+    //console.log("Test populate")
+    res.render('testPopulate')
+})
+
+// TestPostMealData
+mealTrackingRouter.post('/testPopulateMeals', async (req, res) => {
+    let testMeal = await Meal.findOne({ userId: req.session.USER.id })
+    let today = new Date()
+    let week = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+    let month = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
+
+    let newMealDay = new Meal({
+        userId: testMeal.userId,
+        mealName: testMeal.mealName + " Day",
+        items: testMeal.items,
+        expireTime: testMeal.expireTime,
+        createdTime: today
+    })
+
+    let newMealWeek = new Meal({
+        userId: testMeal.userId,
+        mealName: testMeal.mealName + " Week",
+        items: testMeal.items,
+        expireTime: testMeal.expireTime,
+        createdTime: week
+    })
+
+    let newMealMonth = new Meal({
+        userId: testMeal.userId,
+        mealName: testMeal.mealName + " Month",
+        items: testMeal.items,
+        expireTime: testMeal.expireTime,
+        createdTime: month
+    })
+
+    await newMealDay.save()
+    await newMealWeek.save()
+    await newMealMonth.save()
+
+    //console.log("Populating...")
+    res.redirect('./testPopulate')
+
+})
 
 
 // POST Meal Logs page
@@ -99,8 +152,8 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
             };
         });
         req.session.MEAL = parsedMeal;
-        console.log("Parsed favorite meal");
-        console.log(parsedMeal);
+        //console.log("Parsed favorite meal");
+        //console.log(parsedMeal);
     } else if (req.body.meal) {
         let stringMeal = req.body.meal;
         let parsedMeal = JSON.parse(stringMeal);
@@ -113,12 +166,12 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
             };
         });
         req.session.MEAL = parsedMeal;
-        console.log("Parsed meal from body");
-        console.log(parsedMeal);
+        //console.log("Parsed meal from body");
+        //console.log(parsedMeal);
     }
 
-    console.log("Session meal logs: ");
-    console.log(req.session.MEAL);
+    //console.log("Session meal logs: ");
+    //console.log(req.session.MEAL);
 
     // Get calories from the meal
     let totalCalories = 0;
@@ -134,11 +187,12 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
         mealName: meal[0].Food,
         items: meal,
         totalCalories: totalCalories,
-        expireTime: new Date(date.getTime() + 5 * 60 * 1000),
+        expireTime: new Date(date.getTime() + 60 * 60 * 1000),
+        createdTime: new Date()
     });
 
     await mealLog.save();
-    console.log("Saved");
+    //console.log("Saved");
 
     // Delete session variables
     delete req.session.MEAL;
