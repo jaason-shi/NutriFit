@@ -184,11 +184,16 @@ app.post("/workoutLogs", async (req, res) => {
   // add the workout to the Workout collection
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
+
+  const date = new Date();
+  const expireTime = new Date(date.getTime() + 5 * 60 * 1000); // Add 5 minutes expiration time
+
   const workoutLog = new Workout({
     userId: userId,
-    workoutName: workout[0].name,
+    // workoutName: workout[0].name,
     exercises: workout,
     totalDuration: totalDuration,
+    expireTime: expireTime, // Add expiration time
   });
   await workoutLog.save();
 
