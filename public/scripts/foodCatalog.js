@@ -18,10 +18,11 @@ function addItem(id) {
 }
 
 const setup = () => {
+    console.log("Hello world")
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
-        $.get('generatedMeals/searchFood', { q: searchQuery }, function (data) {
+        $.get('./searchFood', { q: searchQuery }, function (data) {
             $('#foodResults').empty();
             data.forEach(item => {
                 $('#foodResults').append(`
