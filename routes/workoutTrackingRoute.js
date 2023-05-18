@@ -84,4 +84,39 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   res.redirect("/");
 });
 
+
+// Get workout logs
+workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
+  let userId = req.session.USER.id
+  let workouts = await Workout.find({ userId: userId })
+  let totalDuration = 0
+  workouts.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      totalDuration += exercise.duration
+    })
+  })
+
+  let bodyParts = workouts.map(workout => {
+    return workout.exercises.map(exercise => {
+      console.log(exercise)
+      return exercise.bodyPart
+    })
+  })
+
+  bodyParts = bodyParts.flat()
+
+  console.log(bodyParts)
+  const bodyPartSet = new Set(bodyParts);
+  console.log(bodyPartSet)
+  bodyParts = [...bodyPartSet]
+  console.log(bodyParts)
+
+
+  res.render("workoutLogs", {
+    totalDuration: totalDuration,
+    workouts: workouts,
+    bodyParts: bodyParts
+  });
+});
+
 module.exports = workoutTrackingRouter;

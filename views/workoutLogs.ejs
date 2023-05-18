@@ -5,59 +5,97 @@
 
 
     <body>
-        <div class="bg-body-tertiary" style="height: 100vh">
-
-            <div class="row w-100 m-0">
-                <div class="mx-auto col-lg-5 col-12">
-                    <div class="card mx-auto mt-5 p-3 w-75">
-                        <div class="card-body">
-                            <h1 class="mb-5">Exercise Logs</h1>
-                            <div class="card">
-                                <div class="row no-gutters">
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Lettuce</h5>
-                                            <p class="card-text">24 calories</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="#" class="btn btn rounded-pill btn-dark mt-4">Add to logs</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="row no-gutters">
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Pork Chop</h5>
-                                            <p class="card-text">120 calories</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="#" class="btn btn rounded-pill btn-dark mt-4">Add to logs</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="row no-gutters">
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Rice</h5>
-                                            <p class="card-text">60 calories</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="#" class="btn btn rounded-pill btn-dark mt-4">Add to logs</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="container p-3" style="height: 100vh;">
+            <!-- Header -->
+            <div class="fs-3 fw-semibold d-flex mb-4">
+                <div class="me-1">
+                    <a href="/members"><img src="/images/less-than.svg" alt=""></a>
                 </div>
+                <div class="ms-5">
+                    Exercise Tracker
+                </div>
+
+
             </div>
-            <div style="height: 100px;"></div>
-            <%- include('partials/navbar') %>
-        </div>
+
+            <div class="container fs-4 fw-medium m-0 p-0 mb-1">
+                Filter By:
+            </div>
+            <div class="container m-0 p-0 d-flex mb-2">
+                <button class="btn btn-light border fw-medium me-2">Day</button>
+                <button class="btn btn-light border fw-medium me-2">Week</button>
+                <button class="btn btn-light border fw-medium me-2">Month</button>
+            </div>
+
+            <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
+                <span>
+                    Workout
+                </span>
+
+                <span class="ms-auto">
+                    <%= totalDuration %> min
+                </span>
+            </div>
+
+            <div class="container h-75 mb-4 overflow-auto border">
+                <% workouts.forEach(workout=> { %>
+                    <% workout.exercises.forEach( (exerciseItem)=> { %>
+                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                    style="height: 30px; width: 30px"></button>
+                            </div>
+
+                            <div class="w-50 vstack gap-0">
+                                <div class="d-inline-flex">
+                                    <span>
+                                        <%= exerciseItem.name %>
+                                    </span>
+
+                                    <span class="ms-auto">
+                                        <%= exerciseItem.duration %> min
+                                    </span>
+
+                                </div>
+                                <div class="d-inline text-secondary" style="font-size: 14px">
+                                    <%= exerciseItem.bodyPart %>
+                                </div>
+                            </div>
+
+                        </div>
+                        <% }) %>
+
+                            <% }) %>
+
+
+
+            </div>
+
+            <span>
+                Focused Body Part
+            </span>
+
+            <div class="container h-25 mb-4 overflow-auto border pt-2">
+
+                <% bodyParts.forEach(bodyPart=> { %>
+                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
+                                style="height: 30px; width: 30px"></button>
+                        </div>
+
+                        <div class="w-50 vstack gap-0">
+                            <div class="d-inline-flex">
+                                <span>
+                                    <%= bodyPart %>
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <% }) %>
+            </div>
     </body>
 
 </html>

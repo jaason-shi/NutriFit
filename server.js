@@ -289,10 +289,7 @@ app.get("/filterMeals", (req, res) => {
 
 
 
-// Get workout logs
-app.get("/workoutLogs", (req, res) => {
-  res.render("workoutLogs");
-});
+
 
 // Get snake game
 app.get("/snake", (req, res) => {
