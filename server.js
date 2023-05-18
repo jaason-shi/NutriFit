@@ -368,41 +368,24 @@ app.get("/snake", (req, res) => {
 app.get("/favoriteMeals", async (req, res) => {
   let userId = req.session.USER.id;
   let meals = await FavoriteMeal.find({ userId: userId });
+  
   let mealsParsed = meals.map((meal) => {
-    return meal.items;
-  });
-
-  let totalCalories = 0;
-  mealParsedWithCalories = mealsParsed.map((meal) => {
     let totalCalories = 0;
-    meal.forEach((item) => {
+    meal.items.forEach((item) => {
       totalCalories += item.Calories;
     });
-    let parsedItems = meal.map((item) => {
-      return {
-        _id: item._id.toString(),
-        Food: item.Food,
-        Calories: item.Calories,
-        Grams: item.Grams,
-      };
-    });
+
     return {
-      name: meal[0].Food + " Meal",
+      _id: meal._id,
+      name: meal.items[0].Food + " Meal",
       calories: totalCalories,
-      items: parsedItems,
-      hiddenItems: JSON.stringify(parsedItems),
+      items: meal.items,
     };
   });
 
-  let hiddenMeals = mealParsedWithCalories.map((meal) => {
-    return meal.items;
-  });
-
-  res.render("favoriteMeals", {
-    meals: mealParsedWithCalories,
-    hiddenMeals: JSON.stringify(hiddenMeals),
-  });
+  res.render("favoriteMeals", { meals: mealsParsed });
 });
+
 
 // Connect to port
 const port = 3000;
