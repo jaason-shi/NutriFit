@@ -266,6 +266,48 @@ app.post("/foodLogs", async (req, res) => {
   res.redirect("/");
 });
 
+// GET meal logs depending on if the user clicks day, week, or month
+app.get("/filterMeals", (req, res) => {
+  const filterType = req.query.filterType;
+  const today = new Date();
+  let startDate, endDate;
+
+  if (filterType === "day") {
+    startDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    endDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1
+    );
+  } else if (filterType === "week") {
+    const firstDayOfWeek = today.getDate() - today.getDay();
+    startDate = new Date(today.getFullYear(), today.getMonth(), firstDayOfWeek);
+    endDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      firstDayOfWeek + 7
+    );
+  } else if (filterType === "month") {
+    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  }
+
+  const filteredMeals = req.session.MEAL_LOGS.filter((meal) => {
+    return meal.expireTime >= startDate && meal.expireTime <= endDate;
+  });
+
+  let totalCalories = 0;
+  filteredMeals.forEach((meal) => {
+    totalCalories += meal.totalCalories;
+  });
+
+  res.render("mealLogs", { meals: filteredMeals, totalCalories });
+});
+
 // Get quick add meal page
 app.get("/quickAddMeal", (req, res) => {
   res.render("quickAddMeal");
