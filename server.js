@@ -347,41 +347,7 @@ app.get("/filterMeals", (req, res) => {
 
 
 
-// Get Quick add workout page
-app.get("/quickAddWorkout", async (req, res) => {
-  res.render("quickAddWorkout");
-});
 
-// Post quick add workout data
-app.post("/quickAddWorkout", async (req, res) => {
-  const itemId = req.body.item;
-  const duration = req.body.duration || 0; // If no duration is specified, set it to 0
-  const userId = req.session.USER.id;
-  let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
-
-  // Get current date and time
-  const date = new Date();
-
-  // Create a new workout document
-  const workout = new Workout({
-    userId: userId,
-    exercises: [
-      {
-        name: workoutToAdd.name,
-        duration: duration,
-        bodyPart: workoutToAdd.bodyPart,
-      },
-    ],
-    expireTime: new Date(date.getTime() + 5 * 60 * 1000), // Set the expiry time 5 minutes from now
-  });
-
-  // Save the workout document
-  await workout.save();
-
-  let updatedUser = await User.findOne({ id: userId });
-  req.session.USER = updatedUser;
-  res.redirect("/quickAddWorkout");
-});
 
 // Get workout logs
 app.get("/workoutLogs", (req, res) => {
