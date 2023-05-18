@@ -296,7 +296,7 @@ app.get("/filterMeals", (req, res) => {
     endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   }
 
-  const filteredMeals = req.session.MEAL_LOGS.filter((meal) => {
+  const filteredMeals = req.session.mealLog.filter((meal) => {
     return meal.expireTime >= startDate && meal.expireTime <= endDate;
   });
 
