@@ -177,6 +177,48 @@ app.post("/favoriteWorkouts", async (req, res) => {
   res.redirect("/");
 });
 
+// GET workout logs depending on if the user clicks day, week, or month
+app.get("/filterWorkouts", (req, res) => {
+  const filterType = req.query.filterType;
+  const today = new Date();
+  let startDate, endDate;
+
+  if (filterType === "day") {
+    startDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    endDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1
+    );
+  } else if (filterType === "week") {
+    const firstDayOfWeek = today.getDate() - today.getDay();
+    startDate = new Date(today.getFullYear(), today.getMonth(), firstDayOfWeek);
+    endDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      firstDayOfWeek + 7
+    );
+  } else if (filterType === "month") {
+    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  }
+
+  const filteredWorkouts = req.session.workoutLog.filter((workout) => {
+    return workout.date >= startDate && workout.date <= endDate;
+  });
+
+  let totalDuration = 0;
+  filteredWorkouts.forEach((workout) => {
+    totalDuration += workout.totalDuration;
+  });
+
+  res.render("exerciseLogs", { workouts: filteredWorkouts, totalDuration });
+});
+
 // POST favorite meals
 app.post("/favoriteMeals", async (req, res) => {
   console.log("session meal: ");
