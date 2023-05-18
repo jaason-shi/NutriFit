@@ -149,8 +149,8 @@ app.get("/exerciseLogs", async (req, res) => {
 });
 
 // Get favorites page
-app.get("/favourites", (req, res) => {
-  res.render("favourites");
+app.get("/favorites", (req, res) => {
+  res.render("favorites");
 });
 
 // POST favorite workouts  favoriteWorkouts
