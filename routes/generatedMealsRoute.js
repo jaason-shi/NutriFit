@@ -3,6 +3,8 @@ const generatedMealsRouter = express.Router();
 const User = require('../models/userModel')
 const Food = require('../models/foodModel')
 const { ObjectId } = require('mongodb');
+// Meal model
+const Meal = require("../models/mealModel");
 
 
 // Available food tags
@@ -175,6 +177,43 @@ generatedMealsRouter.get("/foodCatalog", (req, res) => {
     res.render("generatedMeals/foodCatalog", {
         type: type,
     });
+});
+
+
+// Get quick add meal page
+generatedMealsRouter.get("/quickAddMeal", (req, res) => {
+    res.render("generatedMeals/quickAddMeal");
+});
+
+// Post quick add meal data
+generatedMealsRouter.post("/quickAddMeal", async (req, res) => {
+    const itemId = req.body.item;
+    const userId = req.session.USER.id;
+    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
+
+    // get current date and time as a string
+    const date = new Date();
+
+    // Create a new meal document
+    const meal = new Meal({
+        userId: userId,
+        mealName: foodToAdd.Food,
+        items: [
+            {
+                foodName: foodToAdd.Food,
+                calories: foodToAdd.Calories,
+                grams: foodToAdd.Grams,
+            },
+        ],
+        expireTime: new Date(date.getTime() + 5 * 60 * 1000), // set the expiry time 5 minutes from now
+    });
+
+    // Save the meal document
+    await meal.save();
+
+    let updatedUser = await User.findOne({ id: userId });
+    req.session.USER = updatedUser;
+    res.redirect("./quickAddMeal");
 });
 
 

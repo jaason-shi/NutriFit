@@ -345,41 +345,7 @@ app.get("/filterMeals", (req, res) => {
   res.render("mealLogs", { meals: filteredMeals, totalCalories });
 });
 
-// Get quick add meal page
-app.get("/quickAddMeal", (req, res) => {
-  res.render("quickAddMeal");
-});
 
-// Post quick add meal data
-app.post("/quickAddMeal", async (req, res) => {
-  const itemId = req.body.item;
-  const userId = req.session.USER.id;
-  let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
-
-  // get current date and time as a string
-  const date = new Date();
-
-  // Create a new meal document
-  const meal = new Meal({
-    userId: userId,
-    mealName: foodToAdd.Food,
-    items: [
-      {
-        foodName: foodToAdd.Food,
-        calories: foodToAdd.Calories,
-        grams: foodToAdd.Grams,
-      },
-    ],
-    expireTime: new Date(date.getTime() + 5 * 60 * 1000), // set the expiry time 5 minutes from now
-  });
-
-  // Save the meal document
-  await meal.save();
-
-  let updatedUser = await User.findOne({ id: userId });
-  req.session.USER = updatedUser;
-  res.redirect("/quickAddMeal");
-});
 
 // Get Quick add workout page
 app.get("/quickAddWorkout", async (req, res) => {
