@@ -8,13 +8,13 @@
         <%- include('partials/header.ejs')%>
 
             <div class="container-fluid" style="height: calc(100vh - 60px); overflow-y: auto;">
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-3">
                         <a href="/userProfile">
-                            <img src="/images/profile-circle.svg" alt="" height="50">
+                            <img src="/images/profile-circle.svg" alt="" height="75">
                         </a>
                     </div>
-                    <div class="col d-flex align-items-center">
+                    <div class="col d-flex align-items-center fs-2 fw-medium">
                         <span>
                             <%= primaryUser.id %>
                         </span>
@@ -26,11 +26,6 @@
                         </form>
                     </div>
                 </div>
-
-                <form class="mb-4" action="">
-                    <span>Search</span> <br>
-                    <input class="mt-1 w-100" type="text" placeholder="Please Enter">
-                </form>
 
                 <form class="mb-4" action="/generatedMeals">
                     <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
@@ -57,7 +52,9 @@
                 </form>
             </div>
 
-            <%- include('./partials/navbar') %>
+            <div style="height: 100px;">
+                <%- include('partials/navbar') %>
+            </div>
     </body>
 
 </html>
