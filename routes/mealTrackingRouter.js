@@ -49,19 +49,27 @@ mealTrackingRouter.post("/filterMeals", async (req, res) => {
     req.session.MEALS_LOGGED = await Meal.find({ userId: req.session.USER.id });
     const filterType = req.body.filterType;
     const today = new Date();
+
+    console.log("Today")
+    console.log(today)
+
     let startDate
 
     // Which filter was picked
     if (filterType === "day") {
-        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+        startDate = new Date(today.getTime() - (24 * 60 * 60 * 1000));
     } else if (filterType === "week") {
-        const firstDayOfWeek = today.getDate() - today.getDay();
-        startDate = new Date(today.getFullYear(), today.getMonth(), firstDayOfWeek - 7);
+        startDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
     } else if (filterType === "month") {
-        startDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+        startDate = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
     }
     const filteredMeals = req.session.MEALS_LOGGED.filter((meal) => {
         let createdTime = new Date(Date.parse(meal.createdTime))
+        console.log(meal.mealName)
+        console.log("Created ")
+        console.log(createdTime)
+        console.log("Start")
+        console.log(startDate)
         return createdTime >= startDate
     });
 
@@ -70,6 +78,7 @@ mealTrackingRouter.post("/filterMeals", async (req, res) => {
         totalCalories += meal.totalCalories;
     });
 
+    console.log(filteredMeals)
     req.session.FILTERED_MEALS = filteredMeals;
     res.redirect('./mealLogs')
 });
@@ -84,16 +93,18 @@ mealTrackingRouter.get('/testPopulate', (req, res) => {
 // TestPostMealData
 mealTrackingRouter.post('/testPopulateMeals', async (req, res) => {
     let testMeal = await Meal.findOne({ userId: req.session.USER.id })
-    let today = new Date()
-    let week = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
-    let month = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
+    let currentDay = new Date()
+    const yesterday = new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate() - 2);
+    const week = new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate() - 8);
+    // let month = new Date(currentDay.getTime() - 40 * 24 * 60 * 60 * 1000);
+    const month = new Date(currentDay.getFullYear(), currentDay.getMonth() - 1, currentDay.getDate() - 1);
 
     let newMealDay = new Meal({
         userId: testMeal.userId,
         mealName: testMeal.mealName + " Day",
         items: testMeal.items,
         expireTime: testMeal.expireTime,
-        createdTime: today
+        createdTime: yesterday
     })
 
     let newMealWeek = new Meal({

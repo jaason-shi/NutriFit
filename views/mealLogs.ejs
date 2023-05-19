@@ -18,22 +18,22 @@
 
             <!-- Filter Section -->
             <div class="container fs-4 fw-medium m-0 p-0 mb-1">
-                Filter By:
+                Filter By Last:
             </div>
             <div class="container m-0 p-0 d-flex mb-2">
                 <form action="./filterMeals" method="post">
                     <input type="hidden" name="filterType" value="day">
-                    <button type="submit" class="btn btn-light border fw-medium me-2">Day</button>
+                    <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
                 </form>
 
                 <form action="./filterMeals" method="post">
                     <input type="hidden" name="filterType" value="week">
-                    <button type="submit" class="btn btn-light border fw-medium me-2">Week</button>
+                    <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
                 </form>
 
                 <form action="./filterMeals" method="post">
                     <input type="hidden" name="filterType" value="month">
-                    <button type="submit" class="btn btn-light border fw-medium me-2">Month</button>
+                    <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
                 </form>
             </div>
 
@@ -55,9 +55,9 @@
                             <div class="card-text d-flex justify-content-between">
                                 <div>
                                     <h5 class="meal-name">
-                                        <%= meal.name %>
+                                        <%= meal.mealName%>
                                     </h5>
-                                    <p class="text-muted">Meal Calories: <%= meal.totalCalories %>
+                                    <p class="text-muted"> Calories: <%= meal.totalCalories %>
                                     </p>
                                     <ul>
                                         <% meal.items.forEach(item=> { %>
