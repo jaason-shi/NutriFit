@@ -11,6 +11,7 @@ const workoutSchema = new Schema({
       bodyPart: String,
     },
   ],
+  createdTime: { type: Date },
   expireTime: { type: Date, expires: 0 }
 });
 
