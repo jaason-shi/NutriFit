@@ -76,7 +76,7 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   // delete session variables
   delete req.session.WORKOUT;
 
-  res.redirect("/");
+  res.redirect("/workoutTracking/workoutLogs");
 });
 
 

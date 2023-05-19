@@ -160,29 +160,6 @@ app.get("/favorites", (req, res) => {
 });
 
 
-// POST favorite workouts  favoriteWorkouts
-app.post("/favoriteWorkouts", async (req, res) => {
-  console.log("session workout: ");
-  console.log(req.session.WORKOUT);
-  // add the workout to the user's favorite workouts
-  const workout = req.session.WORKOUT;
-  const userId = req.session.USER.id;
-  // ADD workout to FavoriteWorkout collection
-  const favWorkout = new FavoriteWorkout({
-    userId: userId,
-    workoutName: workout[0].name,
-    exercises: workout,
-  });
-  await favWorkout.save();
-  // delete session variables
-  delete req.session.WORKOUT;
-  res.redirect("/favoriteWorkouts");
-});
-
-
-
-
-
 // Get snake game
 app.get("/snake", (req, res) => {
   res.sendFile("public/snake.html", { root: __dirname });

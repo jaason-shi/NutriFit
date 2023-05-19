@@ -1,10 +1,12 @@
 const express = require('express');
-const generatedMealsRouter = express.Router();
+const generatedWorkoutsRouter = express.Router();
 const User = require('../models/userModel')
 const Exercise = require('../models/exerciseModel')
 const { ObjectId } = require('mongodb');
 // Workout model
 const Workout = require("../models/workoutModel");
+// FavoriteWorkout model
+const FavoriteWorkout = require("../models/favWorkoutModel");
 
 // Available exercise tags
 const exerciseCategory = [
@@ -119,7 +121,7 @@ async function workoutGenerationQuery(duration, user) {
 
 
 // Get generated workouts
-generatedMealsRouter.get("/", async (req, res) => {
+generatedWorkoutsRouter.get("/", async (req, res) => {
     let duration;
     let user = req.session.USER;
     if (req.query.duration != undefined) {
@@ -147,13 +149,13 @@ generatedMealsRouter.get("/", async (req, res) => {
 
 
 // Get Quick add workout page
-generatedMealsRouter.get("/quickAddWorkout", async (req, res) => {
+generatedWorkoutsRouter.get("/quickAddWorkout", async (req, res) => {
     res.render("generatedWorkouts/quickAddWorkout");
 });
 
 
 // Post quick add workout data
-generatedMealsRouter.post("/quickAddWorkout", async (req, res) => {
+generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
     const itemId = req.body.item;
     const duration = req.body.duration || 0; // If no duration is specified, set it to 0
     const userId = req.session.USER.id;
@@ -165,6 +167,7 @@ generatedMealsRouter.post("/quickAddWorkout", async (req, res) => {
     // Create a new workout document
     const workout = new Workout({
         userId: userId,
+        workoutName: workoutToAdd.name,
         exercises: [
             {
                 name: workoutToAdd.name,
@@ -172,7 +175,8 @@ generatedMealsRouter.post("/quickAddWorkout", async (req, res) => {
                 bodyPart: workoutToAdd.bodyPart,
             },
         ],
-        expireTime: new Date(date.getTime() + 5 * 60 * 1000), // Set the expiry time 5 minutes from now
+        expireTime: new Date(date.getTime() + 60 * 60 * 1000), // Set the expiry time 5 minutes from now
+        createdTime: new Date()
     });
 
     // Save the workout document
@@ -180,12 +184,12 @@ generatedMealsRouter.post("/quickAddWorkout", async (req, res) => {
 
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
-    res.redirect("./quickAddWorkout");
+    res.redirect("/workoutTracking/workoutLogs");
 });
 
 
 // Get workout filters
-generatedMealsRouter.get("/workoutFilters", (req, res) => {
+generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
     let user = req.session.USER;
 
     res.render("generatedWorkouts/workoutFilters", {
@@ -198,7 +202,7 @@ generatedMealsRouter.get("/workoutFilters", (req, res) => {
 
 
 // Get exercise catalog pages
-generatedMealsRouter.get("/exerciseCatalog", (req, res) => {
+generatedWorkoutsRouter.get("/exerciseCatalog", (req, res) => {
     let type = req.query.type;
     res.render("generatedWorkouts/exerciseCatalog", {
         type: type,
@@ -207,13 +211,13 @@ generatedMealsRouter.get("/exerciseCatalog", (req, res) => {
 
 
 // Get bad api response page
-generatedMealsRouter.get("/badApiResponse", (req, res) => {
+generatedWorkoutsRouter.get("/badApiResponse", (req, res) => {
     res.render("badApiResponse");
 });
 
 
 // Modify exercise tag
-generatedMealsRouter.post("/modifyExerciseTag", async (req, res) => {
+generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {
     const exerciseTag = req.body.exerciseTag;
     const userId = req.session.USER.id;
     const type = req.body.type;
@@ -262,7 +266,7 @@ generatedMealsRouter.post("/modifyExerciseTag", async (req, res) => {
 
 
 // Search for exercises
-generatedMealsRouter.get("/searchExercise", async (req, res) => {
+generatedWorkoutsRouter.get("/searchExercise", async (req, res) => {
     const searchQuery = req.query.q;
     let exerciseQuery = await Exercise.find({
         name: new RegExp(searchQuery, "i"),
@@ -280,7 +284,7 @@ generatedMealsRouter.get("/searchExercise", async (req, res) => {
 
 
 // Select exercise to include or exclude
-generatedMealsRouter.post("/selectExercise", async (req, res) => {
+generatedWorkoutsRouter.post("/selectExercise", async (req, res) => {
     const itemId = req.body.item;
     const userId = req.session.USER.id;
     let exerciseToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
@@ -331,7 +335,7 @@ generatedMealsRouter.post("/selectExercise", async (req, res) => {
 
 
 // Remove exercise from filter
-generatedMealsRouter.post("/deleteExercise", async (req, res) => {
+generatedWorkoutsRouter.post("/deleteExercise", async (req, res) => {
     const exerciseName = req.body.item;
     const userId = req.session.USER.id;
     const type = req.body.type;
@@ -370,4 +374,24 @@ generatedMealsRouter.post("/deleteExercise", async (req, res) => {
 });
 
 
-module.exports = generatedMealsRouter
+// POST favorite workouts  favoriteWorkouts
+generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
+    console.log("session workout: ");
+    console.log(req.session.WORKOUT);
+    // add the workout to the user's favorite workouts
+    const workout = req.session.WORKOUT;
+    const userId = req.session.USER.id;
+    // ADD workout to FavoriteWorkout collection
+    const favWorkout = new FavoriteWorkout({
+        userId: userId,
+        workoutName: workout[0].name,
+        exercises: workout,
+    });
+    await favWorkout.save();
+    // delete session variables
+    delete req.session.WORKOUT;
+    res.redirect("/favoriteWorkouts");
+});
+
+
+module.exports = generatedWorkoutsRouter
