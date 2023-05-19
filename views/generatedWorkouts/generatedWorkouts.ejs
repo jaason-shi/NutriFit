@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
   <body>
     <div class="container p-3" style="height: 100vh;">
@@ -45,15 +45,17 @@
 
             <div class="w-50 vstack gap-0">
               <div class="d-inline-flex">
-                <span>
-                  <%= exercise.name %>
-                </span>
+                <div class="w-75">
+                  <span>
+                    <%= exercise.name %>
+                  </span>
+                </div>
 
-                <span class="ms-auto">
+                <div class="ms-auto">
                   <%= exercise.duration %> min
-                </span>
-
+                </div>
               </div>
+
               <div class="d-inline text-secondary" style="font-size: 14px">
                 <%= exercise.bodyPart %>
               </div>
@@ -65,11 +67,11 @@
       </div>
 
       <div class="conteiner m-0 p-0">
-        <form class=" mb-4" action="/favoriteMeals">
+        <form class=" mb-4" action="/generatedWorkouts/favoriteWorkouts" method="post">
           <input class="btn btn-dark w-100" type="submit" value="Add to Favorites">
         </form>
 
-        <form class="mb-4" action="">
+        <form class="mb-4" action="workoutTracking/workoutLogs" method="post">
           <input class="btn btn-dark w-100" type="submit" value="Add to Log">
         </form>
 
@@ -77,11 +79,12 @@
           <input class="btn btn-dark w-100" type="submit" value="Regenerate">
         </form>
 
-        <form class="mb-4" action="/workoutFilters">
+        <form class="mb-4" action="generatedWorkouts/workoutFilters">
           <input class="btn btn-dark w-100" type="submit" value="Customize Workout">
         </form>
       </div>
-      <%- include('partials/navbar') %>
+      <div style="height: 100px;"></div>
+      <%- include('../partials/navbar') %>
     </div>
 
 

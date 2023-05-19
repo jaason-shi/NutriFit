@@ -16,7 +16,7 @@
     <div class="bg-body-tertiary" style="height: 100vh">
 
         <!-- Header -->
-        <%- include('partials/header') %>
+        <%- include('../partials/header') %>
 
             <div class="row w-100 m-0">
                 <div class="mx-auto col-lg-5 col-12">
@@ -25,7 +25,7 @@
                         <div class="card-body">
                             <h1 class="mb-4">Sign up</h1>
 
-                            <form action="/signup" method="post">
+                            <form action="./signup" method="post">
                                 <input class="mb-3 w-100" name="id" type="text" placeholder="ID">
                                 <input class="mb-3 w-100" name="email" type="text" placeholder="Email">
                                 <input class="w-100 mb-4" name="password" type="password" placeholder="Password">
@@ -41,7 +41,7 @@
             </div>
 
 
-            <%- include('partials/navbar') %>
+            <%- include('../partials/navbar') %>
 
     </div>
 

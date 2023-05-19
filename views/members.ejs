@@ -4,43 +4,34 @@
 <%- include('partials/meta') %>
 
     <body>
-        <div class="container p-3" style="height: 100vh;">
-            <!-- Header -->
-            <%- include('partials/header.ejs')%>
-                <div class="row">
+        <!-- Header -->
+        <%- include('partials/header.ejs')%>
 
+            <div class="container-fluid" style="height: calc(100vh - 60px); overflow-y: auto;">
+                <div class="row mb-3">
                     <div class="col-3">
                         <a href="/userProfile">
-                            <img src="/images/profile-circle.svg" alt="" height="50">
+                            <img src="/images/profile-circle.svg" alt="" height="75">
                         </a>
                     </div>
-
-                    <div class="col d-flex align-items-center">
+                    <div class="col d-flex align-items-center fs-2 fw-medium">
                         <span>
                             <%= primaryUser.id %>
                         </span>
                     </div>
-
                     <div class="col-5 d-flex align-items-center justify-content-end">
                         <form action="/logout" method="post">
                             <button type="submit" class="btn btn-light border border-dark">Sign out <img
                                     src="images\greater-than-solid.svg" alt="" height="20"></button>
                         </form>
                     </div>
-
                 </div>
-
-
-                <form class="mb-4" action="">
-                    <span>Search</span> <br>
-                    <input class="mt-1 w-100" type="text" placeholder="Please Enter">
-                </form>
 
                 <form class="mb-4" action="/generatedMeals">
                     <input class="btn btn-dark w-100" type="submit" value="Generate Meal">
                 </form>
 
-                <form class="mb-4" action="">
+                <form class="mb-4" action="generatedMeals/quickAddMeal">
                     <input class="btn btn-light border w-100" type="submit" value="Quick Add Food Item">
                 </form>
 
@@ -48,22 +39,22 @@
                     <input class="btn btn-dark w-100" type="submit" value="Generate Workout">
                 </form>
 
-                <form class="mb-4" action="">
+                <form class="mb-4" action="generatedWorkouts/quickAddWorkout">
                     <input class="btn btn-light border w-100" type="submit" value="Quick Add Exercise">
                 </form>
 
-                <form class="mb-4" action="/favourites">
+                <form class="mb-4" action="/favorites">
                     <input class="btn btn-dark w-100" type="submit" value="Favorites">
                 </form>
 
-                <form class="mb-4" action="">
+                <form class="mb-4" action="/logs">
                     <input class="btn btn-dark w-100" type="submit" value="Logs">
                 </form>
+            </div>
 
+            <div style="height: 100px;">
                 <%- include('partials/navbar') %>
-        </div>
-
-
+            </div>
     </body>
 
 </html>

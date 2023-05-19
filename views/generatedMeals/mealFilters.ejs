@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
 
     <body>
         <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
@@ -22,7 +22,8 @@
                 </div>
                 <div class="fs-6 mb-2">
                     <form class=" mb-4" action="">
-                        <input name="calories" type="text" placeholder="Please Enter" class="w-100" id="inputCalories">
+                        <input name="calories" type="text" placeholder="Please Enter" class="w-100" id="inputCalories"
+                            value="500">
                     </form>
                 </div>
 
@@ -39,9 +40,10 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/addFoodTagInclude" method="post">
+                        <form action="./modifyFoodTag" method="post">
                             <input type="hidden" name="foodTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                            <input type="hidden" name="type" value="include">
 
                             <button type="submit" class="<%= (primaryUser && primaryUser.foodTagInclude &&
                                     primaryUser.foodTagInclude.includes(category.name))
@@ -70,29 +72,31 @@
                             <div class="w-50 vstack gap-0">
                                 <div class="d-inline-flex">
                                     <span>
-                                        <%= foodItem.Food %>
+                                        <%= foodItem.Food %>, <%= foodItem.Grams %>g
                                     </span>
-
-                                    <span class="ms-auto">
-                                        <%= foodItem.Calories %> cal
-                                    </span>
-                                    <form action="/deleteFoodInclude" method="post">
-                                        <input type="hidden" name="item" value="<%= foodItem.Food %>">
-                                        <input type="hidden" name="user" value="<%= primaryUser.id %>">
-                                        <button type="submit">Remove</button>
-                                    </form>
 
                                 </div>
                                 <div class="d-inline text-secondary" style="font-size: 14px">
-                                    <%= foodItem.Grams %>g
+                                    <%= foodItem.Calories %> cal
                                 </div>
+                            </div>
+
+                            <div>
+                                <form class="ms-auto" action="./deleteFood" method="post">
+                                    <input type="hidden" name="item" value="<%= foodItem.Food %>">
+                                    <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                    <input type="hidden" name="type" value="include">
+                                    <button type="submit" class="btn btn-light m-0 p-0"><img
+                                            src="/images/minus-circle.svg" alt="Remove" height="30px"></button>
+                                </form>
                             </div>
 
                         </div>
                         <% }) %>
                             <% } %>
 
-                                <form class=" mb-2" action="/foodCatalogInclude">
+                                <form class=" mb-2" action="./foodCatalog" method="get">
+                                    <input type="hidden" name="type" value="include">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
                                 </form>
@@ -112,9 +116,10 @@
 
                 <div class="container m-0 p-0 d-flex mb-3 overflow-x-auto">
                     <% tagsList.forEach((category)=> { %>
-                        <form action="/addFoodTagExclude" method="post">
+                        <form action="./modifyFoodTag" method="post">
                             <input type="hidden" name="foodTag" value="<%= category.name%>">
                             <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                            <input type="hidden" name="type" value="exclude">
 
                             <% if (primaryUser.foodTagExclude !=undefined) { %>
                                 <button type="submit"
@@ -147,47 +152,41 @@
                             <div class="w-50 vstack gap-0">
                                 <div class="d-inline-flex">
                                     <span>
-                                        <%= foodItem.Food %>
+                                        <%= foodItem.Food %>, <%= foodItem.Grams %>g
                                     </span>
-
-                                    <span class="ms-auto">
-                                        <%= foodItem.Calories %> cal
-                                    </span>
-                                    <form action="/deleteFoodExclude" method="post">
-                                        <input type="hidden" name="item" value="<%= foodItem.Food %>">
-                                        <input type="hidden" name="user" value="<%= primaryUser.id %>">
-                                        <button type="submit">Remove</button>
-                                    </form>
 
                                 </div>
                                 <div class="d-inline text-secondary" style="font-size: 14px">
-                                    <%= foodItem.Grams %>g
+                                    <%= foodItem.Calories %> cal
                                 </div>
 
+                            </div>
+
+                            <div>
+                                <form class="ms-auto" action="./deleteFood" method="post">
+                                    <input type="hidden" name="item" value="<%= foodItem.Food %>">
+                                    <input type="hidden" name="user" value="<%= primaryUser.id %>">
+                                    <input type="hidden" name="type" value="exclude">
+                                    <button type="submit" class="btn btn-light m-0 p-0"><img
+                                            src="/images/minus-circle.svg" alt="Remove" height="30px"></button>
+                                </form>
                             </div>
 
                         </div>
                         <% }) %>
 
                             <% } %>
-                                <form class=" mb-2" action="/foodCatalogExclude">
+                                <form class=" mb-2" action="./foodCatalog">
+                                    <input type="hidden" name="type" value="exclude">
                                     <button type="submit" class="btn btn-light border w-100 p-0 py-1"><img
                                             src="/images/plus-circle.svg" alt="" height="30"></button>
                                 </form>
 
-
-
-
             </div>
 
-
             <input class="btn btn-dark w-100" type="submit" value="Generate Meal" onclick="sendCalories()">
-
-            <%- include('partials/navbar') %>
-
-
-
-                <!-- <%#- include('partials/navbar') %> -->
+            <div style="height: 100px;"></div>
+            <%- include('../partials/navbar') %>
         </div>
 
         <script>

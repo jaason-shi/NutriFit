@@ -7,16 +7,27 @@
             <li>
                 <!-- Logo -->
                 <div style="width: 100px;">
-                    <a href="/members">
+                    <a href="/">
                         <img class="img-fluid w-50 h-50" src="/images/logo-modified.png" alt="">
                     </a>
                 </div>
             </li>
             <li>
-                <h1 class="fw-bold">NutriFit</h1>
+                <h1 class="fw-bold" id="easterEgg">NutriFit</h1>
             </li>
         </ul>
     </div>
+    <script>
+        let clickCount = 0;
+        const easterEggElement = document.getElementById("easterEgg");
+        easterEggElement.addEventListener("click", () => {
+            clickCount++;
+            if (clickCount === 3) {
+                window.location.href = "/snake";
+                clickCount = 0;
+            }
+        });
+    </script>
     <style>
         .navbar-bottom {
             position: fixed;
