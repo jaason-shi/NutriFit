@@ -200,9 +200,9 @@ generatedMealsRouter.post("/quickAddMeal", async (req, res) => {
         mealName: foodToAdd.Food,
         items: [
             {
-                foodName: foodToAdd.Food,
-                calories: foodToAdd.Calories,
-                grams: foodToAdd.Grams,
+                Food: foodToAdd.Food,
+                Calories: foodToAdd.Calories,
+                Grams: foodToAdd.Grams,
             },
         ],
         expireTime: new Date(date.getTime() + 5 * 60 * 1000), // set the expiry time 5 minutes from now
