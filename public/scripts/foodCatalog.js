@@ -8,7 +8,7 @@ function addItem(id) {
 
     if (formType === 'quickAddMeal') {
         $.post('./quickAddMeal', { item: id }, function () {
-            window.location.href = "./quickAddMeal";
+            window.location.href = "/mealTracking/mealLogs";
         });
     } else {
         $.post('./selectFood', { item: id }, function () {
