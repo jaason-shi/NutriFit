@@ -1,101 +1,78 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <%- include('partials/meta') %>
 
-
-    <body>
-        <div class="container p-3" style="height: 100vh;">
-            <!-- Header -->
-            <div class="fs-3 fw-semibold d-flex mb-4">
-                <div class="me-1">
-                    <a href="/members"><img src="/images/less-than.svg" alt=""></a>
-                </div>
-                <div class="ms-5">
-                    Exercise Tracker
-                </div>
-
-
+<body>
+    <div class="container p-3" style="height: 100vh;">
+        <!-- Header -->
+        <div class="fs-3 fw-semibold d-flex mb-4">
+            <div class="me-1">
+                <a href="/members"><img src="/images/less-than.svg" alt=""></a>
             </div>
-
-            <div class="container fs-4 fw-medium m-0 p-0 mb-1">
-                Filter By:
+            <div class="ms-5">
+                Exercise Tracker
             </div>
-            <div class="container m-0 p-0 d-flex mb-2">
-                <button class="btn btn-light border fw-medium me-2">Day</button>
-                <button class="btn btn-light border fw-medium me-2">Week</button>
-                <button class="btn btn-light border fw-medium me-2">Month</button>
-            </div>
+        </div>
 
-            <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
-                <span>
-                    Workout
-                </span>
+        <div class="container fs-4 fw-medium m-0 p-0 mb-1">
+            Filter By:
+        </div>
+        <div class="container m-0 p-0 d-flex mb-2">
+            <button class="btn btn-light border fw-medium me-2">Day</button>
+            <button class="btn btn-light border fw-medium me-2">Week</button>
+            <button class="btn btn-light border fw-medium me-2">Month</button>
+        </div>
+        <div>
 
-                <span class="ms-auto">
-                    <%= totalDuration %> min
-                </span>
-            </div>
-
-            <div class="container h-75 mb-4 overflow-auto border">
-                <% workouts.forEach(workout=> { %>
-                    <% workout.exercises.forEach( (exerciseItem)=> { %>
-                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
-                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                                <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                    style="height: 30px; width: 30px"></button>
-                            </div>
-
-                            <div class="w-50 vstack gap-0">
-                                <div class="d-inline-flex">
-                                    <span>
-                                        <%= exerciseItem.name %>
-                                    </span>
-
-                                    <span class="ms-auto">
-                                        <%= exerciseItem.duration %> min
-                                    </span>
-
-                                </div>
-                                <div class="d-inline text-secondary" style="font-size: 14px">
-                                    <%= exerciseItem.bodyPart %>
-                                </div>
-                            </div>
-
+        <% workouts.forEach(workout=> { %>
+            <p class="text-muted">Total Workout Duration: <%= workout.exercises.reduce((total, exercise) => total + Number(exercise.duration), 0) %> min
+            <a href="" style="text-decoration: none; color: inherit;">
+                <div class="card mb-3">
+                    <div class="card-text d-flex justify-content-between">
+                        <div>
+                            <h5 class="exercise-name">
+                                <%= workout.workoutName %>
+                            </h5>
+                            <p class="text-muted">Total Workout Duration: <%= workout.exercises.reduce((total, exercise) => total + Number(exercise.duration), 0) %> min
+                            </p>
+                            <ul>
+                                <% workout.exercises.forEach(exercise=> { %>
+                                    <li>
+                                        <%= exercise.name %> - <%= exercise.duration %> min
+                                    </li>
+                                <% }) %>
+                            </ul>
                         </div>
-                        <% }) %>
+                    </div>
+                </div>
+            </a>
+        <% }) %>
+    
+        <span>
+            Focused Body Part
+        </span>
 
-                            <% }) %>
+        <div class="container h-25 mb-4 overflow-auto border pt-2">
 
+            <% bodyParts.forEach(bodyPart=> { %>
+                <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                    <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                    </div>
 
-
-            </div>
-
-            <span>
-                Focused Body Part
-            </span>
-
-            <div class="container h-25 mb-4 overflow-auto border pt-2">
-
-                <% bodyParts.forEach(bodyPart=> { %>
-                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
-                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                            <button class="rounded-circle border-0 m-0 p-0 my-auto"
-                                style="height: 30px; width: 30px"></button>
-                        </div>
-
-                        <div class="w-50 vstack gap-0">
-                            <div class="d-inline-flex">
-                                <span>
-                                    <%= bodyPart %>
-                                </span>
-                            </div>
-
+                    <div class="w-50 vstack gap-0">
+                        <div class="d-inline-flex">
+                            <span>
+                                <%= bodyPart %>
+                            </span>
                         </div>
 
                     </div>
-                    <% }) %>
-            </div>
-    </body>
+
+                </div>
+            <% }) %>
+        </div>
+</body>
 
 </html>
