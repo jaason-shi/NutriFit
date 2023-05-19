@@ -20,9 +20,21 @@
             Filter By:
         </div>
         <div class="container m-0 p-0 d-flex mb-2">
-            <button class="btn btn-light border fw-medium me-2">Day</button>
-            <button class="btn btn-light border fw-medium me-2">Week</button>
-            <button class="btn btn-light border fw-medium me-2">Month</button>
+            <div class="container m-0 p-0 d-flex mb-2">
+                <form action="./filterWorkouts" method="post">
+                    <input type="hidden" name="filterType" value="day">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
+                </form>
+
+                <form action="./filterWorkouts" method="post">
+                    <input type="hidden" name="filterType" value="week">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
+                </form>
+
+                <form action="./filterWorkouts" method="post">
+                    <input type="hidden" name="filterType" value="month">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
+                </form>
         </div>
         <div>
 
