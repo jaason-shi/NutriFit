@@ -5,6 +5,8 @@ const Food = require('../models/foodModel')
 const { ObjectId } = require('mongodb');
 // Meal model
 const Meal = require("../models/mealModel");
+// FavoriteMeal model
+const FavoriteMeal = require("../models/favMealModel");
 
 
 // Available food tags
@@ -369,6 +371,28 @@ generatedMealsRouter.post("/deleteFood", async (req, res) => {
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
     res.redirect("./mealFilters");
+});
+
+
+// POST favorite meals
+generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
+    console.log("session meal: ");
+    console.log(req.session.MEAL);
+    // add the meal to the user's favorite meals
+    const meal = req.session.MEAL;
+    const userId = req.session.USER.id;
+    // ADD meal to FavoriteMeal collection
+    const favMeal = new FavoriteMeal({
+        userId: userId,
+        mealName: meal[0].Food,
+        items: meal,
+    });
+    await favMeal.save();
+    console.log("Saved");
+
+    // delete session variables
+    delete req.session.MEAL;
+    res.redirect("/favoriteMeals");
 });
 
 

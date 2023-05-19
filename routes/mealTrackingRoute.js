@@ -194,7 +194,7 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
     // Delete session variables
     delete req.session.MEAL;
 
-    res.redirect("/");
+    res.redirect("/mealTracking/mealLogs");
 });
 
 module.exports = mealTrackingRouter;

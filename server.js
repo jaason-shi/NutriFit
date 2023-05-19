@@ -159,6 +159,7 @@ app.get("/favorites", (req, res) => {
   res.render("favorites");
 });
 
+
 // POST favorite workouts  favoriteWorkouts
 app.post("/favoriteWorkouts", async (req, res) => {
   console.log("session workout: ");
@@ -175,30 +176,11 @@ app.post("/favoriteWorkouts", async (req, res) => {
   await favWorkout.save();
   // delete session variables
   delete req.session.WORKOUT;
-  res.redirect("/");
+  res.redirect("/favoriteWorkouts");
 });
 
 
-// POST favorite meals
-app.post("/favoriteMeals", async (req, res) => {
-  console.log("session meal: ");
-  console.log(req.session.MEAL);
-  // add the meal to the user's favorite meals
-  const meal = req.session.MEAL;
-  const userId = req.session.USER.id;
-  // ADD meal to FavoriteMeal collection
-  const favMeal = new FavoriteMeal({
-    userId: userId,
-    mealName: meal[0].Food,
-    items: meal,
-  });
-  await favMeal.save();
-  console.log("Saved");
 
-  // delete session variables
-  delete req.session.MEAL;
-  res.redirect("/");
-});
 
 
 // Get snake game
