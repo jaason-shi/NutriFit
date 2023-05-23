@@ -119,39 +119,78 @@ userRouter.post('/signup', async (req, res) => {
 });
 
 // Post login page
-userRouter.post(('/login'), async (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
+// userRouter.post(('/login'), async (req, res) => {
+//     const email = req.body.email;
+//     const password = req.body.password;
 
-    const emailValidationResult = basicStringSchema.validate(email);
-    const passwordValidationResult = passwordSchema.validate(password);
+//     const emailValidationResult = basicStringSchema.validate(email);
+//     const passwordValidationResult = passwordSchema.validate(password);
 
-    let user = await User.findOne({ $or: [{ email: email }, { id: email }] })
-    if (emailValidationResult.error != null) {
-        req.session.INVALID_FIELD = 'Email or ID'
-        res.redirect('./invalidFormData')
-    } else if (passwordValidationResult.error != null) {
-        req.session.INVALID_FIELD = 'Password'
-        res.redirect('./invalidFormData')
+//     let user = await User.findOne({ $or: [{ email: email }, { id: email }] })
+//     if (emailValidationResult.error != null) {
+//         req.session.INVALID_FIELD = 'Email or ID'
+//         res.redirect('./invalidFormData')
+//     } else if (passwordValidationResult.error != null) {
+//         req.session.INVALID_FIELD = 'Password'
+//         res.redirect('./invalidFormData')
+//     } else {
+//         if (user === undefined) {
+//             req.session.AUTH = false;
+//             req.session.FAIL_FORM = true;
+//         } else {
+//             if (await bcrypt.compare(password, user.password)) {
+//                 req.session.AUTH = true;
+//                 req.session.ROLE = user.role;
+//                 req.session.USER = user
+//             } else {
+//                 req.session.AUTH = false;
+//                 req.session.FAIL_FORM = true;
+//                 req.session.INVALID_FIELD = 'Email and Password'
+//                 return res.redirect('./noMatchFound')
+//             }
+//         }
+//         res.redirect('/members');
+//     }
+// })
+
+// Post login page
+userRouter.post('/login', async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const emailValidationResult = basicStringSchema.validate(email);
+  const passwordValidationResult = passwordSchema.validate(password);
+
+  let user = await User.findOne({ $or: [{ email: email }, { id: email }] });
+  
+  if (emailValidationResult.error != null) {
+    req.session.INVALID_FIELD = 'Email or ID';
+    return res.redirect('./invalidFormData');
+  } else if (passwordValidationResult.error != null) {
+    req.session.INVALID_FIELD = 'Password';
+    return res.redirect('./invalidFormData');
+  } else if (!user) {
+    req.session.AUTH = false;
+    req.session.FAIL_FORM = true;
+    req.session.INVALID_FIELD = 'Email and Password';
+    return res.redirect('./noMatchFound');
+  } else {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      req.session.AUTH = true;
+      req.session.ROLE = user.role;
+      req.session.USER = user;
+      return res.redirect('/members');
     } else {
-        if (user === undefined) {
-            req.session.AUTH = false;
-            req.session.FAIL_FORM = true;
-        } else {
-            if (await bcrypt.compare(password, user.password)) {
-                req.session.AUTH = true;
-                req.session.ROLE = user.role;
-                req.session.USER = user
-            } else {
-                req.session.AUTH = false;
-                req.session.FAIL_FORM = true;
-                req.session.INVALID_FIELD = 'Email and Password'
-                return res.redirect('./noMatchFound')
-            }
-        }
-        res.redirect('/members');
+      req.session.AUTH = false;
+      req.session.FAIL_FORM = true;
+      req.session.INVALID_FIELD = 'Email and Password';
+      return res.redirect('./noMatchFound');
     }
-})
+  }
+});
+
+
 
 // Post email page data for changing passwords
 userRouter.post('/getEmail', async (req, res) => {
