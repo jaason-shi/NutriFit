@@ -81,7 +81,7 @@ const userRouter = require("./routes/userRoute");
 const generatedMealsRouter = require("./routes/generatedMealsRoute");
 const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
-const mealTrackingRouter = require("./routes/mealTrackingRoute")
+const mealTrackingRouter = require("./routes/mealTrackingRoute");
 const { parse } = require("path");
 
 /**
@@ -101,7 +101,7 @@ app.use("/generatedWorkouts", generatedWorkoutsRouter);
 app.use("/workoutTracking", workoutTrackingRouter);
 
 // Meal Tracking route
-app.use("/mealTracking", mealTrackingRouter)
+app.use("/mealTracking", mealTrackingRouter);
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
@@ -152,7 +152,6 @@ app.get("/logs", checkAuth, async (req, res) => {
   res.render("logs");
 });
 
-
 app.get("/exerciseLogs", checkAuth, async (req, res) => {
   res.render("exerciseLogs");
 });
@@ -161,7 +160,6 @@ app.get("/exerciseLogs", checkAuth, async (req, res) => {
 app.get("/favorites", checkAuth, (req, res) => {
   res.render("favorites");
 });
-
 
 // Get snake game
 app.get("/snake", checkAuth, (req, res) => {
@@ -214,6 +212,11 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
   });
 
   res.render("favoriteWorkouts", { workouts: workoutsParsed });
+});
+
+app.get("*", (req, res) => {
+  const currentPage = "*";
+  res.render("404", { currentPage });
 });
 
 // Connect to port

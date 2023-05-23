@@ -397,4 +397,9 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
   res.redirect("/favoriteMeals");
 });
 
+generatedMealsRouter.get("*", (req, res) => {
+  const currentPage = "*";
+  res.render("404", { currentPage });
+});
+
 module.exports = generatedMealsRouter;
