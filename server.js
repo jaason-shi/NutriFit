@@ -200,7 +200,7 @@ app.get("/favorites", checkAuth, (req, res) => {
 
 
 /**
- * Serves the "snake.html" file.
+ * Serves the "snake.html" file in the response.
  * 
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
