@@ -84,25 +84,6 @@ const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
 const mealTrackingRouter = require("./routes/mealTrackingRoute");
 const { parse } = require("path");
 
-/**
- * Route handlers
- */
-
-// User route
-app.use("/user", userRouter);
-
-// Generated Meal route
-app.use("/generatedMeals", generatedMealsRouter);
-
-// Generated Workout route
-app.use("/generatedWorkouts", generatedWorkoutsRouter);
-
-// Workout Tracking route
-app.use("/workoutTracking", workoutTrackingRouter);
-
-// Meal Tracking route
-app.use("/mealTracking", mealTrackingRouter);
-
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
   if (!req.session.AUTH) {
@@ -115,6 +96,26 @@ const checkAuth = (req, res, next) => {
   }
   next();
 };
+/**
+ * Route handlers
+ */
+
+// User route
+app.use("/user", userRouter);
+
+// Generated Meal route
+app.use("/generatedMeals", checkAuth, generatedMealsRouter);
+
+// Generated Workout route
+app.use("/generatedWorkouts", checkAuth, generatedWorkoutsRouter);
+
+// Workout Tracking route
+app.use("/workoutTracking", checkAuth, workoutTrackingRouter);
+
+// Meal Tracking route
+app.use("/mealTracking", checkAuth, mealTrackingRouter);
+
+
 
 // export checkAuth
 module.exports = checkAuth;

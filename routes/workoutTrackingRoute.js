@@ -21,19 +21,6 @@ const exerciseCategory = [
   { name: "waist" },
 ];
 
-// Middleware: Checks if the user is authenticated
-const checkAuth = (req, res, next) => {
-  if (!req.session.AUTH) {
-    if (req.session.FAIL_FORM) {
-      delete req.session.FAIL_FORM;
-      return res.redirect("user/invalidFormData");
-    } else {
-      return res.redirect("/authFail");
-    }
-  }
-  next();
-};
-
 // POST Workout Logs page
 workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   const date = new Date();
@@ -134,7 +121,7 @@ workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
 });
 
 // Get test populate button
-workoutTrackingRouter.get("/testPopulate", checkAuth, (req, res) => {
+workoutTrackingRouter.get("/testPopulate", (req, res) => {
   //console.log("Test populate")
   res.render("testPopulate");
 });
@@ -193,7 +180,7 @@ workoutTrackingRouter.post("/testPopulateWorkouts", async (req, res) => {
 });
 
 // Get workout logs
-workoutTrackingRouter.get("/workoutLogs", checkAuth, async (req, res) => {
+workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
   let userId = req.session.USER.id;
   let workouts;
 

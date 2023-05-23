@@ -62,18 +62,18 @@ async function queryChatGPT(prompt) {
   });
 }
 
-// Middleware: Checks if the user is authenticated
-const checkAuth = (req, res, next) => {
-  if (!req.session.AUTH) {
-    if (req.session.FAIL_FORM) {
-      delete req.session.FAIL_FORM;
-      return res.redirect("user/invalidFormData");
-    } else {
-      return res.redirect("/authFail");
-    }
-  }
-  next();
-};
+// // Middleware: Checks if the user is authenticated
+// const checkAuth = (req, res, next) => {
+//   if (!req.session.AUTH) {
+//     if (req.session.FAIL_FORM) {
+//       delete req.session.FAIL_FORM;
+//       return res.redirect("user/invalidFormData");
+//     } else {
+//       return res.redirect("/authFail");
+//     }
+//   }
+//   next();
+// };
 
 // Queries the GPT 3.5 API for a meal
 async function mealGenerationQuery(calories, user) {
@@ -137,7 +137,7 @@ async function mealGenerationQuery(calories, user) {
 }
 
 // Get generated meals page
-generatedMealsRouter.get("/", checkAuth, async (req, res) => {
+generatedMealsRouter.get("/", async (req, res) => {
   let calories;
   let user = req.session.USER;
   if (req.query.calories != undefined) {
@@ -172,7 +172,7 @@ generatedMealsRouter.get("/badApiResponse", (req, res) => {
 });
 
 // Get meal filters page
-generatedMealsRouter.get("/mealFilters", checkAuth, async (req, res) => {
+generatedMealsRouter.get("/mealFilters", async (req, res) => {
   const user = req.session.USER;
   res.render("generatedMeals/mealFilters", {
     tagsList: foodCategory,
@@ -183,7 +183,7 @@ generatedMealsRouter.get("/mealFilters", checkAuth, async (req, res) => {
 });
 
 // Get meal catalog pages
-generatedMealsRouter.get("/foodCatalog", checkAuth, (req, res) => {
+generatedMealsRouter.get("/foodCatalog", (req, res) => {
   let type = req.query.type;
   res.render("generatedMeals/foodCatalog", {
     type: type,
@@ -191,12 +191,12 @@ generatedMealsRouter.get("/foodCatalog", checkAuth, (req, res) => {
 });
 
 // Get quick add meal page
-generatedMealsRouter.get("/quickAddMeal", checkAuth, (req, res) => {
+generatedMealsRouter.get("/quickAddMeal",(req, res) => {
   res.render("generatedMeals/quickAddMeal");
 });
 
 // Post quick add meal data
-generatedMealsRouter.post("/quickAddMeal", checkAuth, async (req, res) => {
+generatedMealsRouter.post("/quickAddMeal", async (req, res) => {
   const itemId = req.body.item;
   const userId = req.session.USER.id;
   let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
@@ -227,7 +227,7 @@ generatedMealsRouter.post("/quickAddMeal", checkAuth, async (req, res) => {
 });
 
 // Search for food
-generatedMealsRouter.get("/searchFood", checkAuth, async (req, res) => {
+generatedMealsRouter.get("/searchFood", async (req, res) => {
   const searchQuery = req.query.q;
   let foodQuery = await Food.find({ Food: new RegExp(searchQuery, "i") });
   let parsedResponse = foodQuery.map((foodObject) => {
