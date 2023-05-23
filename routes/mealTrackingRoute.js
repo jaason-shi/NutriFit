@@ -6,9 +6,21 @@ const { ObjectID } = require("mongodb");
 // FavoriteMeal model
 const FavoriteMeal = require("../models/favMealModel");
 
+// Middleware: Checks if the user is authenticated
+const checkAuth = (req, res, next) => {
+  if (!req.session.AUTH) {
+    if (req.session.FAIL_FORM) {
+      delete req.session.FAIL_FORM;
+      return res.redirect("user/invalidFormData");
+    } else {
+      return res.redirect("/authFail");
+    }
+  }
+  next();
+};
 
 // Get meal logs page
-mealTrackingRouter.get("/mealLogs", async (req, res) => {
+mealTrackingRouter.get("/mealLogs", checkAuth, async (req, res) => {
     const userId = req.session.USER.id;
     let userMeals;
 
@@ -85,10 +97,10 @@ mealTrackingRouter.post("/filterMeals", async (req, res) => {
 
 
 // Get test populate button
-mealTrackingRouter.get('/testPopulate', (req, res) => {
-    //console.log("Test populate")
-    res.render('testPopulate')
-})
+mealTrackingRouter.get("/testPopulate", checkAuth, (req, res) => {
+  //console.log("Test populate")
+  res.render("testPopulate");
+});
 
 // TestPostMealData
 mealTrackingRouter.post('/testPopulateMeals', async (req, res) => {
@@ -195,6 +207,11 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
     delete req.session.MEAL;
 
     res.redirect("/mealTracking/mealLogs");
+});
+
+mealTrackingRouter.get("*", (req, res) => {
+  const currentPage = "*";
+  res.render("404", { currentPage });
 });
 
 module.exports = mealTrackingRouter;

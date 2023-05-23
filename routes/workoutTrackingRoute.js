@@ -21,6 +21,19 @@ const exerciseCategory = [
   { name: "waist" },
 ];
 
+// Middleware: Checks if the user is authenticated
+const checkAuth = (req, res, next) => {
+  if (!req.session.AUTH) {
+    if (req.session.FAIL_FORM) {
+      delete req.session.FAIL_FORM;
+      return res.redirect("user/invalidFormData");
+    } else {
+      return res.redirect("/authFail");
+    }
+  }
+  next();
+};
+
 // POST Workout Logs page
 workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   const date = new Date();
@@ -51,7 +64,6 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
     req.session.WORKOUT = parsedWorkout;
   }
 
-
   // get total duration of the workouts
   let totalDuration = 0;
   req.session.WORKOUT.forEach((exercise) => {
@@ -79,35 +91,35 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   res.redirect("/workoutTracking/workoutLogs");
 });
 
-
-
 // GET exercise logs depending on if the user clicks day, week, or month
 workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
-  req.session.WORKOUTS_LOGGED = await Workout.find({ userId: req.session.USER.id });
+  req.session.WORKOUTS_LOGGED = await Workout.find({
+    userId: req.session.USER.id,
+  });
   const filterType = req.body.filterType;
   const today = new Date();
 
-  console.log("Today")
-  console.log(today)
+  console.log("Today");
+  console.log(today);
 
-  let startDate
+  let startDate;
 
   // Which filter was picked
   if (filterType === "day") {
-    startDate = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+    startDate = new Date(today.getTime() - 24 * 60 * 60 * 1000);
   } else if (filterType === "week") {
-    startDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
   } else if (filterType === "month") {
-    startDate = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
   }
   const filteredWorkouts = req.session.WORKOUTS_LOGGED.filter((workout) => {
-    let createdTime = new Date(Date.parse(workout.createdTime))
-    console.log(workout.workoutName)
-    console.log("Created ")
-    console.log(createdTime)
-    console.log("Start")
-    console.log(startDate)
-    return createdTime >= startDate
+    let createdTime = new Date(Date.parse(workout.createdTime));
+    console.log(workout.workoutName);
+    console.log("Created ");
+    console.log(createdTime);
+    console.log("Start");
+    console.log(startDate);
+    return createdTime >= startDate;
   });
 
   let totalDuration = 0;
@@ -115,98 +127,110 @@ workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
     totalDuration += workout.totalDuration;
   });
 
-  console.log("***\nFILTERED\n***")
-  console.log(filteredWorkouts)
+  console.log("***\nFILTERED\n***");
+  console.log(filteredWorkouts);
   req.session.FILTERED_WORKOUTS = filteredWorkouts;
-  res.redirect('./workoutLogs')
+  res.redirect("./workoutLogs");
 });
 
-
-
 // Get test populate button
-workoutTrackingRouter.get('/testPopulate', (req, res) => {
+workoutTrackingRouter.get("/testPopulate", checkAuth, (req, res) => {
   //console.log("Test populate")
-  res.render('testPopulate')
-})
-
+  res.render("testPopulate");
+});
 
 // TestPostMealData
-workoutTrackingRouter.post('/testPopulateWorkouts', async (req, res) => {
-  let testWorkout = await Workout.findOne({ userId: req.session.USER.id })
-  let currentDay = new Date()
-  const yesterday = new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate() - 2);
-  const week = new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate() - 8);
+workoutTrackingRouter.post("/testPopulateWorkouts", async (req, res) => {
+  let testWorkout = await Workout.findOne({ userId: req.session.USER.id });
+  let currentDay = new Date();
+  const yesterday = new Date(
+    currentDay.getFullYear(),
+    currentDay.getMonth(),
+    currentDay.getDate() - 2
+  );
+  const week = new Date(
+    currentDay.getFullYear(),
+    currentDay.getMonth(),
+    currentDay.getDate() - 8
+  );
   // let month = new Date(currentDay.getTime() - 40 * 24 * 60 * 60 * 1000);
-  const month = new Date(currentDay.getFullYear(), currentDay.getMonth() - 1, currentDay.getDate() - 1);
+  const month = new Date(
+    currentDay.getFullYear(),
+    currentDay.getMonth() - 1,
+    currentDay.getDate() - 1
+  );
 
   let newWorkoutDay = new Workout({
     userId: testWorkout.userId,
     workoutName: testWorkout.workoutName + " Day",
     exercises: testWorkout.exercises,
     expireTime: testWorkout.expireTime,
-    createdTime: yesterday
-  })
+    createdTime: yesterday,
+  });
 
   let newWorkoutWeek = new Workout({
     userId: testWorkout.userId,
     workoutName: testWorkout.workoutName + " Week",
     exercises: testWorkout.exercises,
     expireTime: testWorkout.expireTime,
-    createdTime: week
-  })
+    createdTime: week,
+  });
 
   let newWorkoutMonth = new Workout({
     userId: testWorkout.userId,
     workoutName: testWorkout.workoutName + " Month",
     exercises: testWorkout.exercises,
     expireTime: testWorkout.expireTime,
-    createdTime: month
-  })
+    createdTime: month,
+  });
 
-  await newWorkoutDay.save()
-  await newWorkoutWeek.save()
-  await newWorkoutMonth.save()
+  await newWorkoutDay.save();
+  await newWorkoutWeek.save();
+  await newWorkoutMonth.save();
 
   //console.log("Populating...")
-  res.redirect('./testPopulate')
-
-})
-
+  res.redirect("./testPopulate");
+});
 
 // Get workout logs
-workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
-  let userId = req.session.USER.id
-  let workouts
+workoutTrackingRouter.get("/workoutLogs", checkAuth, async (req, res) => {
+  let userId = req.session.USER.id;
+  let workouts;
 
   if (req.session.FILTERED_WORKOUTS) {
-    workouts = req.session.FILTERED_WORKOUTS
-    delete req.session.FILTERED_WORKOUTS
+    workouts = req.session.FILTERED_WORKOUTS;
+    delete req.session.FILTERED_WORKOUTS;
   } else {
     workouts = await Workout.find({ userId: userId });
   }
 
-  let totalDuration = 0
-  workouts.forEach(workout => {
-    workout.exercises.forEach(exercise => {
-      totalDuration += exercise.duration
-    })
-  })
+  let totalDuration = 0;
+  workouts.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      totalDuration += exercise.duration;
+    });
+  });
 
-  let bodyParts = workouts.map(workout => {
-    return workout.exercises.map(exercise => {
-      return exercise.bodyPart
-    })
-  })
+  let bodyParts = workouts.map((workout) => {
+    return workout.exercises.map((exercise) => {
+      return exercise.bodyPart;
+    });
+  });
 
-  bodyParts = bodyParts.flat()
+  bodyParts = bodyParts.flat();
   const bodyPartSet = new Set(bodyParts);
-  bodyParts = [...bodyPartSet]
+  bodyParts = [...bodyPartSet];
 
   res.render("workoutLogs", {
     totalDuration: totalDuration,
     workouts: workouts,
-    bodyParts: bodyParts
+    bodyParts: bodyParts,
   });
+});
+
+workoutTrackingRouter.get("*", (req, res) => {
+  const currentPage = "*";
+  res.render("404", { currentPage });
 });
 
 module.exports = workoutTrackingRouter;

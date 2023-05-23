@@ -81,7 +81,7 @@ const userRouter = require("./routes/userRoute");
 const generatedMealsRouter = require("./routes/generatedMealsRoute");
 const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
-const mealTrackingRouter = require("./routes/mealTrackingRoute")
+const mealTrackingRouter = require("./routes/mealTrackingRoute");
 const { parse } = require("path");
 
 /**
@@ -101,7 +101,7 @@ app.use("/generatedWorkouts", generatedWorkoutsRouter);
 app.use("/workoutTracking", workoutTrackingRouter);
 
 // Meal Tracking route
-app.use("/mealTracking", mealTrackingRouter)
+app.use("/mealTracking", mealTrackingRouter);
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
@@ -115,6 +115,9 @@ const checkAuth = (req, res, next) => {
   }
   next();
 };
+
+// export checkAuth
+module.exports = checkAuth;
 
 // Post logout page
 app.post("/logOut", (req, res) => {
@@ -138,35 +141,33 @@ app.get("/members", checkAuth, (req, res) => {
 });
 
 // Get user profile page
-app.get("/userProfile", (req, res) => {
+app.get("/userProfile", checkAuth, (req, res) => {
   res.render("userProfile", {
     primaryUser: req.session.USER,
   });
 });
 
 // Get logs page
-app.get("/logs", async (req, res) => {
+app.get("/logs", checkAuth, async (req, res) => {
   res.render("logs");
 });
 
-
-app.get("/exerciseLogs", async (req, res) => {
+app.get("/exerciseLogs", checkAuth, async (req, res) => {
   res.render("exerciseLogs");
 });
 
 // Get favorites page
-app.get("/favorites", (req, res) => {
+app.get("/favorites", checkAuth, (req, res) => {
   res.render("favorites");
 });
 
-
 // Get snake game
-app.get("/snake", (req, res) => {
+app.get("/snake", checkAuth, (req, res) => {
   res.sendFile("public/snake.html", { root: __dirname });
 });
 
 // Get favorite meals page
-app.get("/favoriteMeals", async (req, res) => {
+app.get("/favoriteMeals", checkAuth, async (req, res) => {
   let userId = req.session.USER.id;
   let meals = await FavoriteMeal.find({ userId: userId });
 
@@ -176,24 +177,21 @@ app.get("/favoriteMeals", async (req, res) => {
       totalCalories += item.Calories;
     });
 
-    // Generate a unique alphanumeric code
-    let generatedCode = generateUniqueCode();
-
     return {
       _id: meal._id,
-      name:  "Meal " + generatedCode,
+      name: meal.items[0].Food + " Meal",
       calories: totalCalories,
       items: meal.items,
     };
   });
-  console.log("Meals parsed")
-  console.log(mealsParsed)
+  console.log("Meals parsed");
+  console.log(mealsParsed);
 
   res.render("favoriteMeals", { meals: mealsParsed });
 });
 
 // Get favorite workouts page
-app.get("/favoriteWorkouts", async (req, res) => {
+app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
   let userId = req.session.USER.id;
   let workouts = await FavoriteWorkout.find({ userId: userId });
 
@@ -205,12 +203,9 @@ app.get("/favoriteWorkouts", async (req, res) => {
       totalDuration += exercise.duration;
     });
 
-    // Generate a unique alphanumeric code
-    let generatedCode = generateUniqueCode();
-
     return {
       _id: workout._id,
-      name: "Workout " + generatedCode,
+      name: workout.exercises[0].name + " Workout",
       duration: totalDuration,
       exercises: workout.exercises,
     };
@@ -218,17 +213,6 @@ app.get("/favoriteWorkouts", async (req, res) => {
 
   res.render("favoriteWorkouts", { workouts: workoutsParsed });
 });
-
-// Function to generate a unique alphanumeric code
-function generateUniqueCode() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return code;
-}
-
 
 app.get("*", (req, res) => {
   const currentPage = "*";
