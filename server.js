@@ -7,10 +7,7 @@ const express = require("express");
 const session = require("express-session");
 const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
-const { ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
-const MongoClient = require("mongodb").MongoClient;
-const url = require("url");
 require("dotenv").config();
 
 // Set up app (express)
@@ -47,21 +44,6 @@ app.use(
   })
 );
 
-// User model
-const User = require("./models/userModel");
-
-// Food model
-const Food = require("./models/foodModel");
-
-// Exercise model
-const Exercise = require("./models/exerciseModel");
-
-// Meal model
-const Meal = require("./models/mealModel");
-
-// Workout model
-const Workout = require("./models/workoutModel");
-
 // FavoriteMeal model
 const FavoriteMeal = require("./models/favMealModel");
 
@@ -82,7 +64,6 @@ const generatedMealsRouter = require("./routes/generatedMealsRoute");
 const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
 const mealTrackingRouter = require("./routes/mealTrackingRoute");
-const { parse } = require("path");
 
 // Middleware: Checks if the user is authenticated
 const checkAuth = (req, res, next) => {
@@ -96,8 +77,9 @@ const checkAuth = (req, res, next) => {
   }
   next();
 };
+
 /**
- * Route handlers
+ * Route handlers start
  */
 
 // User route
@@ -115,18 +97,22 @@ app.use("/workoutTracking", checkAuth, workoutTrackingRouter);
 // Meal Tracking route
 app.use("/mealTracking", checkAuth, mealTrackingRouter);
 
+/** 
+ * Route handlers end
+ */
 
 
-// export checkAuth
-module.exports = checkAuth;
-
-// Post logout page
+/**
+ * Logs out the user by destroying the session and redirecting back to the home page
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 app.post("/logOut", (req, res) => {
   req.session.destroy();
   res.redirect("./");
 });
 
-// Get authentication failure page
 app.get("/authFail", (req, res) => {
   res.render("authFail", {
     primaryUser: req.session.USER,
