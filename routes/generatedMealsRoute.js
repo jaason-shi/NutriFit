@@ -161,6 +161,7 @@ generatedMealsRouter.get("/", checkAuth, async (req, res) => {
       foodItems: meal,
       totalCalories: totalCalories,
       userSpecifiedCalories: req.query.calories,
+      tagsList: user.foodTagInclude
     });
   }
 });
