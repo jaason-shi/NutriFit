@@ -213,6 +213,12 @@ app.get("/favoriteWorkouts", async (req, res) => {
   res.render("favoriteWorkouts", { workouts: workoutsParsed });
 });
 
+
+app.get("*", (req, res) => {
+  const currentPage = "*";
+  res.render("404", { currentPage });
+});
+
 // Connect to port
 const port = 3000;
 app.listen(port, () => {
