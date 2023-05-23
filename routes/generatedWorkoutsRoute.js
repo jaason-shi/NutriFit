@@ -157,7 +157,7 @@ generatedWorkoutsRouter.get("/quickAddWorkout", async (req, res) => {
 // Post quick add workout data
 generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
     const itemId = req.body.item;
-    const duration = req.body.duration || 0; // If no duration is specified, set it to 0
+    const duration = req.body.duration || 10; // If no duration is specified, set it to 10 min by default
     const userId = req.session.USER.id;
     let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
 
@@ -170,13 +170,13 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
         workoutName: workoutToAdd.name,
         exercises: [
             {
-                name: workoutToAdd.name,
-                duration: duration,
-                bodyPart: workoutToAdd.bodyPart,
+            name: workoutToAdd.name,
+            duration: duration,
+            bodyPart: workoutToAdd.bodyPart,
             },
         ],
-        expireTime: new Date(date.getTime() + 60 * 60 * 1000), // Set the expiry time 5 minutes from now
-        createdTime: new Date()
+        expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000), // set the expiry time 30 days from now
+        createdTime: new Date(),
     });
 
     // Save the workout document
