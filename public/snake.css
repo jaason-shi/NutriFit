@@ -13,6 +13,12 @@
   background: #e3f2fd;
 } */
 
+.box {
+  width: 50%;
+  margin-left: 25%;
+  margin-right: 25%;
+}
+
 .coloredContainer {
   background: #e3f2fd;
 }
@@ -87,5 +93,19 @@
   .controls i {
     padding: 15px 0;
     font-size: 1rem;
+  }
+
+  .play-board {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    background: #212837;
+    grid-template: repeat(30, 1fr) / repeat(30, 1fr);
+  }
+
+  .box {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
