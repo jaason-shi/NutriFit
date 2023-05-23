@@ -241,7 +241,7 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
 
 
 /**
- * Renders the "badAPiResponse" view.
+ * Renders the "badAPiResponse" view in the response.
  * 
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
