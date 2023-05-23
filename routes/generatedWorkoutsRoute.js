@@ -203,10 +203,6 @@ generatedWorkoutsRouter.get("/exerciseCatalog", (req, res) => {
   });
 });
 
-// Get bad api response page
-generatedWorkoutsRouter.get("/badApiResponse", (req, res) => {
-  res.render("badApiResponse");
-});
 
 // Modify exercise tag
 generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {

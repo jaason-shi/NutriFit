@@ -1,14 +1,18 @@
+/**
+ * Router to handle requests to endpoints related to generated meals.
+ */
+
+// Set up dependencies
 const express = require("express");
 const generatedMealsRouter = express.Router();
 const User = require("../models/userModel");
 const Food = require("../models/foodModel");
 const { ObjectId } = require("mongodb");
+
 // Meal model
 const Meal = require("../models/mealModel");
 // FavoriteMeal model
 const FavoriteMeal = require("../models/favMealModel");
-
-
 
 // Available food tags
 const foodCategory = [
@@ -30,7 +34,13 @@ const foodCategory = [
   { name: "Drinks,Alcohol, Beverages" },
 ];
 
-// Sends an API post request to the GPT 3.5 endpoint
+
+/**
+ * Queries the OpenAI GPT-3.5 Turbo model for chat completions using the given prompt.
+ * @async
+ * @param {string} prompt the prompt to query the AI
+ * @returns {Promise<string>} a Promise that resolves as a string with the response from the API.
+ */
 async function queryChatGPT(prompt) {
   const request = require("request");
 
@@ -62,49 +72,8 @@ async function queryChatGPT(prompt) {
   });
 }
 
-// // Middleware: Checks if the user is authenticated
-// const checkAuth = (req, res, next) => {
-//   if (!req.session.AUTH) {
-//     if (req.session.FAIL_FORM) {
-//       delete req.session.FAIL_FORM;
-//       return res.redirect("user/invalidFormData");
-//     } else {
-//       return res.redirect("/authFail");
-//     }
-//   }
-//   next();
-// };
 
-// Queries the GPT 3.5 API for a meal
-async function mealGenerationQuery(calories, user) {
-  let includedFood = JSON.stringify(user.includeFood);
-  let excludedFood = JSON.stringify(user.excludeFood);
-  let includedTags = user.foodTagInclude;
-  let excludedTags = user.foodTagExclude;
-
-  if (includedFood == undefined) {
-    includedFood = [];
-  }
-  if (excludedFood == undefined) {
-    excludedFood = [];
-  }
-  if (includedTags == undefined) {
-    includedTags = [];
-  }
-  if (excludedTags == undefined) {
-    excludedTags = [];
-  }
-
-  const mealsPrompt =
-    `Respond to me in this format:` +
-    ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' +
-    `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` +
-    ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' +
-    `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`;
-
-  console.log(`Initial Prompt: ${mealsPrompt}\n\n`);
-
-  const response = await queryChatGPT(mealsPrompt);
+function parseResponse(response) {
   const mealPlan = JSON.parse(response).choices[0].message.content;
 
   console.log(`The response we get: ${mealPlan}\n\n`);
@@ -130,6 +99,32 @@ async function mealGenerationQuery(calories, user) {
   }
 
   const mealPlanParsed = JSON.parse(codeBlockContent[0]);
+  return mealPlanParsed
+}
+
+// Queries the GPT 3.5 API for a meal
+async function mealGenerationQuery(calories, user) {
+  let includedFood = JSON.stringify(user.includeFood) ?? [];
+  let excludedFood = JSON.stringify(user.excludeFood) ?? [];
+  let includedTags = user.foodTagInclude ?? [];
+  let excludedTags = user.foodTagExclude ?? [];
+
+  const mealsPrompt =
+    `Respond to me in this format:` +
+    ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' +
+    `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` +
+    ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' +
+    `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`;
+
+  console.log(`Initial Prompt: ${mealsPrompt}\n\n`);
+
+  const response = await queryChatGPT(mealsPrompt);
+  let mealPlanParsed = parseResponse(response);
+
+  if (!mealPlanParsed) {
+    return undefined;
+  }
+
   console.log("Final Product\n");
   console.log(mealPlanParsed);
 
@@ -166,10 +161,6 @@ generatedMealsRouter.get("/", async (req, res) => {
   }
 });
 
-// Get bad api response page
-generatedMealsRouter.get("/badApiResponse", (req, res) => {
-  res.render("badApiResponse");
-});
 
 // Get meal filters page
 generatedMealsRouter.get("/mealFilters", async (req, res) => {
@@ -191,7 +182,7 @@ generatedMealsRouter.get("/foodCatalog", (req, res) => {
 });
 
 // Get quick add meal page
-generatedMealsRouter.get("/quickAddMeal",(req, res) => {
+generatedMealsRouter.get("/quickAddMeal", (req, res) => {
   res.render("generatedMeals/quickAddMeal");
 });
 

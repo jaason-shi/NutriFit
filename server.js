@@ -241,6 +241,17 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
 
 
 /**
+ * Renders the "badAPiResponse" view.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+app.get("/badApiResponse", (req, res) => {
+  res.render("badApiResponse");
+});
+
+
+/**
  * Renders the "favoriteWorkouts" view with the user's favorite workouts in the response after checking if they are authenticated.
  * 
  * @param {Express.Request} req - the request object representing the received request
