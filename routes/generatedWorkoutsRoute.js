@@ -157,7 +157,7 @@ generatedWorkoutsRouter.get("/quickAddWorkout", async (req, res) => {
 // Post quick add workout data
 generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
     const itemId = req.body.item;
-    const duration = req.body.duration || 0; // If no duration is specified, set it to 0
+    const duration = req.body.duration || 10; // If no duration is specified, set it to 10 min by default
     const userId = req.session.USER.id;
     let workoutToAdd = await Exercise.findOne({ _id: new ObjectId(itemId) });
 
