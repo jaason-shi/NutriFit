@@ -68,8 +68,14 @@ const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
 const mealTrackingRouter = require("./routes/mealTrackingRoute");
 
-// Middleware: Checks if the user is authenticated
-const checkAuth = (req, res, next) => {
+/**
+ * Checks if the user is authenticated and redirects them if they are not based on the context of their arrival.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ * @param {Function} next - the function that passes control to the next middleware function or route handler
+ */
+function checkAuth(req, res, next) {
   if (!req.session.AUTH) {
     if (req.session.FAIL_FORM) {
       delete req.session.FAIL_FORM;
