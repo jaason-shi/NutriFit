@@ -68,6 +68,7 @@ const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
 const mealTrackingRouter = require("./routes/mealTrackingRoute");
 
+
 /**
  * Checks if the user is authenticated and redirects them if they are not based on the context of their arrival.
  * 
@@ -86,6 +87,7 @@ function checkAuth(req, res, next) {
   }
   next();
 };
+
 
 /**
  * Route handlers start
