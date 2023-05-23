@@ -1,3 +1,7 @@
+/**
+ * Global functions and variables for file inclusion and absolute file paths.
+ */
+
 //Define the include function for absolute file name
 global.base_dir = __dirname;
 global.abs_path = function (path) {
