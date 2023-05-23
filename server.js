@@ -176,9 +176,12 @@ app.get("/favoriteMeals", async (req, res) => {
       totalCalories += item.Calories;
     });
 
+    // Generate a unique alphanumeric code
+    let generatedCode = generateUniqueCode();
+
     return {
       _id: meal._id,
-      name: meal.items[0].Food + " Meal",
+      name:  "Meal " + generatedCode,
       calories: totalCalories,
       items: meal.items,
     };
@@ -202,9 +205,12 @@ app.get("/favoriteWorkouts", async (req, res) => {
       totalDuration += exercise.duration;
     });
 
+    // Generate a unique alphanumeric code
+    let generatedCode = generateUniqueCode();
+
     return {
       _id: workout._id,
-      name: workout.exercises[0].name + " Workout",
+      name: "Workout " + generatedCode,
       duration: totalDuration,
       exercises: workout.exercises,
     };
@@ -212,6 +218,16 @@ app.get("/favoriteWorkouts", async (req, res) => {
 
   res.render("favoriteWorkouts", { workouts: workoutsParsed });
 });
+
+// Function to generate a unique alphanumeric code
+function generateUniqueCode() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return code;
+}
 
 
 app.get("*", (req, res) => {
