@@ -116,6 +116,9 @@ const checkAuth = (req, res, next) => {
   next();
 };
 
+// export checkAuth
+module.exports = checkAuth;
+
 // Post logout page
 app.post("/logOut", (req, res) => {
   req.session.destroy();
