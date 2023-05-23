@@ -155,6 +155,7 @@ generatedWorkoutsRouter.get("/", checkAuth, async (req, res) => {
         res.render("generatedWorkouts/generatedWorkouts", {
             workout: workout,
             totalDuration: totalDuration,
+            tagsList: user.exerciseTagInclude
         });
     }
 });

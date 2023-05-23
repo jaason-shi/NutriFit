@@ -21,8 +21,9 @@
         Workout Type
       </div>
       <div class="container m-0 p-0 d-flex mb-2">
-        <button class="btn btn-light border fw-medium me-2">Intense</button>
-        <button class="btn btn-light border fw-medium me-2">Full-Body</button>
+        <% tagsList.forEach((item)=> { %>
+          <button class="btn btn-light border fw-medium me-2"><%= item %></button>
+        <% }) %>
       </div>
 
       <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
