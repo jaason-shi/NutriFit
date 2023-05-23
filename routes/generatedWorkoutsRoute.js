@@ -119,9 +119,21 @@ async function workoutGenerationQuery(duration, user) {
     return workoutParsed;
 }
 
+// Middleware: Checks if the user is authenticated
+const checkAuth = (req, res, next) => {
+  if (!req.session.AUTH) {
+    if (req.session.FAIL_FORM) {
+      delete req.session.FAIL_FORM;
+      return res.redirect("user/invalidFormData");
+    } else {
+      return res.redirect("/authFail");
+    }
+  }
+  next();
+};
 
 // Get generated workouts
-generatedWorkoutsRouter.get("/", async (req, res) => {
+generatedWorkoutsRouter.get("/", checkAuth, async (req, res) => {
     let duration;
     let user = req.session.USER;
     if (req.query.duration != undefined) {
@@ -149,13 +161,16 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
 
 
 // Get Quick add workout page
-generatedWorkoutsRouter.get("/quickAddWorkout", async (req, res) => {
-    res.render("generatedWorkouts/quickAddWorkout");
+generatedWorkoutsRouter.get("/quickAddWorkout", checkAuth, async (req, res) => {
+  res.render("generatedWorkouts/quickAddWorkout");
 });
 
 
 // Post quick add workout data
-generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
+generatedWorkoutsRouter.post(
+  "/quickAddWorkout",
+  checkAuth,
+  async (req, res) => {
     const itemId = req.body.item;
     const duration = req.body.duration || 10; // If no duration is specified, set it to 10 min by default
     const userId = req.session.USER.id;
@@ -166,17 +181,17 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
 
     // Create a new workout document
     const workout = new Workout({
-        userId: userId,
-        workoutName: workoutToAdd.name,
-        exercises: [
-            {
-            name: workoutToAdd.name,
-            duration: duration,
-            bodyPart: workoutToAdd.bodyPart,
-            },
-        ],
-        expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000), // set the expiry time 30 days from now
-        createdTime: new Date(),
+      userId: userId,
+      workoutName: workoutToAdd.name,
+      exercises: [
+        {
+          name: workoutToAdd.name,
+          duration: duration,
+          bodyPart: workoutToAdd.bodyPart,
+        },
+      ],
+      expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000), // set the expiry time 30 days from now
+      createdTime: new Date(),
     });
 
     // Save the workout document
@@ -185,28 +200,29 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
     let updatedUser = await User.findOne({ id: userId });
     req.session.USER = updatedUser;
     res.redirect("/workoutTracking/workoutLogs");
-});
+  }
+);
 
 
 // Get workout filters
-generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
-    let user = req.session.USER;
+generatedWorkoutsRouter.get("/workoutFilters", checkAuth, (req, res) => {
+  let user = req.session.USER;
 
-    res.render("generatedWorkouts/workoutFilters", {
-        tagsList: exerciseCategory,
-        primaryUser: user,
-        userInclude: user.includeExercise,
-        userExclude: user.excludeExercise,
-    });
+  res.render("generatedWorkouts/workoutFilters", {
+    tagsList: exerciseCategory,
+    primaryUser: user,
+    userInclude: user.includeExercise,
+    userExclude: user.excludeExercise,
+  });
 });
 
 
 // Get exercise catalog pages
-generatedWorkoutsRouter.get("/exerciseCatalog", (req, res) => {
-    let type = req.query.type;
-    res.render("generatedWorkouts/exerciseCatalog", {
-        type: type,
-    });
+generatedWorkoutsRouter.get("/exerciseCatalog", checkAuth, (req, res) => {
+  let type = req.query.type;
+  res.render("generatedWorkouts/exerciseCatalog", {
+    type: type,
+  });
 });
 
 
@@ -266,20 +282,20 @@ generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {
 
 
 // Search for exercises
-generatedWorkoutsRouter.get("/searchExercise", async (req, res) => {
-    const searchQuery = req.query.q;
-    let exerciseQuery = await Exercise.find({
-        name: new RegExp(searchQuery, "i"),
-    });
-    let parsedResponse = exerciseQuery.map((exerciseObject) => {
-        return {
-            name: exerciseObject.name,
-            bodyPart: exerciseObject.bodyPart,
-            id: exerciseObject._id,
-        };
-    });
+generatedWorkoutsRouter.get("/searchExercise", checkAuth, async (req, res) => {
+  const searchQuery = req.query.q;
+  let exerciseQuery = await Exercise.find({
+    name: new RegExp(searchQuery, "i"),
+  });
+  let parsedResponse = exerciseQuery.map((exerciseObject) => {
+    return {
+      name: exerciseObject.name,
+      bodyPart: exerciseObject.bodyPart,
+      id: exerciseObject._id,
+    };
+  });
 
-    res.json(parsedResponse);
+  res.json(parsedResponse);
 });
 
 
@@ -393,5 +409,8 @@ generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
     res.redirect("/favoriteWorkouts");
 });
 
-
+generatedWorkoutsRouter.get("*", (req, res) => {
+  const currentPage = "*";
+  res.render("404", { currentPage });
+});
 module.exports = generatedWorkoutsRouter
