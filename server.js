@@ -138,35 +138,35 @@ app.get("/members", checkAuth, (req, res) => {
 });
 
 // Get user profile page
-app.get("/userProfile", (req, res) => {
+app.get("/userProfile", checkAuth, (req, res) => {
   res.render("userProfile", {
     primaryUser: req.session.USER,
   });
 });
 
 // Get logs page
-app.get("/logs", async (req, res) => {
+app.get("/logs", checkAuth, async (req, res) => {
   res.render("logs");
 });
 
 
-app.get("/exerciseLogs", async (req, res) => {
+app.get("/exerciseLogs", checkAuth, async (req, res) => {
   res.render("exerciseLogs");
 });
 
 // Get favorites page
-app.get("/favorites", (req, res) => {
+app.get("/favorites", checkAuth, (req, res) => {
   res.render("favorites");
 });
 
 
 // Get snake game
-app.get("/snake", (req, res) => {
+app.get("/snake", checkAuth, (req, res) => {
   res.sendFile("public/snake.html", { root: __dirname });
 });
 
 // Get favorite meals page
-app.get("/favoriteMeals", async (req, res) => {
+app.get("/favoriteMeals", checkAuth, async (req, res) => {
   let userId = req.session.USER.id;
   let meals = await FavoriteMeal.find({ userId: userId });
 
@@ -183,14 +183,14 @@ app.get("/favoriteMeals", async (req, res) => {
       items: meal.items,
     };
   });
-  console.log("Meals parsed")
-  console.log(mealsParsed)
+  console.log("Meals parsed");
+  console.log(mealsParsed);
 
   res.render("favoriteMeals", { meals: mealsParsed });
 });
 
 // Get favorite workouts page
-app.get("/favoriteWorkouts", async (req, res) => {
+app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
   let userId = req.session.USER.id;
   let workouts = await FavoriteWorkout.find({ userId: userId });
 
