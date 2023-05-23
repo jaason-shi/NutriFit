@@ -170,13 +170,13 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
         workoutName: workoutToAdd.name,
         exercises: [
             {
-                name: workoutToAdd.name,
-                duration: duration,
-                bodyPart: workoutToAdd.bodyPart,
+            name: workoutToAdd.name,
+            duration: duration,
+            bodyPart: workoutToAdd.bodyPart,
             },
         ],
-        expireTime: new Date(date.getTime() + 60 * 60 * 1000), // Set the expiry time 5 minutes from now
-        createdTime: new Date()
+        expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000), // set the expiry time 30 days from now
+        createdTime: new Date(),
     });
 
     // Save the workout document
