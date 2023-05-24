@@ -6,29 +6,29 @@
 
     <body>
         <div class="bg-body-tertiary" style="height: 100vh">
-
-            <div class="row w-100 m-0">
-                <div class="mx-auto col-lg-5 col-12">
-                    <div class="card mx-auto mt-5 p-3 w-75">
-                        <div class="card-body pb-2 mb-2">
-                            <div class="d-inline-flex align-items-center justify-content-center">
-                                <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+            <%- include('../partials/header') %>
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-5 col-12">
+                        <div class="card mx-auto mt-5 p-3 w-75">
+                            <div class="card-body pb-2 mb-2">
+                                <div class="d-inline-flex align-items-center justify-content-center">
+                                    <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+                                </div>
+                                <div class="ms-2 fs-6 fw-medium d-inline-flex">
+                                    Quick Add Meal
+                                </div>
                             </div>
-                            <div class="ms-2 fs-6 fw-medium d-inline-flex">
-                                Quick Add Meal
-                            </div>
+                            <form id="search-form">
+                                <input type="hidden" name="formType" id="formType" value="quickAddMeal" />
+                                <input class="mb-3 w-100" name="searchFood" type="text" id="searchBar"
+                                    placeholder="Search for food...">
+                            </form>
+                            <div id="foodResults"></div>
                         </div>
-                        <form id="search-form">
-                            <input type="hidden" name="formType" id="formType" value="quickAddMeal" />
-                            <input class="mb-3 w-100" name="searchFood" type="text" id="searchBar"
-                                placeholder="Search for food...">
-                        </form>
-                        <div id="foodResults"></div>
                     </div>
                 </div>
-            </div>
-            <div style="height: 100px;"></div>
-            <%- include('../partials/navbar') %>
+                <div style="height: 100px;"></div>
+                <%- include('../partials/navbar') %>
         </div>
 
 
