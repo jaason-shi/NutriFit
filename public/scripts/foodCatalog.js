@@ -63,8 +63,7 @@ function populateFoodResults(data) {
 /**
  * Sets up the event listeners for the elements on the page.
  */
-const setup = () => {
-    console.log("Hello world")
+function setup() {
     // Search bar event listener
     $('#searchBar').on('input', function () {
         const searchQuery = $(this).val();
