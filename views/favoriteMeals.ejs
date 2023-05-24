@@ -34,6 +34,11 @@
                 white-space: nowrap;
                 text-overflow: ellipsis;
             }
+
+            .btn-dark {
+                margin-left: 5%;
+                width: 90%;
+            }
         </style>
     </head>
 
@@ -55,7 +60,7 @@
                     <% meals.forEach(meal=> { %>
                         <a href="" style="text-decoration: none; color: inherit;">
                             <div class="card mb-3">
-                                <div class="card-text d-flex justify-content-between">
+                                <div class="card-text d-flex justify-content-center">
                                     <div>
                                         <h5 class="meal-name">
                                             <%= meal.name %>
@@ -71,13 +76,14 @@
                                         </ul>
 
                                     </div>
-                                    <a href="" style="text-decoration: none; color: inherit;"></a>
-                                    <form action="mealTracking/foodLogs" method="post">
-                                        <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
-                                        <input type="submit" class="btn btn-light h-100" value="+">
-                                    </form>
-
                                 </div>
+                                <form class="mb-2" action="mealTracking/foodLogs" method="post">
+                                    <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
+                                    <input type="submit" class="btn btn-dark" value="Add to Logs">
+                                </form>
+                                <form class="mb-2" action="" method="post">
+                                    <input type="submit" class="btn btn-dark" value="Remove from Favorites">
+                                </form>
                             </div>
                         </a>
                         <% }) %>
