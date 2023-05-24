@@ -10,10 +10,9 @@ const mealTrackingRouter = express.Router();
 const Meal = require("../models/mealModel");
 const FavoriteMeal = require("../models/favMealModel");
 
-
 /**
  * Renders the "mealLogs" view with the user's meals and total calories in the response.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -51,10 +50,9 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
   });
 });
 
-
 /**
  * Filters the current user's logged meals by date.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -86,11 +84,10 @@ mealTrackingRouter.get("/filterMeals", async (req, res) => {
   res.redirect("./mealLogs");
 });
 
-
 /**
  * Sets the session meal to the correctly parsed meal object.
  * Depending on where the request came from, it is parsed and handled differently.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  */
 async function parseMealSession(req) {
@@ -122,10 +119,9 @@ async function parseMealSession(req) {
   }
 }
 
-
 /**
  * Handles the POST request to add to the user's logged meals.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -133,7 +129,7 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
   const date = new Date();
 
   // Sets the session meal for further handling
-  await parseMealSession(req)
+  await parseMealSession(req);
 
   // Get calories from the meal
   let totalCalories = 0;
@@ -159,6 +155,12 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
   delete req.session.MEAL;
 
   res.redirect("/mealTracking/mealLogs");
+});
+
+// Handles the POST request to delete a meal to the user's logged meals
+mealTrackingRouter.post("/deleteFromLogMeals", async (req, res) => {
+  const meal = req.session.MEAL;
+  await meal.deleteOne({ _id: meal[0]._id });
 });
 
 // Export the mealTrackingRouter
