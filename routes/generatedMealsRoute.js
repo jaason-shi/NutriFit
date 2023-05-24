@@ -432,4 +432,5 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
   res.redirect("/favoriteMeals");
 });
 
+// Export the generatedMealsRouter
 module.exports = generatedMealsRouter;
