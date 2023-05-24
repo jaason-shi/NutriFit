@@ -125,6 +125,12 @@ workoutTrackingRouter.get("/filterWorkouts", async (req, res) => {
 });
 
 
+/**
+ * Gets the body parts worked from an array of workout objects with no duplicates.
+ * 
+ * @param {Array.<Object>} workouts the user's logged workouts
+ * @returns {Array.<string>} the body parts that have been worked
+ */
 function getBodyParts(workouts) {
   let bodyParts = workouts.map((workout) => {
     return workout.exercises.map((exercise) => {
