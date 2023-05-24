@@ -291,10 +291,10 @@ generatedMealsRouter.post("/selectFood", async (req, res) => {
 /**
  * Updates the user's food tag to include or exclude.
  * 
- * @param {string} type the type of the tag to update
- * @param {string} userId the id of the user to update
- * @param {string} foodTag the name of the tag to include
- * @param {Object} user an object representing the current user
+ * @param {string} type - the type of the tag to update
+ * @param {string} userId - the id of the user to update
+ * @param {string} foodTag - the name of the tag to include
+ * @param {Object} user - an object representing the current user
  */
 async function updateFoodTag(type, userId, foodTag, user) {
   if (type === "include") {
