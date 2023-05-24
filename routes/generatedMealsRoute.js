@@ -37,6 +37,7 @@ const foodCategory = [
 
 /**
  * Queries the OpenAI GPT-3.5 Turbo model for chat completions using the given prompt.
+ * 
  * @async
  * @param {string} prompt the prompt to query the AI
  * @returns {Promise<string>} a Promise that resolves as a string with the response from the API.
