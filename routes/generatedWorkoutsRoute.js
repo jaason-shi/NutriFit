@@ -1,12 +1,20 @@
+/**
+ * Router to handle requests to endpoints related to generated meals.
+ */
+
+// Set up dependencies
 const express = require("express");
 const generatedWorkoutsRouter = express.Router();
 const User = require("../models/userModel");
 const Exercise = require("../models/exerciseModel");
 const { ObjectId } = require("mongodb");
+
 // Workout model
 const Workout = require("../models/workoutModel");
 // FavoriteWorkout model
 const FavoriteWorkout = require("../models/favWorkoutModel");
+// Import function to query chatGPT
+const queryChatGPT = require('./queryChatGPT');
 
 // Available exercise tags
 const exerciseCategory = [
@@ -21,38 +29,6 @@ const exerciseCategory = [
   { name: "neck" },
   { name: "waist" },
 ];
-
-// Sends an API post request to the GPT 3.5 endpoint
-async function queryChatGPT(prompt) {
-  const request = require("request");
-
-  const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
-
-  const options = {
-    url: OPENAI_API_ENDPOINT,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GPT_API_KEY}`,
-      "OpenAI-Organization": process.env.GPT_ORG_ID,
-    },
-    body: JSON.stringify({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-    }),
-  };
-
-  return new Promise((resolve, reject) => {
-    request.post(options, (error, response, body) => {
-      if (error) {
-        console.error(error);
-        reject(error);
-      } else {
-        resolve(body);
-      }
-    });
-  });
-}
 
 // Queries the GPT 3.5 API for a workout
 async function workoutGenerationQuery(duration, user) {
