@@ -73,4 +73,7 @@ function setup() {
 }
 
 
+/**
+ * Adds event listeners only when document is fully loaded.
+ */
 $(document).ready(setup)
