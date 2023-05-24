@@ -224,9 +224,9 @@ generatedMealsRouter.get("/searchFood", async (req, res) => {
 /**
  * Adds the food to the current user's included or excluded foods list.
  * 
- * @param {String} type the type of the list to add to
- * @param {String} itemId the ID of the item to add
- * @param {String} userId the ID of the current user
+ * @param {string} type the type of the list to add to
+ * @param {string} itemId the ID of the item to add
+ * @param {string} userId the ID of the current user
  */
 async function addFoodUser(type, itemId, userId) {
   let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
@@ -291,9 +291,9 @@ generatedMealsRouter.post("/selectFood", async (req, res) => {
 /**
  * Updates the user's food tag to include or exclude.
  * 
- * @param {String} type the type of the tag to update
- * @param {String} userId the id of the user to update
- * @param {String} foodTag the name of the tag to include
+ * @param {string} type the type of the tag to update
+ * @param {string} userId the id of the user to update
+ * @param {string} foodTag the name of the tag to include
  * @param {Object} user an object representing the current user
  */
 async function updateFoodTag(type, userId, foodTag, user) {
@@ -352,8 +352,8 @@ generatedMealsRouter.post("/modifyFoodTag", async (req, res) => {
 /**
  * Deletes the specified food item from included or excluded food items.
  * 
- * @param {String} type - the type of the food to delete, include or exclude
- * @param {String} userId - the ID of the current user
+ * @param {string} type - the type of the food to delete, include or exclude
+ * @param {string} userId - the ID of the current user
  * @param {Object} foodToDelete - an object representing the food to delete
  */
 async function deleteFoodUser(type, userId, foodToDelete) {
