@@ -19,6 +19,7 @@ const userSchema = new Schema({
   includeFood: [Schema.Types.Mixed],
   excludeFood: [Schema.Types.Mixed],
   calories: Number,
+  duration: Number,
   favouriteWorkouts: [Schema.Types.Mixed],
   favouriteFoods: [Schema.Types.Mixed],
   workoutLogs: [Schema.Types.Mixed],
