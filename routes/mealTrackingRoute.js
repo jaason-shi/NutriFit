@@ -5,9 +5,9 @@
 // Set up dependencies
 const express = require("express");
 const mealTrackingRouter = express.Router();
+
+// Models
 const Meal = require("../models/mealModel");
-const { ObjectID } = require("mongodb");
-// FavoriteMeal model
 const FavoriteMeal = require("../models/favMealModel");
 
 
