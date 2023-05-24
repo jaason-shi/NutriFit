@@ -282,6 +282,17 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
 
 
 /**
+ * Renders the "alreadyExists" view with the field that already exists in the response.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+app.get("/alreadyExists", (req, res) => {
+  res.render("alreadyExists", { match: req.session.MATCH })
+})
+
+
+/**
  * Renders the "404" view with the user's favorite workouts in the response after checking if they are authenticated.
  * 
  * @param {Express.Request} req - the request object representing the received request
