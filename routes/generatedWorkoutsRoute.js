@@ -60,32 +60,7 @@ async function workoutGenerationQuery(duration, user) {
   console.log(`Initial Prompt: ${exercisesPrompt}\n\n`);
 
   const response = await queryChatGPT(exercisesPrompt);
-  const workout = JSON.parse(response).choices[0].message.content;
-
-  console.log(`Response we get: ${workout}\n\n`);
-
-  const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-
-  let matches = workout.match(codeBlockRegex);
-  console.log(`\n\nAfter regex filter: ${matches}\n\n`);
-  if (matches == null) {
-    matches = workout.match(/\[[^\[\]]*\]/);
-    console.log(`\n\nAfter regex filter Second: ${matches}\n\n`);
-  }
-
-  if (matches == null) {
-    return undefined;
-  }
-
-  let codeBlockContent;
-
-  if (matches && matches.length > 0) {
-    codeBlockContent = matches.map((match) =>
-      match.replace(/```javascript|```/g, "").trim()
-    );
-  }
-
-  const workoutParsed = JSON.parse(codeBlockContent[0]);
+  let workoutParsed = parseResponse(response)
 
   console.log("Final Product\n");
   console.log(workoutParsed);
