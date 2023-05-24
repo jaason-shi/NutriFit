@@ -2,24 +2,15 @@
 <html lang="en">
 
 <%- include('partials/meta') %>
-    <style>
-        .card {
-            margin: 10px;
-        }
-
-        h5 {
-            margin-top: 10px;
-        }
-    </style>
     <body>
         <div class="container p-3" style="height: 100vh;">
             <!-- Header -->
             <div class="fs-3 fw-semibold d-flex mb-4">
-                <div class="me-1">
+                <button class="btn btn-light">
                     <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
-                </div>
+                </button>
                 <div class="ms-5">
-                    Workout Tracker
+                    <h2>Workout Tracker</h2>
                 </div>
             </div>
 
@@ -55,7 +46,7 @@
                     </span>
                 </div>
 
-                <div class="container h-75 mb-4 overflow-auto border">
+                <div class="container h-75 mb-4 border">
                     <% workouts.forEach(workout=> { %>
                             <div class="card mb-3">
                                 <div class="card-text d-flex justify-content-center">
@@ -83,7 +74,7 @@
                                 Focused Body Part
                             </span>
 
-                            <div class="container h-25 mb-4 overflow-auto border pt-2">
+                            <div class="card container h-25 mb-4 border pt-2">
 
                                 <% bodyParts.forEach(bodyPart=> { %>
                                     <div class="container m-0 p-0 border-bottom d-flex align-items-center">

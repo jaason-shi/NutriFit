@@ -2,25 +2,17 @@
 <html lang="en">
 
 <%- include('partials/meta') %>
-    <style>
-        .card {
-            margin: 10px;
-        }
-
-        h5 {
-            margin-top: 10px;
-        }
     </style>
     <body>
         <div class="container p-3" style="height: 100vh;">
 
             <!-- Header -->
             <div class="fs-3 fw-semibold d-flex mb-4">
-                <div class="me-1">
+                <button class="btn btn-light">
                     <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
-                </div>
+                </button>
                 <div class="ms-5">
-                    Meal Tracker
+                    <h2>Meal Tracker</h2>
                 </div>
             </div>
 
@@ -79,8 +71,9 @@
                     <% }) %>
             </div>
 
-            <div style="height: 100px;"></div>
-            <%- include('partials/navbar') %>
+            <div style="height: 100px;">
+                <%- include('partials/navbar') %></div>
+
         </div>
     </body>
 

@@ -2,53 +2,6 @@
 <html lang="en">
 
 <%- include('partials/meta') %>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            transition: 0.3s;
-            border-radius: 5px;
-        }
-
-        .card:hover {
-            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .card-body {
-            padding: 2em;
-        }
-
-        .card-text {
-            padding: 1em;
-        }
-
-        .btn-xl {
-            padding: 1.5rem 3rem !important;
-            font-size: 1.5rem !important;
-            line-height: 1.5 !important;
-            border-radius: 0.3rem !important;
-        }
-
-        @media (max-width: 768px) {
-            .card {
-                margin-top: 50px;
-                margin-bottom: 50px;
-            }
-
-            .card-body {
-                margin-top: 50px;
-            }
-
-            .header {
-                transform: translateX(-15px);
-            }
-        }
-    </style>
-
     <body>
         <div class="bg-body-tertiary" style="height: 100vh">
 
@@ -57,16 +10,15 @@
 
                 <div class="container p-3" style="height: 100vh;">
                     <!-- Header -->
-                    <!-- <div class="fs-3 fw-semibold d-flex mb-4"> -->
-                    <div class="fs-3 fw-semibold d-flex mb-4">
-                        <div class="me-1">
+                    <div class="fs-3 fw-semibold d-flex mb-4 align-items-center">
+                        <div>
+                        <button class="btn btn-light">
                             <a href="/members"><img src="/images/less-than.svg" alt=""></a>
+                        </button>
                         </div>
                         <div class="ms-5">
-                            Logs
+                            <h2 style="transform: translateX(70%);">Logs</h2>
                         </div>
-
-
                     </div>
                     <div class="mx-auto col-lg-9 col-12">
                         <form class="btn-card mb-2" action="mealTracking/mealLogs" method="get">
@@ -75,25 +27,6 @@
                         <form class="btn-card mb-2" action="workoutTracking/workoutLogs" method="get">
                             <input type="submit" class="btn btn-dark btn-xl w-100" value="Workouts">
                         </form>
-
-                        <!-- Meals Card -->
-                        <!-- <a href="mealTracking/mealLogs" style="text-decoration: none; color: inherit;">
-                            <div class="card mb-3">
-                                <div class="card-text">
-                                    <h2 class="text-center">Meals</h2>
-                                </div>
-                            </div>
-                        </a> -->
-
-                        <!-- Workouts Card -->
-                        <!-- <a href="workoutTracking/workoutLogs" style="text-decoration: none; color: inherit;">
-                            <div class="card">
-                                <div class="card-text">
-                                    <h2 class="text-center">Workouts</h2>
-                                </div>
-                            </div>
-                        </a> -->
-
                     </div>
                 </div>
                 <%- include('partials/navbar') %>

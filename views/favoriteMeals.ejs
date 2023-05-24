@@ -3,45 +3,6 @@
 
 <%- include('partials/meta') %>
 
-    <head>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f8f9fa;
-            }
-
-            .card {
-                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-                transition: 0.3s;
-                border-radius: 5px;
-            }
-
-            .card:hover {
-                box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-            }
-
-            .card-text {
-                padding: 1em;
-            }
-
-            .header {
-                margin-top: 30px;
-            }
-
-            .meal-name {
-                width: 250px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-            }
-
-            .btn-dark {
-                margin-left: 5%;
-                width: 90%;
-            }
-        </style>
-    </head>
-
     <body>
         <div class="bg-body-tertiary overflow-auto" style="height: 100vh">
 
@@ -51,9 +12,11 @@
                     <!-- Header -->
                     <div class="header d-flex align-items-center mb-3">
                         <a href="/favorites" style="text-decoration: none; color: inherit;">
-                            <button class="btn btn-light"><img src="/images/less-than.svg" alt="Go back"></button>
+                            <button class="btn btn-light">
+                                <img src="/images/less-than.svg" alt="Go back">
+                            </button>
                         </a>
-                        <h1 class="mx-auto" style="transform: translateX(-10px);">Favorite Meals</h1>
+                        <h2 class="mx-auto" style="transform: translateX(-10px);">Favorite Meals</h2>
                     </div>
 
                     <!-- Meals Cards -->
@@ -79,10 +42,10 @@
                                 </div>
                                 <form class="mb-2" action="mealTracking/foodLogs" method="post">
                                     <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
-                                    <input type="submit" class="btn btn-dark" value="Add to Logs">
+                                    <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
                                 </form>
                                 <form class="mb-2" action="" method="post">
-                                    <input type="submit" class="btn btn-dark" value="Remove from Favorites">
+                                    <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
                                 </form>
                             </div>
                         </a>
