@@ -88,18 +88,6 @@ mealTrackingRouter.get("/filterMeals", async (req, res) => {
 
 
 /**
- * Renders the "testPopulate" view in the response.
- * 
- * @param {Express.Request} req - the request object representing the received request
- * @param {Express.Response} res - the response object representing the server response
- */
-mealTrackingRouter.get("/testPopulate", (req, res) => {
-  //console.log("Test populate")
-  res.render("testPopulate");
-});
-
-
-/**
  * Sets the session meal to the correctly parsed meal object.
  * Depending on where the request came from, it is parsed and handled differently.
  * 
