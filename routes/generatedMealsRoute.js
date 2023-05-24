@@ -37,9 +37,6 @@ const foodCategory = [
 ];
 
 
-
-
-
 /**
  * Queries the GPT API to generate a meal based on user conditions.
  * 
