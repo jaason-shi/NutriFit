@@ -5,7 +5,7 @@
 
     <body>
         <%- include('../partials/header') %>
-        <div class="bg-body-tertiary overflow-auto" style="height: 100vh">
+        <div class="bg-body-tertiary" style="height: 100vh">
 
             <div class="row w-100 m-0">
                 <div class="mx-auto col-lg-9 col-12">
@@ -22,7 +22,6 @@
 
                     <!-- Meals Cards -->
                     <% meals.forEach(meal=> { %>
-                        <a href="" style="text-decoration: none; color: inherit;">
                             <div class="card mb-3">
                                 <div class="card-text d-flex justify-content-center">
                                     <div>
@@ -41,7 +40,7 @@
 
                                     </div>
                                 </div>
-                                <form class="mb-2" action="mealTracking/foodLogs" method="post">
+                                <form class="mb-2" action="mealTracking/mealLogs" method="post">
                                     <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
                                     <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
                                 </form>
@@ -49,7 +48,6 @@
                                     <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
                                 </form>
                             </div>
-                        </a>
                         <% }) %>
                 </div>
             </div>
