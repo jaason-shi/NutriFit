@@ -4,8 +4,8 @@
 <%- include('../partials/meta') %>
 
     <body>
+        <%- include('../partials/header') %>
         <div class="container p-3" style="height: 100vh;">
-            <%- include('../partials/header') %>
                 <!-- Header -->
                 <div class="fs-3 fw-semibold d-flex mb-4">
                     <div class="me-1">
@@ -39,7 +39,7 @@
                     </span>
                 </div>
 
-                <div class="container h-25 mb-4 overflow-auto border">
+                <div class="card container h-25 mb-4 overflow-auto border">
 
                     <% foodItems.forEach( (foodItem)=> { %>
                         <div class="container m-0 p-0 border-bottom d-flex align-items-center">
