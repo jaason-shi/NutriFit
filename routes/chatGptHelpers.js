@@ -77,6 +77,7 @@ function parseResponse(response) {
 }
 
 
+// Export helper functions
 module.exports = {
     queryChatGPT: queryChatGPT,
     parseResponse: parseResponse
