@@ -10,11 +10,10 @@ const workoutTrackingRouter = express.Router();
 const Workout = require("../models/workoutModel");
 const FavoriteWorkout = require("../models/favWorkoutModel");
 
-
 /**
  * Sets the session workout to the correctly parsed workout object.
  * Depending on where the request came from, it is parsed and handled differently.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  */
 async function parseWorkoutSession(req) {
@@ -45,17 +44,16 @@ async function parseWorkoutSession(req) {
   }
 }
 
-
 /**
  * Handles the POST request to add a workout to the current user's workout logs
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
 workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   const date = new Date();
 
-  await parseWorkoutSession(req)
+  await parseWorkoutSession(req);
 
   // get total duration of the workouts
   let totalDuration = 0;
@@ -84,10 +82,9 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   res.redirect("/workoutTracking/workoutLogs");
 });
 
-
 /**
  * Filters the current user's logged workouts by date.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -124,10 +121,9 @@ workoutTrackingRouter.get("/filterWorkouts", async (req, res) => {
   res.redirect("./workoutLogs");
 });
 
-
 /**
  * Gets the body parts worked from an array of workout objects with no duplicates.
- * 
+ *
  * @param {Array.<Object>} workouts the user's logged workouts
  * @returns {Array.<string>} the body parts that have been worked
  */
@@ -141,9 +137,8 @@ function getBodyParts(workouts) {
   bodyParts = bodyParts.flat();
   const bodyPartSet = new Set(bodyParts);
   bodyParts = [...bodyPartSet];
-  return bodyParts
+  return bodyParts;
 }
-
 
 /**
  * Renders the "workoutLogs" view with data in the response.
@@ -151,7 +146,7 @@ function getBodyParts(workouts) {
  * - the total duration of the logged workouts
  * - the current user's logged workouts
  * - the body parts that have been worked by the logged workouts
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -173,14 +168,19 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
     });
   });
 
-
-  let bodyParts = getBodyParts(workouts)
+  let bodyParts = getBodyParts(workouts);
 
   res.render("logs/workoutLogs", {
     totalDuration: totalDuration,
     workouts: workouts,
     bodyParts: bodyParts,
   });
+});
+
+// Handles the POST request to delete a workout from the user's logged workouts
+mealTrackingRouter.post("/deleteFromLogWorkouts", async (req, res) => {
+  const workout = req.session.WORKOUT;
+  await workout.deleteOne({ _id: meal[0]._id });
 });
 
 // Export the workoutTrackingRouter
