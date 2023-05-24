@@ -1,5 +1,5 @@
 /**
- * Exercise model for Exercise collection access
+ * Exercise model for Exercise collection access.
  */
 
 const mongoose = require('mongoose')
