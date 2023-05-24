@@ -14,7 +14,7 @@ const Workout = require("../models/workoutModel");
 // FavoriteWorkout model
 const FavoriteWorkout = require("../models/favWorkoutModel");
 // Import function to query chatGPT
-const queryChatGPT = require('./queryChatGPT');
+const { queryChatGPT, parseResponse } = require('./chatGptHelpers');
 
 // Available exercise tags
 const exerciseCategory = [

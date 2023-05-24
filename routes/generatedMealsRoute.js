@@ -14,7 +14,7 @@ const Meal = require("../models/mealModel");
 // FavoriteMeal model
 const FavoriteMeal = require("../models/favMealModel");
 // Import function to query chatGPT
-const queryChatGPT = require('./queryChatGPT');
+const { queryChatGPT, parseResponse } = require('./chatGptHelpers');
 
 // Available food tags
 const foodCategory = [
@@ -37,40 +37,7 @@ const foodCategory = [
 ];
 
 
-/**
- * Parses the response into an array of JSON objects.
- * 
- * @param {String} response - the response from the GPT API
- * @returns {Array<Object>|undefined} - the array of JSON objects or undefined if parsing fails
- */
-function parseResponse(response) {
-  const mealPlan = JSON.parse(response).choices[0].message.content;
 
-  console.log(`The response we get: ${mealPlan}\n\n`);
-
-  const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-  let matches = mealPlan.match(codeBlockRegex);
-
-  console.log(`After regex filter: ${matches}\n\n`);
-  if (matches == null) {
-    matches = mealPlan.match(/\[[^\[\]]*\]/);
-    console.log(`After regex filter Second: ${matches}\n\n`);
-  }
-
-  if (matches == null) {
-    return undefined;
-  }
-  let codeBlockContent;
-
-  if (matches && matches.length > 0) {
-    codeBlockContent = matches.map((match) =>
-      match.replace(/```javascript|```/g, "").trim()
-    );
-  }
-
-  const mealParsed = JSON.parse(codeBlockContent[0]);
-  return mealParsed
-}
 
 
 /**
