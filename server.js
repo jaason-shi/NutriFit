@@ -133,7 +133,7 @@ app.post("/logOut", (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/authFail", (req, res) => {
-  res.render("authFail", {
+  res.render("errors/authFail", {
     primaryUser: req.session.USER,
     referer: req.headers.referer,
   });
@@ -247,7 +247,7 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/badApiResponse", (req, res) => {
-  res.render("badApiResponse");
+  res.render("errors/badApiResponse");
 });
 
 
@@ -288,7 +288,7 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/alreadyExists", (req, res) => {
-  res.render("alreadyExists", { match: req.session.MATCH })
+  res.render("errors/alreadyExists", { match: req.session.MATCH })
 })
 
 
@@ -299,7 +299,7 @@ app.get("/alreadyExists", (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("*", (req, res) => {
-  res.render("404");
+  res.render("errors/404");
 });
 
 
