@@ -48,20 +48,27 @@ async function queryChatGPT(prompt) {
  * @returns {Array<Object>|undefined} - the array of JSON objects or undefined if parsing fails
  */
 function parseResponse(response) {
-    const mealPlan = JSON.parse(response).choices[0].message.content;
+    // const initialParse = JSON.parse(response).choices[0].message.content;
+    let initialParse;
+    try {
+        initialParse = JSON.parse(response).choices[0].message.content;
+    } catch (error) {
+        console.error(error)
+        return undefined
+    }
 
-    console.log(`The response we get: ${mealPlan}\n\n`);
+    console.log(`The response we get: ${initialParse}\n\n`);
 
     const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-    let matches = mealPlan.match(codeBlockRegex);
+    let matches = initialParse.match(codeBlockRegex);
 
     console.log(`After regex filter: ${matches}\n\n`);
     if (matches == null) {
-        matches = mealPlan.match(/\[[^\[\]]*\]/);
+        matches = initialParse.match(/\[[^\[\]]*\]/);
         console.log(`After regex filter Second: ${matches}\n\n`);
     }
 
-    if (matches == null) {
+    if (!matches) {
         return undefined;
     }
     let codeBlockContent;
@@ -72,8 +79,8 @@ function parseResponse(response) {
         );
     }
 
-    const mealParsed = JSON.parse(codeBlockContent[0]);
-    return mealParsed
+    const objectArray = JSON.parse(codeBlockContent[0]);
+    return objectArray
 }
 
 
