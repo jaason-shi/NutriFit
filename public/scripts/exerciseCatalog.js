@@ -23,6 +23,7 @@ function addItem(id) {
     }
 }
 
+
 /**
  * Populates page with data retrieved using a search query.
  * 
