@@ -2,7 +2,15 @@
 <html lang="en">
 
 <%- include('partials/meta') %>
+    <style>
+        .card {
+            margin: 10px;
+        }
 
+        h5 {
+            margin-top: 10px;
+        }
+    </style>
     <body>
         <div class="container p-3" style="height: 100vh;">
             <!-- Header -->
@@ -49,9 +57,8 @@
 
                 <div class="container h-75 mb-4 overflow-auto border">
                     <% workouts.forEach(workout=> { %>
-                        <a href="" style="text-decoration: none; color: inherit;">
                             <div class="card mb-3">
-                                <div class="card-text d-flex justify-content-between">
+                                <div class="card-text d-flex justify-content-center">
                                     <div>
                                         <h5 class="exercise-name">
                                             <%= workout.workoutName %>
@@ -70,7 +77,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </a>
                         <% }) %>
 
                             <span>
