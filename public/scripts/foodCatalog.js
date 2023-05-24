@@ -1,5 +1,5 @@
 /**
- * Script file for Food Catalog type pages
+ * Script file for Food Catalog type pages.
  */
 
 /**

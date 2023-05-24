@@ -1,5 +1,5 @@
 /**
- * Script file for Exercise Catalog type pages
+ * Script file for Exercise Catalog type pages.
  */
 
 /**
