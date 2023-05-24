@@ -19,17 +19,17 @@
                 Filter By Last:
             </div>
             <div class="container m-0 p-0 d-flex mb-2">
-                <form action="./filterWorkouts" method="post">
+                <form action="./filterWorkouts" method="get">
                     <input type="hidden" name="filterType" value="day">
                     <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
                 </form>
 
-                <form action="./filterWorkouts" method="post">
+                <form action="./filterWorkouts" method="get">
                     <input type="hidden" name="filterType" value="week">
                     <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
                 </form>
 
-                <form action="./filterWorkouts" method="post">
+                <form action="./filterWorkouts" method="get">
                     <input type="hidden" name="filterType" value="month">
                     <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
                 </form>
