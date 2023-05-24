@@ -25,24 +25,27 @@
     <div class="d-flex vh-100 vw-100 coloredContainer flex-column">
         <header class="p-2 w-100 mb-5">
 
-            <div class="d-flex flex-wrap align-items-center justify-content-between flex-row">
-                <!-- Logo -->
-                <div style="width: 50px;">
-                    <a href="/">
-                        <img class="img-fluid" src="/images/logo-modified.png" alt="">
+            <nav class="navbar-expand-lg top-nav d-flex align-items-center justify-content-center flex-row">
+                <div class="container">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <div style="width: 50px;">
+                    <a class="navbar-brand" href="/">
+                      <img class="img-fluid" id="logo" src="/images/logo-modified.png" alt="NutriFit Logo">
                     </a>
-                </div>
-                <div>
-                    <h1 class="fw-bold" style="font-size: 38px" id="easterEgg">NutriFit</h1>
+                    </div>
+                    <div>
+                    <h1 class="fw-bold" id="easterEgg">NutriFit</h1>
+                    </div>
+                  </div>
                 </div>
                 <!-- Egg -->
                 <div style="width:50px">
                     <a href="/">
-                        <img class="img-fluid" src="/images/egg-removebg-preview.png" style="height:45px"
+                        <img class="img-fluid" id="egg" src="/images/egg-removebg-preview.png" style="height:45px"
                             alt="egg thing">
                     </a>
                 </div>
-            </div>
+              </nav>
 
 
         </header>
@@ -65,42 +68,70 @@
 
     <footer>
         <div class="container">
-            <nav class="navbar fixed-bottom navbar-expand-sm navbar-light px-0 py-2">
-                <ul class="navbar-nav nav-justified w-100 d-flex flex-row justify-content-center align-items-center">
-                    <li class="nav-item flex-fill text-center">
-                        <a class="nav-link" href="/generatedMeals">
-                            <img src="https://static-00.iconduck.com/assets.00/food-bank-icon-87x96-0lli0cxv.png"
-                                alt="Button 3" width="50" height="50">
-                        </a>
-                    </li>
-                    <li class="nav-item flex-fill text-center">
-                        <a class="nav-link" href="/generatedWorkouts">
-                            <img src="https://static-00.iconduck.com/assets.00/dumbbell-icon-96x96-g43ap359.png"
-                                alt="Button 4" width="50" height="50">
-                        </a>
-                    </li>
-                    <li class="nav-item flex-fill text-center">
-                        <a class="nav-link" href="/">
-                            <img src="https://static-00.iconduck.com/assets.00/home-icon-144x131-631i5okw.png"
-                                alt="Button 1" width="50" height="50">
-                        </a>
-                    </li>
-                    <li class="nav-item flex-fill text-center">
-                        <a class="nav-link" href="/favorites">
-                            <img src="https://static-00.iconduck.com/assets.00/heart-icon-96x81-ytw1lvcb.png"
-                                alt="Button 2" width="50" height="50">
-                        </a>
-                    </li>
-                    <li class="nav-item flex-fill text-center">
-                        <a class="nav-link" href="/logs">
-                            <img src="https://static-00.iconduck.com/assets.00/history-edu-icon-96x78-xzge5v95.png"
-                                alt="Button 5" width="50" height="50">
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+          <nav class="navbar fixed-bottom navbar-expand-sm px-0 py-2">
+            <ul class="navbar-nav nav-justified w-100 d-flex flex-row justify-content-center align-items-center">
+              <li class="nav-item flex-fill text-center">
+                <a class="nav-link" href="/generatedMeals">
+                    <svg class="utensils" fill="none" height="40" viewBox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
+                      <g stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                        <path d="m11 8v-6h-9v6c0 2.2091 1.79086 4 4 4h1c2.20914 0 4-1.7909 4-4z"/>
+                        <path d="m15 16v-14h3c2.2091 0 4 1.79086 4 4v10h-4"/>
+                        <path d="m15 16v5c0 .5523.4477 1 1 1h1c.5523 0 1-.4477 1-1v-5"/>
+                        <path d="m5 16v5c0 .5523.44772 1 1 1h1c.55228 0 1-.4477 1-1v-5"/>
+                        <path d="m5 6v-4"/>
+                        <path d="m8 6v-4"/>
+                      </g>
+                    </svg>              
+                </a>
+              </li>
+              <li class="nav-item flex-fill text-center">
+                <a class="nav-link" href="/generatedWorkouts">
+                    <svg class="bicycle" fill="none" height="40" viewBox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
+                      <g stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                        <circle cx="6" cy="15" r="4"/>
+                        <circle cx="18" cy="15" r="4"/>
+                        <path d="m6 15 2-7h7.5"/>
+                        <path d="m6 5h3"/>
+                        <path d="m18 15-3-10h4"/>
+                        <path d="m19 5h.5c.8284 0 1.5.67157 1.5 1.5 0 .82843-.6716 1.5-1.5 1.5h-.5"/>
+                      </g>
+                    </svg>
+                    
+                </a>
+              </li>
+              <li class="nav-item flex-fill text-center">
+                <a class="nav-link" href="/">
+                    <svg class="home" fill="none" height="40" viewBox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
+                      <path d="m22 20v-7.8265c0-1.1001-.4531-2.1517-1.2527-2.90726l-7.3736-6.96812c-.7709-.7285-1.9765-.7285-2.7474 0l-7.37365 6.96812c-.79957.75556-1.25265 1.80716-1.25265 2.90726v7.8265c0 1.1046.89543 2 2 2h16c1.1046 0 2-.8954 2-2z" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                  </svg>
+                </a>
+              </li>
+              <li class="nav-item flex-fill text-center">
+                <a class="nav-link" href="/favorites">
+                  <svg class="heart" fill="none" height="40" viewBox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
+                      <path d="m7 3c-2.76142 0-5 2.21619-5 4.95 0 2.207.87466 7.4447 9.4875 12.7403.3119.1918.7131.1918 1.025 0 8.6128-5.2956 9.4875-10.5333 9.4875-12.7403 0-2.73381-2.2386-4.95-5-4.95s-5 3-5 3-2.23858-3-5-3z" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                  </svg>
+                  
+                </a>
+              </li>
+              <li class="nav-item flex-fill text-center">
+                <a class="nav-link" href="/logs">
+                    <svg class="file" fill="none" height="40" viewBox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
+                      <g stroke="#FFFFFF" stroke-linejoin="round" stroke-width="2">
+                        <g stroke-linecap="round">
+                          <path d="m4 4v16c0 1.1046.89543 2 2 2h12c1.1046 0 2-.8954 2-2v-11.65838c0-.53822-.2169-1.05373-.6018-1.43001l-4.4403-4.34162c-.3737-.3654-.8755-.56999-1.3982-.56999h-7.5597c-1.10457 0-2 .89543-2 2z"/>
+                          <path d="m9 13h6"/>
+                          <path d="m9 17h3"/>
+                        </g>
+                        <path d="m14 2v4c0 1.10457.8954 2 2 2h4"/>
+                      </g>
+                    </svg>              
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
-    </footer>
+      </footer>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -116,18 +147,6 @@
             }
         });
     </script>
-    <style>
-        .navbar-bottom {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-
-        .nav-link img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
 </body>
 
 </html>
