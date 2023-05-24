@@ -89,7 +89,7 @@ generatedMealsRouter.get("/", async (req, res) => {
   let calories;
   let user = req.session.USER;
   if (req.query.calories != undefined) {
-    calories = req.query.calories;
+    await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });  
   } else {
     calories = 500;
   }
@@ -105,11 +105,17 @@ generatedMealsRouter.get("/", async (req, res) => {
     meal.forEach((food) => {
       totalCalories += Number(food.Calories);
     });
+
+    let updatedUser = await User.findOne({ id: user.id });
+    req.session.USER = updatedUser;
+    let calories = updatedUser.calories;
+
     res.render("generatedMeals/generatedMeals", {
       foodItems: meal,
       totalCalories: totalCalories,
       userSpecifiedCalories: req.query.calories,
-      tagsList: user.foodTagInclude
+      tagsList: user.foodTagInclude,
+      calories: calories
     });
   }
 });
@@ -128,11 +134,13 @@ generatedMealsRouter.get("/", async (req, res) => {
  */
 generatedMealsRouter.get("/mealFilters", async (req, res) => {
   const user = req.session.USER;
+  calories = user.calories;
   res.render("generatedMeals/mealFilters", {
     tagsList: foodCategory,
     userInclude: user.includeFood,
     userExclude: user.excludeFood,
     primaryUser: user,
+    calories: calories
   });
 });
 
@@ -429,6 +437,7 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
 
   // delete session variable
   delete req.session.MEAL;
+  await User.updateOne({ id: userId }, { $set: { calories: 500 } });  
   res.redirect("/favoriteMeals");
 });
 
