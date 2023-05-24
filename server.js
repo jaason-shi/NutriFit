@@ -195,7 +195,7 @@ app.get("/exerciseLogs", checkAuth, async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/favorites", checkAuth, (req, res) => {
-  res.render("favorites");
+  res.render("favorites/favorites");
 });
 
 
@@ -236,7 +236,7 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
   console.log("Meals parsed");
   console.log(mealsParsed);
 
-  res.render("favoriteMeals", { meals: mealsParsed });
+  res.render("favorites/favoriteMeals", { meals: mealsParsed });
 });
 
 
@@ -277,7 +277,7 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
     };
   });
 
-  res.render("favoriteWorkouts", { workouts: workoutsParsed });
+  res.render("favorites/favoriteWorkouts", { workouts: workoutsParsed });
 });
 
 
