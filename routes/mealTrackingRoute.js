@@ -9,6 +9,7 @@ const mealTrackingRouter = express.Router();
 // Models
 const Meal = require("../models/mealModel");
 const FavoriteMeal = require("../models/favMealModel");
+const User = require("../models/userModel");
 
 
 /**
@@ -144,6 +145,7 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
   // Add the meal to meal collection
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
+  console.log(userId)
   const mealLog = new Meal({
     userId: userId,
     mealName: meal[0].Food,
@@ -157,7 +159,7 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
 
   // Delete session variables
   delete req.session.MEAL;
-
+  await User.updateOne({ id: req.session.USER.id}, { $set: { calories: 500 } });  
   res.redirect("/mealTracking/mealLogs");
 });
 
