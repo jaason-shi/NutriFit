@@ -91,7 +91,7 @@ generatedMealsRouter.get("/", async (req, res) => {
   if (req.query.calories != undefined) {
     await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });  
   } else {
-    let calories = 500;
+    calories = 500;
   }
   console.log(`Calories: ${calories}\n\n`);
   let meal = await mealGenerationQuery(calories, user);
@@ -135,7 +135,6 @@ generatedMealsRouter.get("/", async (req, res) => {
 generatedMealsRouter.get("/mealFilters", async (req, res) => {
   const user = req.session.USER;
   calories = user.calories;
-  console.log(user.calories);
   res.render("generatedMeals/mealFilters", {
     tagsList: foodCategory,
     userInclude: user.includeFood,

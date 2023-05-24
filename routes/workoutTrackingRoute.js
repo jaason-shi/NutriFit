@@ -9,6 +9,7 @@ const workoutTrackingRouter = express.Router();
 // Models
 const Workout = require("../models/workoutModel");
 const FavoriteWorkout = require("../models/favWorkoutModel");
+const User = require("../models/userModel");
 
 
 /**
@@ -80,6 +81,7 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
 
   // delete session variables
   delete req.session.WORKOUT;
+  await User.updateOne({ id: userId}, { $set: { duration: 10 } });
 
   res.redirect("/workoutTracking/workoutLogs");
 });

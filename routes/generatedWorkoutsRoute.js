@@ -78,7 +78,7 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
   let duration;
   let user = req.session.USER;
   if (req.query.duration != undefined) {
-    duration = req.query.duration;
+    await User.updateOne({ id: user.id }, { $set: { duration: req.query.duration } });  
   } else {
     duration = 10;
   }
@@ -93,10 +93,17 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
     workout.forEach((exercise) => {
       totalDuration += exercise.duration;
     });
+
+    let updatedUser = await User.findOne({ id: user.id });
+    req.session.USER = updatedUser;
+    duration = updatedUser.duration;
+
     res.render("generatedWorkouts/generatedWorkouts", {
       workout: workout,
+      userSpecifiedDuration: req.query.duration,
       totalDuration: totalDuration,
       tagsList: user.exerciseTagInclude,
+      duration: duration,
     });
   }
 });
@@ -164,12 +171,13 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
  */
 generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
   let user = req.session.USER;
-
+  let duration = user.duration;
   res.render("generatedWorkouts/workoutFilters", {
     tagsList: exerciseCategory,
     primaryUser: user,
     userInclude: user.includeExercise,
     userExclude: user.excludeExercise,
+    duration: duration
   });
 });
 
@@ -423,6 +431,7 @@ generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
   await favWorkout.save();
   // delete session variables
   delete req.session.WORKOUT;
+  await User.updateOne({ id: userId }, { $set: { duration: 10 } });
   res.redirect("/favoriteWorkouts");
 });
 

@@ -79,11 +79,12 @@
             <input class="btn btn-dark w-100" type="submit" value="Add to Log">
           </form>
 
-          <form class="mb-4" action="/generatedWorkouts">
+          <form class="mb-4" action="/generatedWorkouts?duration=<%= userSpecifiedDuration %>">
             <input class="btn btn-dark w-100" type="submit" value="Regenerate">
           </form>
 
           <form class="mb-4" action="generatedWorkouts/workoutFilters">
+            <input class="hidden" type="hidden" name="duration" value="<%= duration %>">
             <input class="btn btn-dark w-100" type="submit" value="Customize Workout">
           </form>
         </div>
