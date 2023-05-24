@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
   if (req.session.AUTH) {
     return res.redirect("/members");
   }
-  res.render("home");
+  res.render("general/landingPage");
 });
 
 // Routers
@@ -147,7 +147,7 @@ app.get("/authFail", (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/members", checkAuth, (req, res) => {
-  res.render("members", {
+  res.render("general/members", {
     primaryUser: req.session.USER,
   });
 });
@@ -160,7 +160,7 @@ app.get("/members", checkAuth, (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/userProfile", checkAuth, (req, res) => {
-  res.render("userProfile", {
+  res.render("general/userProfile", {
     primaryUser: req.session.USER,
   });
 });
