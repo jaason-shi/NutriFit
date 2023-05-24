@@ -5,23 +5,23 @@
 
     <body>
         <%- include('../partials/header') %>
-        <div class="bg-body-tertiary" style="height: 100vh">
+            <div class="bg-body-tertiary" style="height: 100vh">
 
-            <div class="row w-100 m-0">
-                <div class="mx-auto col-lg-9 col-12">
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-9 col-12">
 
-                    <!-- Header -->
-                    <div class="header d-flex align-items-center mb-3">
-                        <a href="/favorites" style="text-decoration: none; color: inherit;">
-                            <button class="btn btn-light">
-                                <img src="/images/less-than.svg" alt="Go back">
-                            </button>
-                        </a>
-                        <h2 class="mx-auto" style="transform: translateX(-10px);">Favorite Meals</h2>
-                    </div>
+                        <!-- Header -->
+                        <div class="header d-flex align-items-center mb-3">
+                            <a href="/favorites" style="text-decoration: none; color: inherit;">
+                                <button class="btn btn-light">
+                                    <img src="/images/less-than.svg" alt="Go back">
+                                </button>
+                            </a>
+                            <h2 class="mx-auto" style="transform: translateX(-10px);">Favorite Meals</h2>
+                        </div>
 
-                    <!-- Meals Cards -->
-                    <% meals.forEach(meal=> { %>
+                        <!-- Meals Cards -->
+                        <% meals.forEach(meal=> { %>
                             <div class="card mb-3">
                                 <div class="card-text d-flex justify-content-center">
                                     <div>
@@ -39,21 +39,23 @@
                                         </ul>
 
                                     </div>
+
+
                                 </div>
                                 <form class="mb-2" action="mealTracking/mealLogs" method="post">
                                     <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
                                     <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
                                 </form>
-                                <form class="mb-2" action="" method="post">
-                                    <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
+                                <form class="mb-2" action="generatedMeals/deleteFromFavoriteMeals" method="post">
+                                    <input type="submit" class="btn btn-dark" value="Remove from Favorites">
                                 </form>
                             </div>
-                        <% }) %>
+                            <% }) %>
+                    </div>
                 </div>
+                <div style="height: 100px;"></div>
+                <%- include('../partials/navbar') %>
             </div>
-            <div style="height: 100px;"></div>
-            <%- include('../partials/navbar') %>
-        </div>
 
     </body>
 

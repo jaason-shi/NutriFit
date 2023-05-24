@@ -432,5 +432,20 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
   res.redirect("/favoriteMeals");
 });
 
+/**
+ * Handles the POST request to delete a meal from user's favorite meals.
+ */
+generatedMealsRouter.post("/deleteFromFavoriteMeals", async (req, res) => {
+  const meal = req.session.MEAL;
+  const userId = req.session.USER.id;
+  try {
+    await FavoriteMeal.deleteOne({ userId: userId, mealName: meal[0].Food, items: meal});
+    res.redirect("/favoriteMeals");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error deleting meal from favorites");
+  }
+})
+
 // Export the generatedMealsRouter
 module.exports = generatedMealsRouter;
