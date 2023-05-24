@@ -2,63 +2,52 @@
 <html lang="en">
 
 <%- include('../partials/meta') %>
-    <style>
-        .card {
-            margin: 10px;
-        }
-
-        h5 {
-            margin-top: 10px;
-        }
-    </style>
-
     <body>
         <div class="container p-3" style="height: 100vh;">
-            <%- include('../partials/header') %>
-                <!-- Header -->
-                <div class="fs-3 fw-semibold d-flex mb-4">
-                    <div class="me-1">
-                        <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
-                    </div>
-                    <div class="ms-5">
-                        Workout Tracker
-                    </div>
+            <!-- Header -->
+            <div class="fs-3 fw-semibold d-flex mb-4">
+                <button class="btn btn-light">
+                    <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
+                </button>
+                <div class="ms-5">
+                    <h2>Workout Tracker</h2>
+                </div>
+            </div>
+
+            <div class="container fs-4 fw-medium m-0 p-0 mb-1">
+                Filter By Last:
+            </div>
+            <div class="container m-0 p-0 d-flex mb-2">
+                <form action="./filterWorkouts" method="post">
+                    <input type="hidden" name="filterType" value="day">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
+                </form>
+
+                <form action="./filterWorkouts" method="post">
+                    <input type="hidden" name="filterType" value="week">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
+                </form>
+
+                <form action="./filterWorkouts" method="post">
+                    <input type="hidden" name="filterType" value="month">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
+                </form>
+            </div>
+            <div>
+
+                <!-- Workouts Section -->
+                <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
+                    <span>
+                        Workouts
+                    </span>
+
+                    <span class="ms-auto">
+                        <%= totalDuration %> min
+                    </span>
                 </div>
 
-                <div class="container fs-4 fw-medium m-0 p-0 mb-1">
-                    Filter By Last:
-                </div>
-                <div class="container m-0 p-0 d-flex mb-2">
-                    <form action="./filterWorkouts" method="get">
-                        <input type="hidden" name="filterType" value="day">
-                        <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
-                    </form>
-
-                    <form action="./filterWorkouts" method="get">
-                        <input type="hidden" name="filterType" value="week">
-                        <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
-                    </form>
-
-                    <form action="./filterWorkouts" method="get">
-                        <input type="hidden" name="filterType" value="month">
-                        <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
-                    </form>
-                </div>
-                <div>
-
-                    <!-- Workouts Section -->
-                    <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
-                        <span>
-                            Workouts
-                        </span>
-
-                        <span class="ms-auto">
-                            <%= totalDuration %> min
-                        </span>
-                    </div>
-
-                    <div class="container h-75 mb-4 overflow-auto border">
-                        <% workouts.forEach(workout=> { %>
+                <div class="container h-75 mb-4 border">
+                    <% workouts.forEach(workout=> { %>
                             <div class="card mb-3">
                                 <div class="card-text d-flex justify-content-center">
                                     <div>
@@ -79,35 +68,35 @@
                                     </div>
                                 </div>
                             </div>
-                            <% }) %>
+                        <% }) %>
 
-                                <span>
-                                    Focused Body Part
-                                </span>
+                            <span>
+                                Focused Body Part
+                            </span>
 
-                                <div class="container h-25 mb-4 overflow-auto border pt-2">
+                            <div class="card container h-25 mb-4 border pt-2">
 
-                                    <% bodyParts.forEach(bodyPart=> { %>
-                                        <div class="container m-0 p-0 border-bottom d-flex align-items-center">
-                                            <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
-                                            </div>
+                                <% bodyParts.forEach(bodyPart=> { %>
+                                    <div class="container m-0 p-0 border-bottom d-flex align-items-center">
+                                        <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
+                                        </div>
 
-                                            <div class="w-50 vstack gap-0">
-                                                <div class="d-inline-flex">
-                                                    <span>
-                                                        <%= bodyPart %>
-                                                    </span>
-                                                </div>
-
+                                        <div class="w-50 vstack gap-0">
+                                            <div class="d-inline-flex">
+                                                <span>
+                                                    <%= bodyPart %>
+                                                </span>
                                             </div>
 
                                         </div>
-                                        <% }) %>
-                                </div>
-                    </div>
-                    <div style="height: 100px;"></div>
-                    <%- include('../partials/navbar') %>
+
+                                    </div>
+                                    <% }) %>
+                            </div>
                 </div>
+                <div style="height: 100px;"></div>
+                <%- include('../partials/navbar') %>
+            </div>
     </body>
 
 </html>

@@ -3,93 +3,56 @@
 
 <%- include('../partials/meta') %>
 
-    <head>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f8f9fa;
-            }
-
-            .card {
-                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-                transition: 0.3s;
-                border-radius: 5px;
-            }
-
-            .card:hover {
-                box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-            }
-
-            .card-text {
-                padding: 1em;
-            }
-
-            .header {
-                margin-top: 30px;
-            }
-
-            .exercise-name {
-                width: 250px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-            }
-
-            .btn-dark {
-                margin-left: 5%;
-                width: 90%;
-            }
-        </style>
-    </head>
-
-    <body>
+    <body class="fav-cards">
         <div class="bg-body-tertiary overflow-auto" style="height: 100vh">
-            <%- include('../partials/header') %>
-                <div class="row w-100 m-0">
-                    <div class="mx-auto col-lg-9 col-12">
 
-                        <!-- Header -->
-                        <div class="header d-flex align-items-center mb-3">
-                            <a href="/favorites" style="text-decoration: none; color: inherit;">
-                                <button class="btn btn-light"><img src="/images/less-than.svg" alt="Go back"></button>
-                            </a>
-                            <h1 class="mx-auto" style="transform: translateX(-10px);">Favorite Exercises</h1>
-                        </div>
+            <div class="row w-100 m-0">
+                <div class="mx-auto col-lg-9 col-12">
 
-                        <!-- Exercise Cards -->
-                        <% workouts.forEach(workout=> { %>
-                            <a href="" style="text-decoration: none; color: inherit;">
-                                <div class="card mb-3">
-                                    <div class="card-text d-flex justify-content-between">
-                                        <div>
-                                            <h5 class="exercise-name">
-                                                <%= workout.name %>
-                                            </h5>
-                                            <p class="text-muted">Exercise Duration: <%= workout.duration %> min
-                                            </p>
-                                            <ul>
-                                                <% workout.exercises.forEach(exercise=> { %>
-                                                    <li>
-                                                        <%= exercise.name %> - <%= exercise.duration %> min
-                                                    </li>
-                                                    <% }) %>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <form class="mb-2" action="workoutTracking/workoutLogs" method="post">
-                                        <input type="hidden" name="favoriteWorkoutId" value="<%= workout._id %>">
-                                        <input type="submit" class="btn btn-dark" value="Add to Logs">
-                                    </form>
-                                    <form class="mb-2" action="" method="post">
-                                        <input type="submit" class="btn btn-dark" value="Remove from Favorites">
-                                    </form>
-                                </div>
-                            </a>
-                            <% }) %>
+                    <!-- Header -->
+                    <div class="header d-flex align-items-center mb-3">
+                        <a href="/favorites" style="text-decoration: none; color: inherit;">
+                            <button class="btn btn-light">
+                                <img src="/images/less-than.svg" alt="Go back">
+                            </button>
+                        </a>
+                        <h2 class="mx-auto" style="transform: translateX(-15px);">Favorite Exercises</h2>
                     </div>
+
+                    <!-- Exercise Cards -->
+                    <% workouts.forEach(workout=> { %>
+                        <a href="" style="text-decoration: none; color: inherit;">
+                            <div class="card mb-3">
+                                <div class="card-text d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="exercise-name">
+                                            <%= workout.name %>
+                                        </h5>
+                                        <p class="text-muted">Exercise Duration: <%= workout.duration %> min
+                                        </p>
+                                        <ul>
+                                            <% workout.exercises.forEach(exercise=> { %>
+                                                <li>
+                                                    <%= exercise.name %> - <%= exercise.duration %> min
+                                                </li>
+                                                <% }) %>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <form class="mb-2" action="workoutTracking/workoutLogs" method="post">
+                                    <input type="hidden" name="favoriteWorkoutId" value="<%= workout._id %>">
+                                    <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
+                                </form>
+                                <form class="mb-2" action="" method="post">
+                                    <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
+                                </form>
+                            </div>
+                        </a>
+                        <% }) %>
                 </div>
-                <div style="height: 100px;"></div>
-                <%- include('../partials/navbar') %>
+            </div>
+            <div style="height: 100px;"></div>
+            <%- include('../partials/navbar') %>
         </div>
     </body>
 

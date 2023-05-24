@@ -2,63 +2,54 @@
 <html lang="en">
 
 <%- include('../partials/meta') %>
-    <style>
-        .card {
-            margin: 10px;
-        }
-
-        h5 {
-            margin-top: 10px;
-        }
     </style>
-
     <body>
         <div class="container p-3" style="height: 100vh;">
-            <%- include('../partials/header') %>
-                <!-- Header -->
-                <div class="fs-3 fw-semibold d-flex mb-4">
-                    <div class="me-1">
-                        <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
-                    </div>
-                    <div class="ms-5">
-                        Meal Tracker
-                    </div>
+
+            <!-- Header -->
+            <div class="fs-3 fw-semibold d-flex mb-4">
+                <button class="btn btn-light">
+                    <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
+                </button>
+                <div class="ms-5">
+                    <h2>Meal Tracker</h2>
                 </div>
+            </div>
 
-                <!-- Filter Section -->
-                <div class="container fs-4 fw-medium m-0 p-0 mb-1">
-                    Filter By Last:
-                </div>
-                <div class="container m-0 p-0 d-flex mb-2">
-                    <form action="./filterMeals" method="get">
-                        <input type="hidden" name="filterType" value="day">
-                        <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
-                    </form>
+            <!-- Filter Section -->
+            <div class="container fs-4 fw-medium m-0 p-0 mb-1">
+                Filter By Last:
+            </div>
+            <div class="container m-0 p-0 d-flex mb-2">
+                <form action="./filterMeals" method="post">
+                    <input type="hidden" name="filterType" value="day">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">24 hours</button>
+                </form>
 
-                    <form action="./filterMeals" method="get">
-                        <input type="hidden" name="filterType" value="week">
-                        <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
-                    </form>
+                <form action="./filterMeals" method="post">
+                    <input type="hidden" name="filterType" value="week">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">7 days</button>
+                </form>
 
-                    <form action="./filterMeals" method="get">
-                        <input type="hidden" name="filterType" value="month">
-                        <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
-                    </form>
-                </div>
+                <form action="./filterMeals" method="post">
+                    <input type="hidden" name="filterType" value="month">
+                    <button type="submit" class="btn btn-light border fw-medium me-2">30 days</button>
+                </form>
+            </div>
 
-                <!-- Meals Section -->
-                <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
-                    <span>
-                        Meals
-                    </span>
+            <!-- Meals Section -->
+            <div class="container m-0 p-0 fw-medium fs-5 mb-1 d-inline-flex">
+                <span>
+                    Meals
+                </span>
 
-                    <span class="ms-auto">
-                        <%= totalCalories %> cal
-                    </span>
-                </div>
+                <span class="ms-auto">
+                    <%= totalCalories %> cal
+                </span>
+            </div>
 
-                <div class="container h-75 mb-4 overflow-auto border">
-                    <% meals.forEach(meal=> { %>
+            <div class="container h-75 mb-4 overflow-auto border">
+                <% meals.forEach(meal=> { %>
                         <div class="card mb-3">
                             <div class="card-text d-flex justify-content-center">
                                 <div>
@@ -77,11 +68,12 @@
                                 </div>
                             </div>
                         </div>
-                        <% }) %>
-                </div>
+                    <% }) %>
+            </div>
 
-                <div style="height: 100px;"></div>
-                <%- include('../partials/navbar') %>
+            <div style="height: 100px;">
+                <%- include('../partials/navbar') %></div>
+
         </div>
     </body>
 
