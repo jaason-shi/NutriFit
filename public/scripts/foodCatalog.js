@@ -2,7 +2,11 @@
  * Script file for Food Catalog type pages
  */
 
-
+/**
+ * Adds an item to the user's meal logs.
+ * 
+* @param {string} id - the id of the item to add
+ */
 function addItem(id) {
     var formType = $('#formType').val();
 
@@ -17,15 +21,16 @@ function addItem(id) {
     }
 }
 
-const setup = () => {
-    console.log("Hello world")
-    // Search bar event listener
-    $('#searchBar').on('input', function () {
-        const searchQuery = $(this).val();
-        $.get('./searchFood', { q: searchQuery }, function (data) {
-            $('#foodResults').empty();
-            data.forEach(item => {
-                $('#foodResults').append(`
+
+/**
+ * Populates the page with data received from a search query.
+ * 
+ * @param {Array<Object>} data - the list of food items to populate the page with
+ */
+function populateFoodResults(data) {
+    $('#foodResults').empty();
+    data.forEach(item => {
+        $('#foodResults').append(`
 
                 <div class="container m-0 p-0 border-bottom d-flex align-items-center">
                     <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
@@ -51,10 +56,24 @@ const setup = () => {
                     </div>
                 </div>
                     `);
-            });
-        })
     });
 }
 
 
+/**
+ * Sets up the event listeners for the elements on the page.
+ */
+const setup = () => {
+    console.log("Hello world")
+    // Search bar event listener
+    $('#searchBar').on('input', function () {
+        const searchQuery = $(this).val();
+        $.get('./searchFood', { q: searchQuery }, (data) => populateFoodResults(data))
+    });
+}
+
+
+/**
+ * Adds event listeners only when document is fully loaded.
+ */
 $(document).ready(setup)
