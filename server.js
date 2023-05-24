@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
   if (req.session.AUTH) {
     return res.redirect("/members");
   }
-  res.render("home");
+  res.render("general/landingPage");
 });
 
 // Routers
@@ -133,7 +133,7 @@ app.post("/logOut", (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/authFail", (req, res) => {
-  res.render("authFail", {
+  res.render("errors/authFail", {
     primaryUser: req.session.USER,
     referer: req.headers.referer,
   });
@@ -147,7 +147,7 @@ app.get("/authFail", (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/members", checkAuth, (req, res) => {
-  res.render("members", {
+  res.render("general/members", {
     primaryUser: req.session.USER,
   });
 });
@@ -160,7 +160,7 @@ app.get("/members", checkAuth, (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/userProfile", checkAuth, (req, res) => {
-  res.render("userProfile", {
+  res.render("general/userProfile", {
     primaryUser: req.session.USER,
   });
 });
@@ -173,7 +173,7 @@ app.get("/userProfile", checkAuth, (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/logs", checkAuth, async (req, res) => {
-  res.render("logs");
+  res.render("logs/logs");
 });
 
 
@@ -195,7 +195,7 @@ app.get("/exerciseLogs", checkAuth, async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/favorites", checkAuth, (req, res) => {
-  res.render("favorites");
+  res.render("favorites/favorites");
 });
 
 
@@ -236,7 +236,7 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
   console.log("Meals parsed");
   console.log(mealsParsed);
 
-  res.render("favoriteMeals", { meals: mealsParsed });
+  res.render("favorites/favoriteMeals", { meals: mealsParsed });
 });
 
 
@@ -247,7 +247,7 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/badApiResponse", (req, res) => {
-  res.render("badApiResponse");
+  res.render("errors/badApiResponse");
 });
 
 
@@ -277,7 +277,7 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
     };
   });
 
-  res.render("favoriteWorkouts", { workouts: workoutsParsed });
+  res.render("favorites/favoriteWorkouts", { workouts: workoutsParsed });
 });
 
 
@@ -288,7 +288,7 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/alreadyExists", (req, res) => {
-  res.render("alreadyExists", { match: req.session.MATCH })
+  res.render("errors/alreadyExists", { match: req.session.MATCH })
 })
 
 
@@ -299,7 +299,7 @@ app.get("/alreadyExists", (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("*", (req, res) => {
-  res.render("404");
+  res.render("errors/404");
 });
 
 

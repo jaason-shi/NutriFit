@@ -45,7 +45,7 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
   });
 
   req.session.MEALS_LOGGED = userMeals;
-  res.render("mealLogs", {
+  res.render("logs/mealLogs", {
     totalCalories: totalCalories,
     meals: userMeals,
   });
@@ -84,18 +84,6 @@ mealTrackingRouter.get("/filterMeals", async (req, res) => {
   console.log(filteredMeals);
   req.session.FILTERED_MEALS = filteredMeals;
   res.redirect("./mealLogs");
-});
-
-
-/**
- * Renders the "testPopulate" view in the response.
- * 
- * @param {Express.Request} req - the request object representing the received request
- * @param {Express.Response} res - the response object representing the server response
- */
-mealTrackingRouter.get("/testPopulate", (req, res) => {
-  //console.log("Test populate")
-  res.render("testPopulate");
 });
 
 

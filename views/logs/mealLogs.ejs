@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
     <style>
         .card {
             margin: 10px;
@@ -11,6 +11,7 @@
             margin-top: 10px;
         }
     </style>
+
     <body>
         <div class="container p-3" style="height: 100vh;">
 
@@ -58,29 +59,29 @@
 
             <div class="container h-75 mb-4 overflow-auto border">
                 <% meals.forEach(meal=> { %>
-                        <div class="card mb-3">
-                            <div class="card-text d-flex justify-content-center">
-                                <div>
-                                    <h5 class="meal-name">
-                                        <%= meal.mealName%>
-                                    </h5>
-                                    <p class="text-muted"> Calories: <%= meal.totalCalories %>
-                                    </p>
-                                    <ul>
-                                        <% meal.items.forEach(item=> { %>
-                                            <li>
-                                                <%= item.Food %> - <%= item.Calories %> cal, <%= item.Grams %>g
-                                            </li>
-                                            <% }) %>
-                                    </ul>
-                                </div>
+                    <div class="card mb-3">
+                        <div class="card-text d-flex justify-content-center">
+                            <div>
+                                <h5 class="meal-name">
+                                    <%= meal.mealName%>
+                                </h5>
+                                <p class="text-muted"> Calories: <%= meal.totalCalories %>
+                                </p>
+                                <ul>
+                                    <% meal.items.forEach(item=> { %>
+                                        <li>
+                                            <%= item.Food %> - <%= item.Calories %> cal, <%= item.Grams %>g
+                                        </li>
+                                        <% }) %>
+                                </ul>
                             </div>
                         </div>
+                    </div>
                     <% }) %>
             </div>
 
             <div style="height: 100px;"></div>
-            <%- include('partials/navbar') %>
+            <%- include('../partials/navbar') %>
         </div>
     </body>
 

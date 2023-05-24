@@ -176,7 +176,7 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
 
   let bodyParts = getBodyParts(workouts)
 
-  res.render("workoutLogs", {
+  res.render("logs/workoutLogs", {
     totalDuration: totalDuration,
     workouts: workouts,
     bodyParts: bodyParts,
