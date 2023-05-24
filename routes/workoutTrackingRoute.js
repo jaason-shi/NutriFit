@@ -1,30 +1,23 @@
+/**
+ * Router to handle requests to endpoints related to workout tracking.
+ */
+
+// Set up dependencies
 const express = require("express");
 const workoutTrackingRouter = express.Router();
-const User = require("../models/userModel");
+
+// Models
 const Workout = require("../models/workoutModel");
-const Exercise = require("../models/exerciseModel");
-const { ObjectID } = require("mongodb");
-// FavoriteWorkout model
 const FavoriteWorkout = require("../models/favWorkoutModel");
 
-// Available exercise tags
-const exerciseCategory = [
-  { name: "back" },
-  { name: "cardio" },
-  { name: "chest" },
-  { name: "lower arms" },
-  { name: "lower legs" },
-  { name: "shoulders" },
-  { name: "upper arms" },
-  { name: "upper legs" },
-  { name: "neck" },
-  { name: "waist" },
-];
 
-// POST Workout Logs page
-workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
-  const date = new Date();
-
+/**
+ * Sets the session workout to the correctly parsed workout object.
+ * Depending on where the request came from, it is parsed and handled differently.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ */
+async function parseWorkoutSession(req) {
   if (req.body.favoriteWorkoutId) {
     let favoriteWorkoutId = req.body.favoriteWorkoutId;
     let favoriteWorkout = await FavoriteWorkout.findById(favoriteWorkoutId);
@@ -50,6 +43,19 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
     });
     req.session.WORKOUT = parsedWorkout;
   }
+}
+
+
+/**
+ * Handles the POST request to add a workout to the current user's workout logs
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
+  const date = new Date();
+
+  await parseWorkoutSession(req)
 
   // get total duration of the workouts
   let totalDuration = 0;
@@ -78,16 +84,19 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   res.redirect("/workoutTracking/workoutLogs");
 });
 
-// GET exercise logs depending on if the user clicks day, week, or month
-workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
+
+/**
+ * Filters the current user's logged workouts by date.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+workoutTrackingRouter.get("/filterWorkouts", async (req, res) => {
   req.session.WORKOUTS_LOGGED = await Workout.find({
     userId: req.session.USER.id,
   });
-  const filterType = req.body.filterType;
+  const filterType = req.query.filterType;
   const today = new Date();
-
-  console.log("Today");
-  console.log(today);
 
   let startDate;
 
@@ -101,11 +110,6 @@ workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
   }
   const filteredWorkouts = req.session.WORKOUTS_LOGGED.filter((workout) => {
     let createdTime = new Date(Date.parse(workout.createdTime));
-    console.log(workout.workoutName);
-    console.log("Created ");
-    console.log(createdTime);
-    console.log("Start");
-    console.log(startDate);
     return createdTime >= startDate;
   });
 
@@ -120,66 +124,37 @@ workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
   res.redirect("./workoutLogs");
 });
 
-// Get test populate button
-workoutTrackingRouter.get("/testPopulate", (req, res) => {
-  //console.log("Test populate")
-  res.render("testPopulate");
-});
 
-// TestPostMealData
-workoutTrackingRouter.post("/testPopulateWorkouts", async (req, res) => {
-  let testWorkout = await Workout.findOne({ userId: req.session.USER.id });
-  let currentDay = new Date();
-  const yesterday = new Date(
-    currentDay.getFullYear(),
-    currentDay.getMonth(),
-    currentDay.getDate() - 2
-  );
-  const week = new Date(
-    currentDay.getFullYear(),
-    currentDay.getMonth(),
-    currentDay.getDate() - 8
-  );
-  // let month = new Date(currentDay.getTime() - 40 * 24 * 60 * 60 * 1000);
-  const month = new Date(
-    currentDay.getFullYear(),
-    currentDay.getMonth() - 1,
-    currentDay.getDate() - 1
-  );
-
-  let newWorkoutDay = new Workout({
-    userId: testWorkout.userId,
-    workoutName: testWorkout.workoutName + " Day",
-    exercises: testWorkout.exercises,
-    expireTime: testWorkout.expireTime,
-    createdTime: yesterday,
+/**
+ * Gets the body parts worked from an array of workout objects with no duplicates.
+ * 
+ * @param {Array.<Object>} workouts the user's logged workouts
+ * @returns {Array.<string>} the body parts that have been worked
+ */
+function getBodyParts(workouts) {
+  let bodyParts = workouts.map((workout) => {
+    return workout.exercises.map((exercise) => {
+      return exercise.bodyPart;
+    });
   });
 
-  let newWorkoutWeek = new Workout({
-    userId: testWorkout.userId,
-    workoutName: testWorkout.workoutName + " Week",
-    exercises: testWorkout.exercises,
-    expireTime: testWorkout.expireTime,
-    createdTime: week,
-  });
+  bodyParts = bodyParts.flat();
+  const bodyPartSet = new Set(bodyParts);
+  bodyParts = [...bodyPartSet];
+  return bodyParts
+}
 
-  let newWorkoutMonth = new Workout({
-    userId: testWorkout.userId,
-    workoutName: testWorkout.workoutName + " Month",
-    exercises: testWorkout.exercises,
-    expireTime: testWorkout.expireTime,
-    createdTime: month,
-  });
 
-  await newWorkoutDay.save();
-  await newWorkoutWeek.save();
-  await newWorkoutMonth.save();
-
-  //console.log("Populating...")
-  res.redirect("./testPopulate");
-});
-
-// Get workout logs
+/**
+ * Renders the "workoutLogs" view with data in the response.
+ * The data contains the following:
+ * - the total duration of the logged workouts
+ * - the current user's logged workouts
+ * - the body parts that have been worked by the logged workouts
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
   let userId = req.session.USER.id;
   let workouts;
@@ -198,15 +173,8 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
     });
   });
 
-  let bodyParts = workouts.map((workout) => {
-    return workout.exercises.map((exercise) => {
-      return exercise.bodyPart;
-    });
-  });
 
-  bodyParts = bodyParts.flat();
-  const bodyPartSet = new Set(bodyParts);
-  bodyParts = [...bodyPartSet];
+  let bodyParts = getBodyParts(workouts)
 
   res.render("workoutLogs", {
     totalDuration: totalDuration,
@@ -215,9 +183,5 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
   });
 });
 
-workoutTrackingRouter.get("*", (req, res) => {
-  const currentPage = "*";
-  res.render("404", { currentPage });
-});
-
+// Export the workoutTrackingRouter
 module.exports = workoutTrackingRouter;

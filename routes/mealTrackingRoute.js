@@ -1,12 +1,22 @@
+/**
+ * Router to handle requests to endpoints related to meal tracking.
+ */
+
+// Set up dependencies
 const express = require("express");
 const mealTrackingRouter = express.Router();
-const User = require("../models/userModel");
+
+// Models
 const Meal = require("../models/mealModel");
-const { ObjectID } = require("mongodb");
-// FavoriteMeal model
 const FavoriteMeal = require("../models/favMealModel");
 
-// Get meal logs page
+
+/**
+ * Renders the "mealLogs" view with the user's meals and total calories in the response.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 mealTrackingRouter.get("/mealLogs", async (req, res) => {
   const userId = req.session.USER.id;
   let userMeals;
@@ -31,7 +41,6 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
     });
 
     meal.totalCalories = mealCalories;
-
     return meal;
   });
 
@@ -42,10 +51,16 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
   });
 });
 
-// GET meal logs depending on if the user clicks day, week, or month
-mealTrackingRouter.post("/filterMeals", async (req, res) => {
+
+/**
+ * Filters the current user's logged meals by date.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+mealTrackingRouter.get("/filterMeals", async (req, res) => {
   req.session.MEALS_LOGGED = await Meal.find({ userId: req.session.USER.id });
-  const filterType = req.body.filterType;
+  const filterType = req.query.filterType;
   const today = new Date();
 
   console.log("Today");
@@ -63,17 +78,7 @@ mealTrackingRouter.post("/filterMeals", async (req, res) => {
   }
   const filteredMeals = req.session.MEALS_LOGGED.filter((meal) => {
     let createdTime = new Date(Date.parse(meal.createdTime));
-    console.log(meal.mealName);
-    console.log("Created ");
-    console.log(createdTime);
-    console.log("Start");
-    console.log(startDate);
     return createdTime >= startDate;
-  });
-
-  let totalCalories = 0;
-  filteredMeals.forEach((meal) => {
-    totalCalories += meal.totalCalories;
   });
 
   console.log(filteredMeals);
@@ -81,72 +86,30 @@ mealTrackingRouter.post("/filterMeals", async (req, res) => {
   res.redirect("./mealLogs");
 });
 
-// Get test populate button
+
+/**
+ * Renders the "testPopulate" view in the response.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 mealTrackingRouter.get("/testPopulate", (req, res) => {
   //console.log("Test populate")
   res.render("testPopulate");
 });
 
-// TestPostMealData
-mealTrackingRouter.post("/testPopulateMeals", async (req, res) => {
-  let testMeal = await Meal.findOne({ userId: req.session.USER.id });
-  let currentDay = new Date();
-  const yesterday = new Date(
-    currentDay.getFullYear(),
-    currentDay.getMonth(),
-    currentDay.getDate() - 2
-  );
-  const week = new Date(
-    currentDay.getFullYear(),
-    currentDay.getMonth(),
-    currentDay.getDate() - 8
-  );
-  // let month = new Date(currentDay.getTime() - 40 * 24 * 60 * 60 * 1000);
-  const month = new Date(
-    currentDay.getFullYear(),
-    currentDay.getMonth() - 1,
-    currentDay.getDate() - 1
-  );
 
-  let newMealDay = new Meal({
-    userId: testMeal.userId,
-    mealName: testMeal.mealName + " Day",
-    items: testMeal.items,
-    expireTime: testMeal.expireTime,
-    createdTime: yesterday,
-  });
-
-  let newMealWeek = new Meal({
-    userId: testMeal.userId,
-    mealName: testMeal.mealName + " Week",
-    items: testMeal.items,
-    expireTime: testMeal.expireTime,
-    createdTime: week,
-  });
-
-  let newMealMonth = new Meal({
-    userId: testMeal.userId,
-    mealName: testMeal.mealName + " Month",
-    items: testMeal.items,
-    expireTime: testMeal.expireTime,
-    createdTime: month,
-  });
-
-  await newMealDay.save();
-  await newMealWeek.save();
-  await newMealMonth.save();
-
-  //console.log("Populating...")
-  res.redirect("./testPopulate");
-});
-
-// POST Meal Logs page
-mealTrackingRouter.post("/foodLogs", async (req, res) => {
-  const date = new Date();
-
+/**
+ * Sets the session meal to the correctly parsed meal object.
+ * Depending on where the request came from, it is parsed and handled differently.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ */
+async function parseMealSession(req) {
   if (req.body.favoriteMealId) {
     let favoriteMealId = req.body.favoriteMealId;
     let favoriteMeal = await FavoriteMeal.findById(favoriteMealId);
+
     let parsedMeal = favoriteMeal.items.map((item) => {
       return {
         _id: item._id,
@@ -156,8 +119,6 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
       };
     });
     req.session.MEAL = parsedMeal;
-    //console.log("Parsed favorite meal");
-    //console.log(parsedMeal);
   } else if (req.body.meal) {
     let stringMeal = req.body.meal;
     let parsedMeal = JSON.parse(stringMeal);
@@ -170,12 +131,21 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
       };
     });
     req.session.MEAL = parsedMeal;
-    //console.log("Parsed meal from body");
-    //console.log(parsedMeal);
   }
+}
 
-  //console.log("Session meal logs: ");
-  //console.log(req.session.MEAL);
+
+/**
+ * Handles the POST request to add to the user's logged meals.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+mealTrackingRouter.post("/mealLogs", async (req, res) => {
+  const date = new Date();
+
+  // Sets the session meal for further handling
+  await parseMealSession(req)
 
   // Get calories from the meal
   let totalCalories = 0;
@@ -196,7 +166,6 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
   });
 
   await mealLog.save();
-  //console.log("Saved");
 
   // Delete session variables
   delete req.session.MEAL;
@@ -204,9 +173,5 @@ mealTrackingRouter.post("/foodLogs", async (req, res) => {
   res.redirect("/mealTracking/mealLogs");
 });
 
-mealTrackingRouter.get("*", (req, res) => {
-  const currentPage = "*";
-  res.render("404", { currentPage });
-});
-
+// Export the mealTrackingRouter
 module.exports = mealTrackingRouter;

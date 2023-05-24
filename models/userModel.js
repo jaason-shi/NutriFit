@@ -1,5 +1,5 @@
 /**
- * User model for User collection access
+ * User model for User collection access.
  */
 
 const mongoose = require("mongoose");

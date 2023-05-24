@@ -1,5 +1,5 @@
 /**
- * Food model for Food collection access
+ * Food model for Food collection access.
  */
 
 const mongoose = require('mongoose')

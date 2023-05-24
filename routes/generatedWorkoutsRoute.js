@@ -1,12 +1,20 @@
+/**
+ * Router to handle requests to endpoints related to generated meals.
+ */
+
+// Set up dependencies
 const express = require("express");
 const generatedWorkoutsRouter = express.Router();
 const User = require("../models/userModel");
 const Exercise = require("../models/exerciseModel");
 const { ObjectId } = require("mongodb");
+
 // Workout model
 const Workout = require("../models/workoutModel");
 // FavoriteWorkout model
 const FavoriteWorkout = require("../models/favWorkoutModel");
+// Import function to query chatGPT
+const { queryChatGPT, parseResponse } = require('./chatGptHelpers');
 
 // Available exercise tags
 const exerciseCategory = [
@@ -22,57 +30,20 @@ const exerciseCategory = [
   { name: "waist" },
 ];
 
-// Sends an API post request to the GPT 3.5 endpoint
-async function queryChatGPT(prompt) {
-  const request = require("request");
 
-  const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
-
-  const options = {
-    url: OPENAI_API_ENDPOINT,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GPT_API_KEY}`,
-      "OpenAI-Organization": process.env.GPT_ORG_ID,
-    },
-    body: JSON.stringify({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-    }),
-  };
-
-  return new Promise((resolve, reject) => {
-    request.post(options, (error, response, body) => {
-      if (error) {
-        console.error(error);
-        reject(error);
-      } else {
-        resolve(body);
-      }
-    });
-  });
-}
-
-// Queries the GPT 3.5 API for a workout
+/**
+ * Queries the GPT API to generate a workout based on user conditions.
+ * 
+ * @async
+ * @param {number} duration - the duration that the workout will query to have
+ * @param {Object} user - an object representing the current user
+ * @returns {Array<Object>|undefined} - the workout as an array of JSON objects or undefined if parsing fails
+ */
 async function workoutGenerationQuery(duration, user) {
-  let includedExercise = JSON.stringify(user.includeExercise);
-  let excludedExercise = JSON.stringify(user.excludeExercise);
-  let includedTags = user.exerciseTagInclude;
-  let excludedTags = user.exerciseTagExclude;
-
-  if (includedExercise == undefined) {
-    includedExercise = [];
-  }
-  if (excludedExercise == undefined) {
-    excludedExercise = [];
-  }
-  if (includedTags == undefined) {
-    includedTags = [];
-  }
-  if (excludedTags == undefined) {
-    excludedTags = [];
-  }
+  let includedExercise = JSON.stringify(user.includeExercise) ?? [];
+  let excludedExercise = JSON.stringify(user.excludeExercise) ?? [];
+  let includedTags = user.exerciseTagInclude ?? [];
+  let excludedTags = user.exerciseTagExclude ?? [];
 
   const exercisesPrompt =
     `Respond to me in this format:` +
@@ -84,32 +55,7 @@ async function workoutGenerationQuery(duration, user) {
   console.log(`Initial Prompt: ${exercisesPrompt}\n\n`);
 
   const response = await queryChatGPT(exercisesPrompt);
-  const workout = JSON.parse(response).choices[0].message.content;
-
-  console.log(`Response we get: ${workout}\n\n`);
-
-  const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-
-  let matches = workout.match(codeBlockRegex);
-  console.log(`\n\nAfter regex filter: ${matches}\n\n`);
-  if (matches == null) {
-    matches = workout.match(/\[[^\[\]]*\]/);
-    console.log(`\n\nAfter regex filter Second: ${matches}\n\n`);
-  }
-
-  if (matches == null) {
-    return undefined;
-  }
-
-  let codeBlockContent;
-
-  if (matches && matches.length > 0) {
-    codeBlockContent = matches.map((match) =>
-      match.replace(/```javascript|```/g, "").trim()
-    );
-  }
-
-  const workoutParsed = JSON.parse(codeBlockContent[0]);
+  let workoutParsed = parseResponse(response)
 
   console.log("Final Product\n");
   console.log(workoutParsed);
@@ -117,7 +63,17 @@ async function workoutGenerationQuery(duration, user) {
   return workoutParsed;
 }
 
-// Get generated workouts
+
+/**
+ * Renders the "generatedMeals" view with data in the response.
+ * The data contains the following:
+ * - the workout
+ * - the duration of the workout
+ * - the user's included tags
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.get("/", async (req, res) => {
   let duration;
   let user = req.session.USER;
@@ -145,12 +101,24 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
   }
 });
 
-// Get Quick add workout page
+
+/**
+ * Renders the "quickAddWorkout" view in the response.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.get("/quickAddWorkout", async (req, res) => {
   res.render("generatedWorkouts/quickAddWorkout");
 });
 
-// Post quick add workout data
+
+/**
+ * Handles the POST request to quick add a workout.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
   const itemId = req.body.item;
   const duration = req.body.duration || 10; // If no duration is specified, set it to 10 min by default
@@ -183,7 +151,17 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
   res.redirect("/workoutTracking/workoutLogs");
 });
 
-// Get workout filters
+
+/**
+ * Renders the "workoutFilters" view with data in the response.
+ * The data includes the following:
+ * - the current user
+ * - the user's included exercises
+ * - the user's excluded exercises
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
   let user = req.session.USER;
 
@@ -195,7 +173,13 @@ generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
   });
 });
 
-// Get exercise catalog pages
+
+/**
+ * Renders the "exerciseCatalog" view with the type of catalog in the response.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.get("/exerciseCatalog", (req, res) => {
   let type = req.query.type;
   res.render("generatedWorkouts/exerciseCatalog", {
@@ -203,18 +187,16 @@ generatedWorkoutsRouter.get("/exerciseCatalog", (req, res) => {
   });
 });
 
-// Get bad api response page
-generatedWorkoutsRouter.get("/badApiResponse", (req, res) => {
-  res.render("badApiResponse");
-});
 
-// Modify exercise tag
-generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {
-  const exerciseTag = req.body.exerciseTag;
-  const userId = req.session.USER.id;
-  const type = req.body.type;
-  let user = await User.findOne({ id: userId });
-
+/**
+ * Updates the user's exercise tag to include or exclude.
+ * 
+ * @param {string} type - the type of the tag to update, include or exclude
+ * @param {Object} user - an object representing the current user
+ * @param {string} userId - the ID of the user to update
+ * @param {string} exerciseTag - the name of the tag to include or exclude
+ */
+async function updateExerciseTag(type, user, userId, exerciseTag) {
   if (type === "include") {
     if (
       user.exerciseTagInclude &&
@@ -250,13 +232,34 @@ generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {
       );
     }
   }
+}
+
+
+/**
+ * Handles the POST request to modify the exercise tags included or excluded
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {
+  const exerciseTag = req.body.exerciseTag;
+  const userId = req.session.USER.id;
+  const type = req.body.type;
+  let user = await User.findOne({ id: userId });
+  await updateExerciseTag(type, user, userId, exerciseTag)
 
   let updatedUser = await User.findOne({ id: userId });
   req.session.USER = updatedUser;
   res.redirect("./workoutFilters");
 });
 
-// Search for exercises
+
+/**
+ * Sends a JSON object in the response containing an array of objects that fit the search query.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.get("/searchExercise", async (req, res) => {
   const searchQuery = req.query.q;
   let exerciseQuery = await Exercise.find({
@@ -273,7 +276,57 @@ generatedWorkoutsRouter.get("/searchExercise", async (req, res) => {
   res.json(parsedResponse);
 });
 
-// Select exercise to include or exclude
+
+/**
+ * Adds an exercise to the user's included or excluded exercises.
+ * 
+ * @param {string} type - the type of the exercise, include or exclude
+ * @param {string} userId - the ID of the current user
+ * @param {Object} exerciseToAdd - the exercise to be included or excluded
+ */
+async function addExerciseUser(type, userId, exerciseToAdd) {
+  if (type === "include") {
+    await User.updateOne(
+      { id: userId },
+      {
+        $addToSet: {
+          includeExercise: {
+            $each: [
+              {
+                name: exerciseToAdd.name,
+                bodyPart: exerciseToAdd.bodyPart,
+              },
+            ],
+          },
+        },
+      }
+    );
+  } else {
+    await User.updateOne(
+      { id: userId },
+      {
+        $addToSet: {
+          excludeExercise: {
+            $each: [
+              {
+                name: exerciseToAdd.name,
+                bodyPart: exerciseToAdd.bodyPart,
+              },
+            ],
+          },
+        },
+      }
+    );
+  }
+}
+
+
+/**
+ * Handles the POST request to add selected exercises to include or exclude
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.post("/selectExercise", async (req, res) => {
   const itemId = req.body.item;
   const userId = req.session.USER.id;
@@ -284,18 +337,30 @@ generatedWorkoutsRouter.post("/selectExercise", async (req, res) => {
   let params = parsedUrl.searchParams;
   let type = params.get("type");
 
+  await addExerciseUser(type, userId, exerciseToAdd)
+
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("./workoutFilters");
+});
+
+
+/**
+ * Deletes an exercise from the current user's included or excluded exercises
+ * 
+ * @param {string} type - the type of the exercise, include or exclude
+ * @param {string} userId - the ID of the current user
+ * @param {Object} exerciseToDelete - the exercise to be deleted
+ */
+async function deleteExerciseUser(type, userId, exerciseToDelete) {
   if (type === "include") {
     await User.updateOne(
       { id: userId },
       {
-        $addToSet: {
+        $pull: {
           includeExercise: {
-            $each: [
-              {
-                name: exerciseToAdd.name,
-                bodyPart: exerciseToAdd.bodyPart,
-              },
-            ],
+            name: exerciseToDelete.name,
+            bodyPart: exerciseToDelete.bodyPart,
           },
         },
       }
@@ -304,26 +369,24 @@ generatedWorkoutsRouter.post("/selectExercise", async (req, res) => {
     await User.updateOne(
       { id: userId },
       {
-        $addToSet: {
+        $pull: {
           excludeExercise: {
-            $each: [
-              {
-                name: exerciseToAdd.name,
-                bodyPart: exerciseToAdd.bodyPart,
-              },
-            ],
+            name: exerciseToDelete.name,
+            bodyPart: exerciseToDelete.bodyPart,
           },
         },
       }
     );
   }
+}
 
-  let updatedUser = await User.findOne({ id: userId });
-  req.session.USER = updatedUser;
-  res.redirect("./workoutFilters");
-});
 
-// Remove exercise from filter
+/**
+ * Handles the POST request to remove selected exercises to include or exclude
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.post("/deleteExercise", async (req, res) => {
   const exerciseName = req.body.item;
   const userId = req.session.USER.id;
@@ -331,38 +394,20 @@ generatedWorkoutsRouter.post("/deleteExercise", async (req, res) => {
 
   let exerciseToDelete = await Exercise.findOne({ name: exerciseName });
 
-  if (type === "include") {
-    await User.updateOne(
-      { id: userId },
-      {
-        $pull: {
-          includeExercise: {
-            name: exerciseToDelete.name,
-            bodyPart: exerciseToDelete.bodyPart,
-          },
-        },
-      }
-    );
-  } else {
-    await User.updateOne(
-      { id: userId },
-      {
-        $pull: {
-          excludeExercise: {
-            name: exerciseToDelete.name,
-            bodyPart: exerciseToDelete.bodyPart,
-          },
-        },
-      }
-    );
-  }
+  await deleteExerciseUser(type, userId, exerciseToDelete)
 
   let updatedUser = await User.findOne({ id: userId });
   req.session.USER = updatedUser;
   res.redirect("./workoutFilters");
 });
 
-// POST favorite workouts  favoriteWorkouts
+
+/**
+ * Handles the POST request for adding the generated workout to the current user's favorite workouts.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
   console.log("session workout: ");
   console.log(req.session.WORKOUT);
@@ -381,8 +426,6 @@ generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
   res.redirect("/favoriteWorkouts");
 });
 
-generatedWorkoutsRouter.get("*", (req, res) => {
-  const currentPage = "*";
-  res.render("404", { currentPage });
-});
+
+// Export the generateWorkoutsRouter
 module.exports = generatedWorkoutsRouter;

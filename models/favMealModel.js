@@ -1,3 +1,7 @@
+/**
+ * Favorite Meal model for Favorite Meals collection access.
+ */
+
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
