@@ -180,7 +180,7 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
 });
 
 // Handles the POST request to delete a workout from the user's logged workouts
-mealTrackingRouter.post("/deleteFromLogWorkouts", async (req, res) => {
+workoutTrackingRouter.post("/deleteFromLogWorkouts", async (req, res) => {
   const workout = req.session.WORKOUT;
   await workout.deleteOne({ _id: meal[0]._id });
 });
