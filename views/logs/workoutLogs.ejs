@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/meta') %>
+<%- include('../partials/meta') %>
     <style>
         .card {
             margin: 10px;
@@ -11,6 +11,7 @@
             margin-top: 10px;
         }
     </style>
+
     <body>
         <div class="container p-3" style="height: 100vh;">
             <!-- Header -->
@@ -57,26 +58,26 @@
 
                 <div class="container h-75 mb-4 overflow-auto border">
                     <% workouts.forEach(workout=> { %>
-                            <div class="card mb-3">
-                                <div class="card-text d-flex justify-content-center">
-                                    <div>
-                                        <h5 class="exercise-name">
-                                            <%= workout.workoutName %>
-                                        </h5>
-                                        <p class="text-muted">Total Workout Duration: <%=
-                                                workout.exercises.reduce((total, exercise)=> total +
-                                                Number(exercise.duration), 0) %> min
-                                        </p>
-                                        <ul>
-                                            <% workout.exercises.forEach(exercise=> { %>
-                                                <li>
-                                                    <%= exercise.name %> - <%= exercise.duration %> min
-                                                </li>
-                                                <% }) %>
-                                        </ul>
-                                    </div>
+                        <div class="card mb-3">
+                            <div class="card-text d-flex justify-content-center">
+                                <div>
+                                    <h5 class="exercise-name">
+                                        <%= workout.workoutName %>
+                                    </h5>
+                                    <p class="text-muted">Total Workout Duration: <%= workout.exercises.reduce((total,
+                                            exercise)=> total +
+                                            Number(exercise.duration), 0) %> min
+                                    </p>
+                                    <ul>
+                                        <% workout.exercises.forEach(exercise=> { %>
+                                            <li>
+                                                <%= exercise.name %> - <%= exercise.duration %> min
+                                            </li>
+                                            <% }) %>
+                                    </ul>
                                 </div>
                             </div>
+                        </div>
                         <% }) %>
 
                             <span>
@@ -104,7 +105,7 @@
                             </div>
                 </div>
                 <div style="height: 100px;"></div>
-                <%- include('partials/navbar') %>
+                <%- include('../partials/navbar') %>
             </div>
     </body>
 

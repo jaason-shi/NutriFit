@@ -45,7 +45,7 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
   });
 
   req.session.MEALS_LOGGED = userMeals;
-  res.render("mealLogs", {
+  res.render("logs/mealLogs", {
     totalCalories: totalCalories,
     meals: userMeals,
   });

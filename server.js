@@ -173,7 +173,7 @@ app.get("/userProfile", checkAuth, (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/logs", checkAuth, async (req, res) => {
-  res.render("logs");
+  res.render("logs/logs");
 });
 
 
