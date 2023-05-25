@@ -87,6 +87,9 @@ async function mealGenerationQuery(calories, user) {
  */
 generatedMealsRouter.get("/", async (req, res) => {
   let meal = req.session.MEAL
+  if (meal === undefined) {
+    return res.redirect("/badApiResponse");
+  }
   let totalCalories = 0;
   meal.forEach((food) => {
     totalCalories += Number(food.Calories);
@@ -124,7 +127,8 @@ generatedMealsRouter.get('/loadingData', async (req, res) => {
   if (meal === undefined) {
     return res.redirect("/badApiResponse");
   } else {
-    res.redirect('./')
+    console.log("Success")
+    return res.redirect('./')
   }
 })
 
