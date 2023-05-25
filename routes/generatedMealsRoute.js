@@ -89,7 +89,7 @@ generatedMealsRouter.get("/", async (req, res) => {
   let calories;
   let user = req.session.USER;
   if (req.query.calories != undefined) {
-    await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });  
+    await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });
   } else {
     calories = 500;
   }
@@ -437,7 +437,7 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
 
   // delete session variable
   delete req.session.MEAL;
-  await User.updateOne({ id: userId }, { $set: { calories: 500 } });  
+  await User.updateOne({ id: userId }, { $set: { calories: 500 } });
   res.redirect("/favoriteMeals");
 });
 
@@ -448,13 +448,51 @@ generatedMealsRouter.post("/deleteFromFavoriteMeals", async (req, res) => {
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
   try {
-    await FavoriteMeal.deleteOne({ userId: userId, mealName: meal[0].Food, items: meal});
+    await FavoriteMeal.deleteOne({ userId: userId, mealName: meal[0].Food, items: meal });
     res.redirect("/favoriteMeals");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error deleting meal from favorites");
   }
 })
+
+
+// Testing loading
+generatedMealsRouter.get('/waitingApi', (req, res) => {
+  let user = JSON.stringify(req.session.USER)
+  let calories = 500
+  res.render('general/waitingAPI', {
+    user: user,
+    calories: calories
+  })
+})
+
+
+// loading page data
+generatedMealsRouter.get('/loadingData', async (req, res) => {
+  console.log("Getting loading page data")
+  let user = req.session.USER
+  let calories = 500
+
+  let includedFood = JSON.stringify(user.includeFood) ?? [];
+  let excludedFood = JSON.stringify(user.excludeFood) ?? [];
+  let includedTags = user.foodTagInclude ?? [];
+  let excludedTags = user.foodTagExclude ?? [];
+  const mealsPrompt =
+    `Respond to me in this format:` +
+    ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' +
+    `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` +
+    ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' +
+    `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`;
+  const response = await queryChatGPT(mealsPrompt);
+  console.log(response)
+  // let mealParsed = parseResponse(response);
+  res.json({
+    message: response
+  })
+})
+
+
 
 // Export the generatedMealsRouter
 module.exports = generatedMealsRouter;
