@@ -76,7 +76,7 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
   let duration;
   let user = req.session.USER;
 
-  let workout = req.session.WORKOUT
+  let workout = req.session.WORKOUT;
   if (workout === undefined) {
     return res.redirect("/badApiResponse");
   }
@@ -99,14 +99,13 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
   });
 });
 
-
 /**
  * Processes the API request and redirects to the appropriate page when completed.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
-generatedWorkoutsRouter.get('/loadingData', async (req, res) => {
+generatedWorkoutsRouter.get("/loadingData", async (req, res) => {
   let user = req.session.USER;
   let updatedUser = await User.findOne({ id: user.id });
   req.session.USER = updatedUser;
@@ -119,11 +118,10 @@ generatedWorkoutsRouter.get('/loadingData', async (req, res) => {
   if (workout === undefined) {
     return res.redirect("/badApiResponse");
   } else {
-    console.log("Success")
-    return res.redirect('./')
+    console.log("Success");
+    return res.redirect("./");
   }
-})
-
+});
 
 /**
  * Renders the "quickAddWorkout" view in the response.
@@ -191,7 +189,7 @@ generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
     primaryUser: user,
     userInclude: user.includeExercise,
     userExclude: user.excludeExercise,
-    duration: duration
+    duration: duration,
   });
 });
 
@@ -441,21 +439,21 @@ generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
 });
 
 /**
- * Handles the POST request for deleting a workout from the current user's favorite workouts.
+ * Handles the POST request to delete a workout from user's favorite workouts.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
  */
 generatedWorkoutsRouter.post(
   "/deleteFromFavoriteWorkouts",
   async (req, res) => {
-    const workout = req.body.WORKOUT;
+    const workoutId = req.body.deleteFavoriteWorkoutId;
     const userId = req.session.USER.id;
-    try {
-      await FavoriteWorkout.deleteOne({ userId: userId, _id: workout });
-      res.redirect("/favoriteWorkouts");
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Error deleting workout from favorites");
-    }
+
+    await FavoriteWorkout.deleteOne({ _id: workoutId, userId: userId });
+    res.redirect("/favoriteWorkouts");
   }
 );
+
 // Export the generateWorkoutsRouter
 module.exports = generatedWorkoutsRouter;
