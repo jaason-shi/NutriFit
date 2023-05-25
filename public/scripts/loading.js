@@ -8,7 +8,7 @@ async function setup() {
         window.location.href = "/generatedMeals"
     } else {
         console.log("Loading workout")
-        await $.get('/generatedMeals/loadingData')
+        await $.get('/generatedWorkouts/loadingData')
         window.location.href = "/generatedWorkouts"
     }
 }

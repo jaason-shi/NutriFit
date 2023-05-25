@@ -303,16 +303,28 @@ app.get("/alreadyExists", (req, res) => {
  */
 app.get('/waitingApi', async (req, res) => {
   let user = req.session.USER;
+  let type = req.query.type
   console.log("data")
   console.log(req.query)
-  if (req.query.calories != undefined) {
-    await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });
-  } else if (!req.session.USER.calories) {
-    await User.updateOne({ id: user.id }, { $set: { calories: 500 } });
+  if (type === "meal") {
+    if (req.query.calories != undefined) {
+      await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });
+    } else if (!req.session.USER.calories) {
+      await User.updateOne({ id: user.id }, { $set: { calories: 500 } });
+    }
+  } else {
+    if (req.query.duration != undefined) {
+      await User.updateOne({ id: user.id }, { $set: { duration: req.query.duration } });
+    } else if (!req.session.USER.duration) {
+      await User.updateOne({ id: user.id }, { $set: { duration: 10 } });
+    }
   }
   res.render('general/waitingApi', {
-    type: req.query.type
+    type: type
   })
+
+
+
 })
 
 

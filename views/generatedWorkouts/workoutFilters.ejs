@@ -21,7 +21,8 @@
                 </div>
                 <div class="fs-6 mb-2">
                     <form action="">
-                        <input type="number" placeholder="Please Enter" class="w-100" id="inputDuration" value="<%= primaryUser.duration %>">
+                        <input type="number" placeholder="Please Enter" class="w-100" id="inputDuration"
+                            value="<%= primaryUser.duration %>">
                     </form>
                 </div>
 
@@ -203,7 +204,7 @@
         <script>
             function sendDuration() {
                 let duration = document.getElementById("inputDuration").value;
-                let url = "/generatedWorkouts?duration=" + duration;
+                let url = "/waitingApi?duration=" + duration + "&type=workout";
                 window.location.href = url;
             }
         </script>

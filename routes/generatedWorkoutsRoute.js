@@ -75,36 +75,55 @@ async function workoutGenerationQuery(duration, user) {
 generatedWorkoutsRouter.get("/", async (req, res) => {
   let duration;
   let user = req.session.USER;
-  if (req.query.duration != undefined) {
-    await User.updateOne({ id: user.id }, { $set: { duration: req.query.duration } });  
-  } else {
-    duration = 10;
+
+  let workout = req.session.WORKOUT
+  if (workout === undefined) {
+    return res.redirect("/badApiResponse");
   }
+
+  let totalDuration = 0;
+  workout.forEach((exercise) => {
+    totalDuration += exercise.duration;
+  });
+
+  let updatedUser = await User.findOne({ id: user.id });
+  req.session.USER = updatedUser;
+  duration = updatedUser.duration;
+
+  res.render("generatedWorkouts/generatedWorkouts", {
+    workout: workout,
+    userSpecifiedDuration: req.query.duration,
+    totalDuration: totalDuration,
+    tagsList: user.exerciseTagInclude,
+    duration: duration,
+  });
+});
+
+
+/**
+ * Processes the API request and redirects to the appropriate page when completed.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedWorkoutsRouter.get('/loadingData', async (req, res) => {
+  let user = req.session.USER;
+  let updatedUser = await User.findOne({ id: user.id });
+  req.session.USER = updatedUser;
+
+  let duration = updatedUser.duration;
   let workout = await workoutGenerationQuery(duration, user);
-  // variable to store the workout in the session
+  // variable for session meal
   req.session.WORKOUT = workout;
 
   if (workout === undefined) {
     return res.redirect("/badApiResponse");
   } else {
-    let totalDuration = 0;
-    workout.forEach((exercise) => {
-      totalDuration += exercise.duration;
-    });
-
-    let updatedUser = await User.findOne({ id: user.id });
-    req.session.USER = updatedUser;
-    duration = updatedUser.duration;
-
-    res.render("generatedWorkouts/generatedWorkouts", {
-      workout: workout,
-      userSpecifiedDuration: req.query.duration,
-      totalDuration: totalDuration,
-      tagsList: user.exerciseTagInclude,
-      duration: duration,
-    });
+    console.log("Success")
+    return res.redirect('./')
   }
-});
+})
+
 
 /**
  * Renders the "quickAddWorkout" view in the response.
