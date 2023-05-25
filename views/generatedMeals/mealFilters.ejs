@@ -192,7 +192,7 @@
         <script>
             function sendCalories() {
                 let calories = document.getElementById("inputCalories").value;
-                let url = "/generatedMeals?calories=" + calories;
+                let url = "/waitingApi?calories=" + calories + "&type=meal";
                 window.location.href = url;
             }
         </script>

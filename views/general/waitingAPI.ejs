@@ -44,27 +44,20 @@
         </style>
     </head>
 
-    <>
-        <div class="bg-body-tertiary" style="height: 100vh">
-            <div class="container">
-                <h1 class="text">Waiting for API response</h1>
-                <div class="loader"></div>
-
+    <div class="bg-body-tertiary" style="height: 100vh">
+        <div class="container">
+            <h1 class="text" style="color: black">Waiting for API response</h1>
+            <div class="loader"></div>
+            <div id="type" class="d-none">
+                <%= type %>
             </div>
         </div>
+    </div>
 
-        <div class="d-none" id="user">
-            <%= user %>
-        </div>
-
-        <div class="d-none" id="calories">
-            <%= calories %>
-        </div>
-
-        <!-- Bootstrap JS -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <!-- Personal JS -->
-        <script src="/scripts/loading.js"></script>
-        </body>
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Personal JS -->
+    <script src="/scripts/loading.js"></script>
+    </body>
 
 </html>

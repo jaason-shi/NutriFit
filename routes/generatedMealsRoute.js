@@ -86,14 +86,37 @@ async function mealGenerationQuery(calories, user) {
  * @param {Express.Response} res - the response object representing the server response
  */
 generatedMealsRouter.get("/", async (req, res) => {
-  let calories;
+  let meal = req.session.MEAL
+  let totalCalories = 0;
+  meal.forEach((food) => {
+    totalCalories += Number(food.Calories);
+  })
+
+  let user = req.session.USER
+  let calories = user.calories;
+
+  res.render("generatedMeals/generatedMeals", {
+    foodItems: meal,
+    totalCalories: totalCalories,
+    userSpecifiedCalories: req.query.calories,
+    tagsList: user.foodTagInclude,
+    calories: calories
+  });
+});
+
+
+/**
+ * Processes the API request and redirects to the appropriate page when completed.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedMealsRouter.get('/loadingData', async (req, res) => {
   let user = req.session.USER;
-  if (req.query.calories != undefined) {
-    await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });
-  } else {
-    calories = 500;
-  }
-  console.log(`Calories: ${calories}\n\n`);
+  let updatedUser = await User.findOne({ id: user.id });
+  req.session.USER = updatedUser;
+
+  let calories = updatedUser.calories;
   let meal = await mealGenerationQuery(calories, user);
   // variable for session meal
   req.session.MEAL = meal;
@@ -105,20 +128,9 @@ generatedMealsRouter.get("/", async (req, res) => {
     meal.forEach((food) => {
       totalCalories += Number(food.Calories);
     });
-
-    let updatedUser = await User.findOne({ id: user.id });
-    req.session.USER = updatedUser;
-    let calories = updatedUser.calories;
-
-    res.render("generatedMeals/generatedMeals", {
-      foodItems: meal,
-      totalCalories: totalCalories,
-      userSpecifiedCalories: req.query.calories,
-      tagsList: user.foodTagInclude,
-      calories: calories
-    });
+    res.redirect('./')
   }
-});
+})
 
 
 /**
@@ -457,40 +469,7 @@ generatedMealsRouter.post("/deleteFromFavoriteMeals", async (req, res) => {
 })
 
 
-// Testing loading
-generatedMealsRouter.get('/waitingApi', (req, res) => {
-  let user = JSON.stringify(req.session.USER)
-  let calories = 500
-  res.render('general/waitingAPI', {
-    user: user,
-    calories: calories
-  })
-})
 
-
-// loading page data
-generatedMealsRouter.get('/loadingData', async (req, res) => {
-  console.log("Getting loading page data")
-  let user = req.session.USER
-  let calories = 500
-
-  let includedFood = JSON.stringify(user.includeFood) ?? [];
-  let excludedFood = JSON.stringify(user.excludeFood) ?? [];
-  let includedTags = user.foodTagInclude ?? [];
-  let excludedTags = user.foodTagExclude ?? [];
-  const mealsPrompt =
-    `Respond to me in this format:` +
-    ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' +
-    `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` +
-    ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' +
-    `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`;
-  const response = await queryChatGPT(mealsPrompt);
-  console.log(response)
-  // let mealParsed = parseResponse(response);
-  res.json({
-    message: response
-  })
-})
 
 
 
