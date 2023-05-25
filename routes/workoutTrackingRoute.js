@@ -79,7 +79,7 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
 
   // delete session variables
   delete req.session.WORKOUT;
-  await User.updateOne({ id: userId}, { $set: { duration: 10 } });
+  await User.updateOne({ id: userId }, { $set: { duration: 10 } });
 
   res.redirect("/workoutTracking/workoutLogs");
 });
@@ -179,10 +179,19 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
   });
 });
 
-// Handles the POST request to delete a workout from the user's logged workouts
+/** 
+ * Handles the POST request to delete a workout to the user's logged workouts
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */ 
 workoutTrackingRouter.post("/deleteFromLogWorkouts", async (req, res) => {
-  const workout = req.session.WORKOUT;
-  await workout.deleteOne({ _id: meal[0]._id });
+  const workoutId = req.body.deleteLogWorkout;
+  const userId = req.session.USER.id;
+
+  // Remove the workout from the logs
+  await Workout.deleteOne({ _id: workoutId, userId: userId });
+  res.redirect("./workoutLogs");
 });
 
 // Export the workoutTrackingRouter

@@ -141,7 +141,7 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
   // Add the meal to meal collection
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
-  console.log(userId)
+  console.log(userId);
   const mealLog = new Meal({
     userId: userId,
     mealName: meal[0].Food,
@@ -155,14 +155,26 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
 
   // Delete session variables
   delete req.session.MEAL;
-  await User.updateOne({ id: req.session.USER.id}, { $set: { calories: 500 } });  
+  await User.updateOne(
+    { id: req.session.USER.id },
+    { $set: { calories: 500 } }
+  );
   res.redirect("/mealTracking/mealLogs");
 });
 
-// Handles the POST request to delete a meal to the user's logged meals
+/**
+ * Handles the POST request to delete a meal from the user's logged meals.
+ *  
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 mealTrackingRouter.post("/deleteFromLogMeals", async (req, res) => {
-  const meal = req.session.MEAL;
-  await meal.deleteOne({ _id: meal[0]._id });
+  const mealId = req.body.deleteLogMealId;
+  const userId = req.session.USER.id;
+
+  // Remove the meal from the logs
+  await Meal.deleteOne({ _id: mealId, userId: userId });
+  res.redirect("./mealLogs");
 });
 
 // Export the mealTrackingRouter
