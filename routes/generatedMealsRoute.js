@@ -124,10 +124,6 @@ generatedMealsRouter.get('/loadingData', async (req, res) => {
   if (meal === undefined) {
     return res.redirect("/badApiResponse");
   } else {
-    let totalCalories = 0;
-    meal.forEach((food) => {
-      totalCalories += Number(food.Calories);
-    });
     res.redirect('./')
   }
 })
