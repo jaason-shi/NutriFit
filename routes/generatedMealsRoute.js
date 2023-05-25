@@ -86,14 +86,40 @@ async function mealGenerationQuery(calories, user) {
  * @param {Express.Response} res - the response object representing the server response
  */
 generatedMealsRouter.get("/", async (req, res) => {
-  let calories;
-  let user = req.session.USER;
-  if (req.query.calories != undefined) {
-    await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });  
-  } else {
-    calories = 500;
+  let meal = req.session.MEAL
+  if (meal === undefined) {
+    return res.redirect("/badApiResponse");
   }
-  console.log(`Calories: ${calories}\n\n`);
+  let totalCalories = 0;
+  meal.forEach((food) => {
+    totalCalories += Number(food.Calories);
+  })
+
+  let user = req.session.USER
+  let calories = user.calories;
+
+  res.render("generatedMeals/generatedMeals", {
+    foodItems: meal,
+    totalCalories: totalCalories,
+    userSpecifiedCalories: req.query.calories,
+    tagsList: user.foodTagInclude,
+    calories: calories
+  });
+});
+
+
+/**
+ * Processes the API request and redirects to the appropriate page when completed.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedMealsRouter.get('/loadingData', async (req, res) => {
+  let user = req.session.USER;
+  let updatedUser = await User.findOne({ id: user.id });
+  req.session.USER = updatedUser;
+
+  let calories = updatedUser.calories;
   let meal = await mealGenerationQuery(calories, user);
   // variable for session meal
   req.session.MEAL = meal;
@@ -101,24 +127,10 @@ generatedMealsRouter.get("/", async (req, res) => {
   if (meal === undefined) {
     return res.redirect("/badApiResponse");
   } else {
-    let totalCalories = 0;
-    meal.forEach((food) => {
-      totalCalories += Number(food.Calories);
-    });
-
-    let updatedUser = await User.findOne({ id: user.id });
-    req.session.USER = updatedUser;
-    let calories = updatedUser.calories;
-
-    res.render("generatedMeals/generatedMeals", {
-      foodItems: meal,
-      totalCalories: totalCalories,
-      userSpecifiedCalories: req.query.calories,
-      tagsList: user.foodTagInclude,
-      calories: calories
-    });
+    console.log("Success")
+    return res.redirect('./')
   }
-});
+})
 
 
 /**
@@ -437,7 +449,7 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
 
   // delete session variable
   delete req.session.MEAL;
-  await User.updateOne({ id: userId }, { $set: { calories: 500 } });  
+  await User.updateOne({ id: userId }, { $set: { calories: 500 } });
   res.redirect("/favoriteMeals");
 });
 
@@ -448,13 +460,18 @@ generatedMealsRouter.post("/deleteFromFavoriteMeals", async (req, res) => {
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
   try {
-    await FavoriteMeal.deleteOne({ userId: userId, mealName: meal[0].Food, items: meal});
+    await FavoriteMeal.deleteOne({ userId: userId, mealName: meal[0].Food, items: meal });
     res.redirect("/favoriteMeals");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error deleting meal from favorites");
   }
 })
+
+
+
+
+
 
 // Export the generatedMealsRouter
 module.exports = generatedMealsRouter;

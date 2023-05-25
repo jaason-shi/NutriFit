@@ -53,6 +53,9 @@ const FavoriteMeal = require("./models/favMealModel");
 // FavoriteWorkout model
 const FavoriteWorkout = require("./models/favWorkoutModel");
 
+// User model
+const User = require("./models/userModel");
+
 // Basic landing page
 app.get("/", (req, res) => {
   if (req.session.AUTH) {
@@ -289,6 +292,39 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
  */
 app.get("/alreadyExists", (req, res) => {
   res.render("errors/alreadyExists", { match: req.session.MATCH })
+})
+
+
+/**
+ * Renders the "waitingApi" view in the response and sets the calories of the current user.
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+app.get('/waitingApi', async (req, res) => {
+  let user = req.session.USER;
+  let type = req.query.type
+  console.log("data")
+  console.log(req.query)
+  if (type === "meal") {
+    if (req.query.calories != undefined) {
+      await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });
+    } else if (!req.session.USER.calories) {
+      await User.updateOne({ id: user.id }, { $set: { calories: 500 } });
+    }
+  } else {
+    if (req.query.duration != undefined) {
+      await User.updateOne({ id: user.id }, { $set: { duration: req.query.duration } });
+    } else if (!req.session.USER.duration) {
+      await User.updateOne({ id: user.id }, { $set: { duration: 10 } });
+    }
+  }
+  res.render('general/waitingApi', {
+    type: type
+  })
+
+
+
 })
 
 
