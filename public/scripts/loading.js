@@ -1,7 +1,12 @@
+/**
+ * Script file for loading page logic.
+ */
+
+/**
+ * Sets up the ajax call to the meal or workout endpoint to generate meals or workouts
+ */
 async function setup() {
     let type = $('#type').text().trim()
-    console.log(type)
-    console.log(typeof type)
     if (type === 'meal') {
         console.log("Loading meal")
         await $.get('/generatedMeals/loadingData')
@@ -13,4 +18,7 @@ async function setup() {
     }
 }
 
+/**
+ * Adds event listeners only when document is fully loaded.
+ */
 $(document).ready(setup)
