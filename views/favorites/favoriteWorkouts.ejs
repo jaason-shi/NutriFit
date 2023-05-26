@@ -44,8 +44,7 @@
                                         <input type="hidden" name="favoriteWorkoutId" value="<%= workout._id %>">
                                         <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
                                     </form>
-                                    <form class="mb-2" action="generatedWorkouts/deleteFromFavoriteWorkouts"
-                                        method="post">
+                                    <form class="mb-2" action="generatedWorkouts/deleteFromFavoriteWorkouts" method="post" onsubmit="return confirmDelete()">
                                         <input type="hidden" name="deleteFavoriteWorkoutId" value="<%= workout._id %>">
                                         <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
                                     </form>
@@ -59,5 +58,13 @@
                 <%- include('../partials/navbar') %>
             </div>
     </body>
+    <script>
+        /**
+         * This function is used to confirm the deletion of a workout from favorites.
+         */
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this workout?');
+        }
+    </script>
 
 </html>

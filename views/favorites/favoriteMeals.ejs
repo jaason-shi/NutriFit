@@ -47,7 +47,7 @@
                                     <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
                                     <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
                                 </form>
-                                <form class="mb-2" action="generatedMeals/deleteFromFavoriteMeals" method="post">
+                                <form class="mb-2" action="generatedMeals/deleteFromFavoriteMeals" method="post" onsubmit="return confirmDelete()">
                                     <input type="hidden" name="deleteFavoriteMealId" value="<%= meal._id %>">
                                     <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
                                 </form>
@@ -61,5 +61,13 @@
             </div>
 
     </body>
+    <script>
+        /**
+         * This function is used to confirm the deletion of a meal from favorites.
+         */
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this meal?');
+        }
+    </script>
 
 </html>
