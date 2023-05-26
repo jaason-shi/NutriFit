@@ -147,7 +147,7 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
     mealName: meal[0].Food,
     items: meal,
     totalCalories: totalCalories,
-    expireTime: new Date(date.getTime() + 60 * 60 * 1000),
+    expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000),
     createdTime: new Date(),
   });
 

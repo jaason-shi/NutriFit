@@ -71,7 +71,7 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
     exercises: workout,
     totalDuration: totalDuration,
     createdTime: new Date(),
-    expireTime: new Date(date.getTime() + 60 * 60 * 1000),
+    expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000),
   });
 
   await workoutLog.save();
@@ -184,7 +184,7 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
  * 
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
- */ 
+ */
 workoutTrackingRouter.post("/deleteFromLogWorkouts", async (req, res) => {
   const workoutId = req.body.deleteLogWorkout;
   const userId = req.session.USER.id;
