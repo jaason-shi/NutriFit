@@ -50,64 +50,53 @@ Our team NutriFit (DTC18), developed a meal and exercise generator application t
 ## Listing of File Contents of folder
 
 ```
-.
 C:.
-|   .DS_Store
-|   .env
-|   .gitignore
-|   devLog.txt
-|   package-lock.json
-|   package.json
-|   README.md
-|   server.js
-|   upload.js
-|   utils.js
-|
-+---archive
-|       bottomNav.ejs
-|       bottomNav.js
-|       exerciseFilter.ejs
-|       exerciseFilterEx.ejs
-|       exerciseLogs.ejs
-|       favoriteExercises.ejs
-|       favouritesMeals.ejs
-|       foodCatalogExclude.ejs
-|       foodCatalogInclude.ejs
-|       foodFilter.ejs
-|       foodFilterEx.ejs
-|       foodPageTest.ejs
-|       foodServer.js
-|       landingPage-LAPTOP-72OFTTIO.js
-|       landingPage.js
-|       login.html
-|       response.js
-|       seanLogin.html
-|       seanSignUp.html
-|       searchFood.js
-|       selectedExercise.ejs
-|       selectedFood.ejs
-|       serverS.js
-|       server_sam.js
-|       style.css
-|
-+---models
-|       exerciseModel.js
-|       favMealModel.js
-|       favWorkoutModel.js
-|       foodModel.js
-|       mealModel.js
-|       userModel.js
-|       workoutModel.js
-|
-+---node_modules
-|   |   .package-lock.json
+│   .DS_Store
+│   .env
+│   .gitignore
+│   package-lock.json
+│   package.json
+│   README.md
+│   server.js
+│   upload.js
+│   utils.js
+│
+├───models
+│       exerciseModel.js
+│       favMealModel.js
+│       favWorkoutModel.js
+│       foodModel.js
+│       mealModel.js
+│       userModel.js
+│       workoutModel.js
+│
+├───node_modules
+│       .package-lock.json
+│
+├───public
+│   │   snake.css
+│   │   snake.html
+│   │   style.css
+│   │
+│   ├───images
+│   │       bicycle.svg
+│   │       egg-removebg-preview.png
+│   │       file.svg
+│   │       heart.svg
+│   │       home.svg
+│   │       less-than.svg
+│   │       logo-modified.png
+│   │       minus-circle.svg
+│   │       plus-circle.svg
+│   │       profile-circle.svg
+│   │       snake.png
+│   │       utensils.svg
+│   │
 │   └───scripts
 │           exerciseCatalog.js
 │           foodCatalog.js
+│           loading.js
 │           snake.js
-│
-├───references
-│       references.js
 │
 ├───routes
 │       chatGptHelpers.js
@@ -117,49 +106,47 @@ C:.
 │       userRoute.js
 │       workoutTrackingRoute.js
 │
-\---views
-    +---errors
-    |       403.ejs
-    |       404.ejs
-    |       alreadyExists.ejs
-    |       authFail.ejs
-    |       badApiResponse.ejs
-    |
-    +---favorites
-    |       favoriteMeals.ejs
-    |       favorites.ejs
-    |       favoriteWorkouts.ejs
-    |
-    +---general
-    |       landingPage.ejs
-    |       members.ejs
-    |       userProfile.ejs
-    |       waitingAPI.ejs
-    |
-    +---generatedMeals
-    |       foodCatalog.ejs
-    |       generatedMeals.ejs
-    |       mealFilters.ejs
-    |       quickAddMeal.ejs
-    |
-    +---generatedWorkouts
-    |       exerciseCatalog.ejs
-    |       generatedWorkouts.ejs
-    |       quickAddWorkout.ejs
-    |       workoutFilters.ejs
-    |
-    +---logs
-    |       logs.ejs
-    |       mealLogs.ejs
-    |       workoutLogs.ejs
-    |
-    +---partials
-    |       foodItem.ejs
-    |       header.ejs
-    |       meta.ejs
-    |       navbar.ejs
-    |
-    \---user
+└───views
+    ├───errors
+    │       404.ejs
+    │       alreadyExists.ejs
+    │       authFail.ejs
+    │       badApiResponse.ejs
+    │
+    ├───favorites
+    │       favoriteMeals.ejs
+    │       favorites.ejs
+    │       favoriteWorkouts.ejs
+    │
+    ├───general
+    │       landingPage.ejs
+    │       members.ejs
+    │       userProfile.ejs
+    │       waitingAPI.ejs
+    │
+    ├───generatedMeals
+    │       foodCatalog.ejs
+    │       generatedMeals.ejs
+    │       mealFilters.ejs
+    │       quickAddMeal.ejs
+    │
+    ├───generatedWorkouts
+    │       exerciseCatalog.ejs
+    │       generatedWorkouts.ejs
+    │       quickAddWorkout.ejs
+    │       workoutFilters.ejs
+    │
+    ├───logs
+    │       logs.ejs
+    │       mealLogs.ejs
+    │       workoutLogs.ejs
+    │
+    ├───partials
+    │       header.ejs
+    │       meta.ejs
+    │       navbar.ejs
+    │
+    └───user
             changePassword.ejs
             changePasswordSuccess.ejs
             checkSecurity.ejs
@@ -227,6 +214,7 @@ You will need a chatGPT API key in order run our project. Additionally, you will
 
 - Credits: NutriFit Team
 - References: Kaggle Datasets, OpenAI's GPT-3.5 Turbo
+- Snake: <https://www.youtube.com/watch?v=K8Rh5x3c9Pw&ab_channel=CodingNepal>
 
 ## AI usage
 
@@ -247,4 +235,4 @@ You will need a chatGPT API key in order run our project. Additionally, you will
 - Jason Shi: <jshi26@my.bcit.ca>
 - Sam Tam: <stam84@my.bcit.ca>
 
-### For any additional questions or comments, please contact us via email.
+### For any additional questions or comments, please contact us via email
