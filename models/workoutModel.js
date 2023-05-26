@@ -1,3 +1,8 @@
+/**
+ * Workout model for Workout collection access.
+ * This model is used for the user's logged workouts.
+ */
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

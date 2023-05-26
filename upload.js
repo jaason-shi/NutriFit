@@ -1,3 +1,7 @@
+/**
+ * This is a script to upload a csv to mongodb.
+ */
+
 const csvParser = require('csv-parser');
 const fs = require('fs');
 const MongoClient = require('mongodb').MongoClient;

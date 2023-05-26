@@ -1,399 +1,475 @@
-const express = require('express');
+/**
+ * Router to handle requests to endpoints related to generated meals.
+ */
+
+// Set up dependencies
+const express = require("express");
 const generatedMealsRouter = express.Router();
-const User = require('../models/userModel')
-const Food = require('../models/foodModel')
-const { ObjectId } = require('mongodb');
+const User = require("../models/userModel");
+const Food = require("../models/foodModel");
+const { ObjectId } = require("mongodb");
+
 // Meal model
 const Meal = require("../models/mealModel");
 // FavoriteMeal model
 const FavoriteMeal = require("../models/favMealModel");
-
+// Import function to query chatGPT
+const { queryChatGPT, parseResponse } = require("./chatGptHelpers");
 
 // Available food tags
 const foodCategory = [
-    { name: "Dairy products" },
-    { name: "Fats, Oils, Shortenings" },
-    { name: "Meat, Poultry" },
-    { name: "Fish, Seafood" },
-    { name: "Vegetables A-E" },
-    { name: "Vegetables F-P" },
-    { name: "Vegetables R-Z" },
-    { name: "Fruits A-F" },
-    { name: "Fruits G-P" },
-    { name: "Fruits R-Z" },
-    { name: "Breads, cereals, fastfood, grains" },
-    { name: "Soups" },
-    { name: "Desserts, sweets" },
-    { name: "Jams, Jellies" },
-    { name: "Seeds and Nuts" },
-    { name: "Drinks,Alcohol, Beverages" },
+  { name: "Dairy products" },
+  { name: "Fats, Oils, Shortenings" },
+  { name: "Meat, Poultry" },
+  { name: "Fish, Seafood" },
+  { name: "Vegetables A-E" },
+  { name: "Vegetables F-P" },
+  { name: "Vegetables R-Z" },
+  { name: "Fruits A-F" },
+  { name: "Fruits G-P" },
+  { name: "Fruits R-Z" },
+  { name: "Breads, cereals, fastfood, grains" },
+  { name: "Soups" },
+  { name: "Desserts, sweets" },
+  { name: "Jams, Jellies" },
+  { name: "Seeds and Nuts" },
+  { name: "Drinks,Alcohol, Beverages" },
 ];
 
 
-// Sends an API post request to the GPT 3.5 endpoint
-async function queryChatGPT(prompt) {
-    const request = require("request");
-
-    const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
-
-    const options = {
-        url: OPENAI_API_ENDPOINT,
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.GPT_API_KEY}`,
-            "OpenAI-Organization": process.env.GPT_ORG_ID,
-        },
-        body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.7,
-        }),
-    };
-
-    return new Promise((resolve, reject) => {
-        request.post(options, (error, response, body) => {
-            if (error) {
-                console.error(error);
-                reject(error);
-            } else {
-                resolve(body);
-            }
-        });
-    });
-}
-
-
-// Queries the GPT 3.5 API for a meal
+/**
+ * Queries the GPT API to generate a meal based on user conditions.
+ *
+ * @async
+ * @param {number} calories - the calories that the meal will query to have
+ * @param {Object} user - an object representing the current user
+ * @returns {Array<Object>|undefined} - the meal as an array of JSON objects or undefined if parsing fails
+ */
 async function mealGenerationQuery(calories, user) {
-    let includedFood = JSON.stringify(user.includeFood);
-    let excludedFood = JSON.stringify(user.excludeFood);
-    let includedTags = user.foodTagInclude;
-    let excludedTags = user.foodTagExclude;
+  let includedFood = JSON.stringify(user.includeFood) ?? [];
+  let excludedFood = JSON.stringify(user.excludeFood) ?? [];
+  let includedTags = user.foodTagInclude ?? [];
+  let excludedTags = user.foodTagExclude ?? [];
 
-    if (includedFood == undefined) {
-        includedFood = [];
-    }
-    if (excludedFood == undefined) {
-        excludedFood = [];
-    }
-    if (includedTags == undefined) {
-        includedTags = [];
-    }
-    if (excludedTags == undefined) {
-        excludedTags = [];
-    }
+  const mealsPrompt =
+    `Respond to me in this format:` +
+    ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' +
+    `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` +
+    ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' +
+    `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`;
 
-    const mealsPrompt =
-        `Respond to me in this format:` +
-        ' ```javascript[{ "Food": String, "Calories": int, "Grams": int}, ...]```' +
-        `. Make me a sample ${calories} calorie meal. It must be within 100 calories of ${calories} Do not provide any extra text outside of` +
-        ' ```javascript[{ "name": String, "calories": int, "grams": int }, ...]```.' +
-        `These json objects must be included: ${includedFood}. These are the themes of the meal: ${includedTags}. These json objects must not be included: ${excludedFood}. Do not provide meals related to: ${excludedTags}. Remove all white space.`;
+  console.log(`Initial Prompt: ${mealsPrompt}\n\n`);
 
-    console.log(`Initial Prompt: ${mealsPrompt}\n\n`);
+  const response = await queryChatGPT(mealsPrompt);
+  let mealParsed = parseResponse(response);
 
-    const response = await queryChatGPT(mealsPrompt);
-    const mealPlan = JSON.parse(response).choices[0].message.content;
+  if (!mealParsed) {
+    return undefined;
+  }
 
-    console.log(`The response we get: ${mealPlan}\n\n`);
+  console.log("Final Product\n");
+  console.log(mealParsed);
 
-    const codeBlockRegex = /```javascript([\s\S]+?)```/g;
-    let matches = mealPlan.match(codeBlockRegex);
-
-    console.log(`After regex filter: ${matches}\n\n`);
-    if (matches == null) {
-        matches = mealPlan.match(/\[[^\[\]]*\]/);
-        console.log(`After regex filter Second: ${matches}\n\n`);
-    }
-
-    if (matches == null) {
-        return undefined;
-    }
-    let codeBlockContent;
-
-    if (matches && matches.length > 0) {
-        codeBlockContent = matches.map((match) =>
-            match.replace(/```javascript|```/g, "").trim()
-        );
-    }
-
-    const mealPlanParsed = JSON.parse(codeBlockContent[0]);
-    console.log("Final Product\n");
-    console.log(mealPlanParsed);
-
-    return mealPlanParsed;
+  return mealParsed;
 }
 
 
-// Get generated meals page
+/**
+ * Renders the "generatedMeals" view with data in the response.
+ * The data contains the following:
+ * - the meal
+ * - the calories of the meal
+ * - the amount of calories the user asks for
+ * - the user's included tags
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.get("/", async (req, res) => {
-    let calories;
-    let user = req.session.USER;
-    if (req.query.calories != undefined) {
-        calories = req.query.calories;
-    } else {
-        calories = 500;
-    }
-    console.log(`Calories: ${calories}\n\n`);
-    let meal = await mealGenerationQuery(calories, user);
-    // variable for session meal
-    req.session.MEAL = meal;
+  let meal = req.session.MEAL;
+  if (meal === undefined) {
+    return res.redirect("/badApiResponse");
+  }
+  let totalCalories = 0;
+  meal.forEach((food) => {
+    totalCalories += Number(food.Calories);
+  });
 
-    if (meal === undefined) {
-        return res.redirect("/badApiResponse");
-    } else {
-        let totalCalories = 0;
-        meal.forEach((food) => {
-            totalCalories += Number(food.Calories);
-        });
-        res.render("generatedMeals/generatedMeals", {
-            foodItems: meal,
-            totalCalories: totalCalories,
-            userSpecifiedCalories: req.query.calories,
-        });
-    }
+  let user = req.session.USER;
+  let calories = user.calories;
+
+  res.render("generatedMeals/generatedMeals", {
+    foodItems: meal,
+    totalCalories: totalCalories,
+    userSpecifiedCalories: req.query.calories,
+    tagsList: user.foodTagInclude,
+    calories: calories,
+  });
 });
 
 
-// Get bad api response page
-generatedMealsRouter.get("/badApiResponse", (req, res) => {
-    res.render("badApiResponse");
+/**
+ * Processes the API request and redirects to the appropriate page when completed.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedMealsRouter.get("/loadingData", async (req, res) => {
+  let user = req.session.USER;
+  let updatedUser = await User.findOne({ id: user.id });
+  req.session.USER = updatedUser;
+
+  let calories = updatedUser.calories;
+  let meal = await mealGenerationQuery(calories, user);
+  // variable for session meal
+  req.session.MEAL = meal;
+
+  if (meal === undefined) {
+    return res.redirect("/badApiResponse");
+  } else {
+    console.log("Success");
+    return res.redirect("./");
+  }
 });
 
 
-// Get meal filters page
+/**
+ * Renders the "mealFilters" view with data in the response.
+ * The data contains the following:
+ * - the categories available in our database
+ * - the user's included food items
+ * - the user's excluded food items
+ * - the User of the current session
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.get("/mealFilters", async (req, res) => {
-    const user = req.session.USER;
-    res.render("generatedMeals/mealFilters", {
-        tagsList: foodCategory,
-        userInclude: user.includeFood,
-        userExclude: user.excludeFood,
-        primaryUser: user,
-    });
+  const user = req.session.USER;
+  calories = user.calories;
+  res.render("generatedMeals/mealFilters", {
+    tagsList: foodCategory,
+    userInclude: user.includeFood,
+    userExclude: user.excludeFood,
+    primaryUser: user,
+    calories: calories,
+  });
 });
 
 
-// Get meal catalog pages
+/**
+ * Renders the "foodCatalog" view with the type of catalog in the response.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.get("/foodCatalog", (req, res) => {
-    let type = req.query.type;
-    res.render("generatedMeals/foodCatalog", {
-        type: type,
-    });
+  let type = req.query.type;
+  res.render("generatedMeals/foodCatalog", {
+    type: type,
+  });
 });
 
 
-// Get quick add meal page
+/**
+ * Renders the "quickAddMeal" view in the response.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.get("/quickAddMeal", (req, res) => {
-    res.render("generatedMeals/quickAddMeal");
+  res.render("generatedMeals/quickAddMeal");
 });
 
-// Post quick add meal data
+
+/**
+ * Handles the POST request to quick add a meal.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.post("/quickAddMeal", async (req, res) => {
-    const itemId = req.body.item;
-    const userId = req.session.USER.id;
-    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
+  const itemId = req.body.item;
+  const userId = req.session.USER.id;
+  let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
 
-    // get current date and time as a string
-    const date = new Date();
+  // get current date and time as a string
+  const date = new Date();
 
-    // Create a new meal document
-    const meal = new Meal({
-        userId: userId,
-        mealName: foodToAdd.Food,
-        items: [
-            {
+  // Create a new meal document
+  const meal = new Meal({
+    userId: userId,
+    mealName: foodToAdd.Food,
+    items: [
+      {
+        Food: foodToAdd.Food,
+        Calories: foodToAdd.Calories,
+        Grams: foodToAdd.Grams,
+      },
+    ],
+    createdTime: new Date(date.getTime()),
+    expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000), // set the expiry time 30 days from now
+  });
+
+  // Save the meal document
+  await meal.save();
+
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("./quickAddMeal");
+});
+
+
+/**
+ * Searches the database based on the request query criteria and sends an array of JSON in the response.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedMealsRouter.get("/searchFood", async (req, res) => {
+  const searchQuery = req.query.q;
+  let foodQuery = await Food.find({ Food: new RegExp(searchQuery, "i") });
+  let parsedResponse = foodQuery.map((foodObject) => {
+    return {
+      name: foodObject.Food,
+      measure: foodObject.Measure,
+      calories: foodObject.Calories,
+      id: foodObject._id,
+    };
+  });
+
+  res.json(parsedResponse);
+});
+
+
+/**
+ * Adds the food to the current user's included or excluded foods list.
+ *
+ * @param {string} type the type of the list to add to
+ * @param {string} itemId the ID of the item to add
+ * @param {string} userId the ID of the current user
+ */
+async function addFoodUser(type, itemId, userId) {
+  let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
+  if (type === "include") {
+    await User.updateOne(
+      { id: userId },
+      {
+        $addToSet: {
+          includeFood: {
+            $each: [
+              {
                 Food: foodToAdd.Food,
                 Calories: foodToAdd.Calories,
                 Grams: foodToAdd.Grams,
-            },
-        ],
-        expireTime: new Date(date.getTime() + 5 * 60 * 1000), // set the expiry time 5 minutes from now
-    });
-
-    // Save the meal document
-    await meal.save();
-
-    let updatedUser = await User.findOne({ id: userId });
-    req.session.USER = updatedUser;
-    res.redirect("./quickAddMeal");
-});
-
-
-// Search for food
-generatedMealsRouter.get("/searchFood", async (req, res) => {
-    const searchQuery = req.query.q;
-    let foodQuery = await Food.find({ Food: new RegExp(searchQuery, "i") });
-    let parsedResponse = foodQuery.map((foodObject) => {
-        return {
-            name: foodObject.Food,
-            measure: foodObject.Measure,
-            calories: foodObject.Calories,
-            id: foodObject._id,
-        };
-    });
-
-    res.json(parsedResponse);
-});
+              },
+            ],
+          },
+        },
+      }
+    );
+  } else {
+    await User.updateOne(
+      { id: userId },
+      {
+        $addToSet: {
+          excludeFood: {
+            $each: [
+              {
+                Food: foodToAdd.Food,
+                Calories: foodToAdd.Calories,
+                Grams: foodToAdd.Grams,
+              },
+            ],
+          },
+        },
+      }
+    );
+  }
+}
 
 
-// Select food to include or exclude
+/**
+ * Handles the POST request to add food items to include or exclude.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.post("/selectFood", async (req, res) => {
-    const itemId = req.body.item;
-    const userId = req.session.USER.id;
-    let foodToAdd = await Food.findOne({ _id: new ObjectId(itemId) });
+  const itemId = req.body.item;
+  const userId = req.session.USER.id;
 
-    let reqUrl = req.get("Referrer");
-    let parsedUrl = new URL(reqUrl);
-    let params = parsedUrl.searchParams;
-    let type = params.get("type");
+  let reqUrl = req.get("Referrer");
+  let parsedUrl = new URL(reqUrl);
+  let params = parsedUrl.searchParams;
+  let type = params.get("type");
 
-    if (type === "include") {
-        await User.updateOne(
-            { id: userId },
-            {
-                $addToSet: {
-                    includeFood: {
-                        $each: [
-                            {
-                                Food: foodToAdd.Food,
-                                Calories: foodToAdd.Calories,
-                                Grams: foodToAdd.Grams,
-                            },
-                        ],
-                    },
-                },
-            }
-        );
-    } else {
-        await User.updateOne(
-            { id: userId },
-            {
-                $addToSet: {
-                    excludeFood: {
-                        $each: [
-                            {
-                                Food: foodToAdd.Food,
-                                Calories: foodToAdd.Calories,
-                                Grams: foodToAdd.Grams,
-                            },
-                        ],
-                    },
-                },
-            }
-        );
-    }
+  await addFoodUser(type, itemId, userId);
 
-    let updatedUser = await User.findOne({ id: userId });
-    req.session.USER = updatedUser;
-    res.redirect("./mealFilters");
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("./mealFilters");
 });
 
 
-// Modify food tag
+/**
+ * Updates the user's food tag to include or exclude.
+ *
+ * @param {string} type - the type of the tag to update, include or exclude
+ * @param {string} userId - the ID of the user to update
+ * @param {string} foodTag - the name of the tag to include or exclude
+ * @param {Object} user - an object representing the current user
+ */
+async function updateFoodTag(type, userId, foodTag, user) {
+  if (type === "include") {
+    if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
+      // If the tag is already present, remove it
+      await User.updateOne(
+        { id: userId },
+        { $pull: { foodTagInclude: foodTag } }
+      );
+    } else {
+      // Otherwise, add the tag
+      await User.updateOne(
+        { id: userId },
+        { $addToSet: { foodTagInclude: foodTag } }
+      );
+    }
+  } else {
+    if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
+      // If the tag is already present, remove it
+      await User.updateOne(
+        { id: userId },
+        { $pull: { foodTagExclude: foodTag } }
+      );
+    } else {
+      // Otherwise, add the tag
+      await User.updateOne(
+        { id: userId },
+        { $addToSet: { foodTagExclude: foodTag } }
+      );
+    }
+  }
+}
+
+
+/**
+ * Handles the POST request to modify the food tags included or excluded.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.post("/modifyFoodTag", async (req, res) => {
-    const foodTag = req.body.foodTag;
-    const userId = req.session.USER.id;
-    const type = req.body.type;
-    let user = await User.findOne({ id: userId });
+  const foodTag = req.body.foodTag;
+  const userId = req.session.USER.id;
+  const type = req.body.type;
+  let user = await User.findOne({ id: userId });
 
-    if (type === "include") {
-        if (user.foodTagInclude && user.foodTagInclude.includes(foodTag)) {
-            // If the tag is already present, remove it
-            await User.updateOne(
-                { id: userId },
-                { $pull: { foodTagInclude: foodTag } }
-            );
-        } else {
-            // Otherwise, add the tag
-            await User.updateOne(
-                { id: userId },
-                { $addToSet: { foodTagInclude: foodTag } }
-            );
-        }
-    } else {
-        if (user.foodTagExclude && user.foodTagExclude.includes(foodTag)) {
-            // If the tag is already present, remove it
-            await User.updateOne(
-                { id: userId },
-                { $pull: { foodTagExclude: foodTag } }
-            );
-        } else {
-            // Otherwise, add the tag
-            await User.updateOne(
-                { id: userId },
-                { $addToSet: { foodTagExclude: foodTag } }
-            );
-        }
-    }
+  await updateFoodTag(type, userId, foodTag, user);
 
-    let updatedUser = await User.findOne({ id: userId });
-    req.session.USER = updatedUser;
-    res.redirect("./mealFilters");
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("./mealFilters");
 });
 
 
-// Remove food item from filter
+/**
+ * Deletes the specified food item from included or excluded food items.
+ *
+ * @param {string} type - the type of the food to delete, include or exclude
+ * @param {string} userId - the ID of the current user
+ * @param {Object} foodToDelete - an object representing the food to delete
+ */
+async function deleteFoodUser(type, userId, foodToDelete) {
+  if (type === "include") {
+    await User.updateOne(
+      { id: userId },
+      {
+        $pull: {
+          includeFood: {
+            Food: foodToDelete.Food,
+            Calories: foodToDelete.Calories,
+            Grams: foodToDelete.Grams,
+          },
+        },
+      }
+    );
+  } else {
+    await User.updateOne(
+      { id: userId },
+      {
+        $pull: {
+          excludeFood: {
+            Food: foodToDelete.Food,
+            Calories: foodToDelete.Calories,
+            Grams: foodToDelete.Grams,
+          },
+        },
+      }
+    );
+  }
+}
+
+
+/**
+ * Handles the POST request to delete a food item from a user's included or excluded food items.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.post("/deleteFood", async (req, res) => {
-    const foodName = req.body.item;
-    const userId = req.session.USER.id;
-    const type = req.body.type;
+  const foodName = req.body.item;
+  const userId = req.session.USER.id;
+  const type = req.body.type;
+  let foodToDelete = await Food.findOne({ Food: foodName });
 
-    let foodToDelete = await Food.findOne({ Food: foodName });
+  await deleteFoodUser(type, userId, foodToDelete);
 
-    if (type === "include") {
-        await User.updateOne(
-            { id: userId },
-            {
-                $pull: {
-                    includeFood: {
-                        Food: foodToDelete.Food,
-                        Calories: foodToDelete.Calories,
-                        Grams: foodToDelete.Grams,
-                    },
-                },
-            }
-        );
-    } else {
-        await User.updateOne(
-            { id: userId },
-            {
-                $pull: {
-                    excludeFood: {
-                        Food: foodToDelete.Food,
-                        Calories: foodToDelete.Calories,
-                        Grams: foodToDelete.Grams,
-                    },
-                },
-            }
-        );
-    }
-
-    let updatedUser = await User.findOne({ id: userId });
-    req.session.USER = updatedUser;
-    res.redirect("./mealFilters");
+  let updatedUser = await User.findOne({ id: userId });
+  req.session.USER = updatedUser;
+  res.redirect("./mealFilters");
 });
 
 
-// POST favorite meals
+/**
+ * Handles the POST request to add a generated meal to user's favorite meals.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
-    console.log("session meal: ");
-    console.log(req.session.MEAL);
-    // add the meal to the user's favorite meals
-    const meal = req.session.MEAL;
-    const userId = req.session.USER.id;
-    // ADD meal to FavoriteMeal collection
-    const favMeal = new FavoriteMeal({
-        userId: userId,
-        mealName: meal[0].Food,
-        items: meal,
-    });
-    await favMeal.save();
-    console.log("Saved");
+  const meal = req.session.MEAL;
+  const userId = req.session.USER.id;
+  // ADD meal to FavoriteMeal collection
+  const favMeal = new FavoriteMeal({
+    userId: userId,
+    mealName: meal[0].Food,
+    items: meal,
+  });
+  await favMeal.save();
+  console.log("Saved");
 
-    // delete session variables
-    delete req.session.MEAL;
-    res.redirect("/favoriteMeals");
+  // delete session variable
+  delete req.session.MEAL;
+  await User.updateOne({ id: userId }, { $set: { calories: 500 } });
+  res.redirect("/favoriteMeals");
 });
 
 
-module.exports = generatedMealsRouter
+/**
+ * Handles the POST request to delete a meal from user's favorite meals.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+generatedMealsRouter.post("/deleteFromFavoriteMeals", async (req, res) => {
+  const mealId = req.body.deleteFavoriteMealId;
+  const userId = req.session.USER.id;
+
+  await FavoriteMeal.deleteOne({ _id: mealId, userId: userId });
+  res.redirect("/favoriteMeals");
+});
+
+
+// Export the generatedMealsRouter
+module.exports = generatedMealsRouter;

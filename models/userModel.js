@@ -1,5 +1,5 @@
 /**
- * User model for User collection access
+ * User model for User collection access.
  */
 
 const mongoose = require("mongoose");
@@ -18,35 +18,8 @@ const userSchema = new Schema({
   excludeExercise: [Schema.Types.Mixed],
   includeFood: [Schema.Types.Mixed],
   excludeFood: [Schema.Types.Mixed],
-  favouriteWorkouts: [Schema.Types.Mixed],
-  favouriteFoods: [Schema.Types.Mixed],
-  workoutLogs: [Schema.Types.Mixed],
-  foodLogs: [Schema.Types.Mixed],
-  meals: [
-    {
-      mealName: String,
-      items: [
-        {
-          foodName: String,
-          calories: Number,
-          grams: Number,
-        },
-      ],
-      expireTime: Date,
-    },
-  ],
-  workouts: [
-    {
-      exercises: [
-        {
-          name: String,
-          duration: Number,
-          bodyPart: String,
-        },
-      ],
-      expireTime: Date,
-    },
-  ],
+  calories: Number,
+  duration: Number,
 });
 
 const User = mongoose.model("User", userSchema);

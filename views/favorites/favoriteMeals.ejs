@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Meta Tag -->
+<%- include('../partials/meta') %>
+
+    <body>
+        <!-- Header -->
+        <%- include('../partials/header') %>
+            <div class="bg-body-tertiary" style="height: 100vh">
+
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-9 col-12">
+
+                        <div class="header d-flex align-items-center mb-3">
+                            <a href="/favorites" style="text-decoration: none; color: inherit;">
+                                <button class="btn btn-light">
+                                    <img src="/images/less-than.svg" alt="Go back">
+                                </button>
+                            </a>
+                            <h2 class="mx-auto" style="transform: translateX(-10px);">Favorite Meals</h2>
+                        </div>
+
+                        <!-- Meals Cards -->
+                        <% meals.forEach(meal=> { %>
+                            <div class="card mb-3">
+                                <div class="card-text d-flex justify-content-center">
+                                    <div>
+                                        <h5 class="meal-name">
+                                            <%= meal.name %>
+                                        </h5>
+                                        <p class="text-muted">Meal Calories: <%= meal.calories %>
+                                        </p>
+                                        <ul>
+                                            <% meal.items.forEach(item=> { %>
+                                                <li>
+                                                    <%= item.Food %>
+                                                </li>
+                                                <% }) %>
+                                        </ul>
+
+                                    </div>
+
+
+                                </div>
+                                <form class="mb-2" action="mealTracking/mealLogs" method="post">
+                                    <input type="hidden" name="favoriteMealId" value="<%= meal._id %>">
+                                    <input type="submit" class="btn btn-dark btn-fav" value="Add to Logs">
+                                </form>
+                                <form class="mb-2" action="generatedMeals/deleteFromFavoriteMeals" method="post" onsubmit="return confirmDelete()">
+                                    <input type="hidden" name="deleteFavoriteMealId" value="<%= meal._id %>">
+                                    <input type="submit" class="btn btn-dark btn-fav" value="Remove from Favorites">
+                                </form>
+                            </div>
+                            <% }) %>
+                    </div>
+                </div>
+                <div style="height: 100px;"></div>
+                <!-- Bottom Nav -->
+                <%- include('../partials/navbar') %>
+            </div>
+
+    </body>
+    <script>
+        /**
+         * This function is used to confirm the deletion of a meal from favorites.
+         */
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this meal?');
+        }
+    </script>
+
+</html>

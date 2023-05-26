@@ -1,30 +1,24 @@
+/**
+ * Router to handle requests to endpoints related to workout tracking.
+ */
+
+// Set up dependencies
 const express = require("express");
 const workoutTrackingRouter = express.Router();
-const User = require("../models/userModel");
+
+// Models
 const Workout = require("../models/workoutModel");
-const Exercise = require("../models/exerciseModel");
-const { ObjectID } = require("mongodb");
-// FavoriteWorkout model
 const FavoriteWorkout = require("../models/favWorkoutModel");
+const User = require("../models/userModel");
 
-// Available exercise tags
-const exerciseCategory = [
-  { name: "back" },
-  { name: "cardio" },
-  { name: "chest" },
-  { name: "lower arms" },
-  { name: "lower legs" },
-  { name: "shoulders" },
-  { name: "upper arms" },
-  { name: "upper legs" },
-  { name: "neck" },
-  { name: "waist" },
-];
 
-// POST Workout Logs page
-workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
-  const date = new Date();
-
+/**
+ * Sets the session workout to the correctly parsed workout object.
+ * Depending on where the request came from, it is parsed and handled differently.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ */
+async function parseWorkoutSession(req) {
   if (req.body.favoriteWorkoutId) {
     let favoriteWorkoutId = req.body.favoriteWorkoutId;
     let favoriteWorkout = await FavoriteWorkout.findById(favoriteWorkoutId);
@@ -50,7 +44,19 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
     });
     req.session.WORKOUT = parsedWorkout;
   }
+}
 
+
+/**
+ * Handles the POST request to add a workout to the current user's workout logs
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
+  const date = new Date();
+
+  await parseWorkoutSession(req);
 
   // get total duration of the workouts
   let totalDuration = 0;
@@ -67,7 +73,7 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
     exercises: workout,
     totalDuration: totalDuration,
     createdTime: new Date(),
-    expireTime: new Date(date.getTime() + 60 * 60 * 1000),
+    expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000),
   });
 
   await workoutLog.save();
@@ -75,39 +81,38 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
 
   // delete session variables
   delete req.session.WORKOUT;
+  await User.updateOne({ id: userId }, { $set: { duration: 10 } });
 
   res.redirect("/workoutTracking/workoutLogs");
 });
 
 
-
-// GET exercise logs depending on if the user clicks day, week, or month
-workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
-  req.session.WORKOUTS_LOGGED = await Workout.find({ userId: req.session.USER.id });
-  const filterType = req.body.filterType;
+/**
+ * Filters the current user's logged workouts by date.
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+workoutTrackingRouter.get("/filterWorkouts", async (req, res) => {
+  req.session.WORKOUTS_LOGGED = await Workout.find({
+    userId: req.session.USER.id,
+  });
+  const filterType = req.query.filterType;
   const today = new Date();
 
-  console.log("Today")
-  console.log(today)
-
-  let startDate
+  let startDate;
 
   // Which filter was picked
   if (filterType === "day") {
-    startDate = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+    startDate = new Date(today.getTime() - 24 * 60 * 60 * 1000);
   } else if (filterType === "week") {
-    startDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
   } else if (filterType === "month") {
-    startDate = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
   }
   const filteredWorkouts = req.session.WORKOUTS_LOGGED.filter((workout) => {
-    let createdTime = new Date(Date.parse(workout.createdTime))
-    console.log(workout.workoutName)
-    console.log("Created ")
-    console.log(createdTime)
-    console.log("Start")
-    console.log(startDate)
-    return createdTime >= startDate
+    let createdTime = new Date(Date.parse(workout.createdTime));
+    return createdTime >= startDate;
   });
 
   let totalDuration = 0;
@@ -115,98 +120,83 @@ workoutTrackingRouter.post("/filterWorkouts", async (req, res) => {
     totalDuration += workout.totalDuration;
   });
 
-  console.log("***\nFILTERED\n***")
-  console.log(filteredWorkouts)
   req.session.FILTERED_WORKOUTS = filteredWorkouts;
-  res.redirect('./workoutLogs')
+  res.redirect("./workoutLogs");
 });
 
 
+/**
+ * Gets the body parts worked from an array of workout objects with no duplicates.
+ *
+ * @param {Array.<Object>} workouts the user's logged workouts
+ * @returns {Array.<string>} the body parts that have been worked
+ */
+function getBodyParts(workouts) {
+  let bodyParts = workouts.map((workout) => {
+    return workout.exercises.map((exercise) => {
+      return exercise.bodyPart;
+    });
+  });
 
-// Get test populate button
-workoutTrackingRouter.get('/testPopulate', (req, res) => {
-  //console.log("Test populate")
-  res.render('testPopulate')
-})
-
-
-// TestPostMealData
-workoutTrackingRouter.post('/testPopulateWorkouts', async (req, res) => {
-  let testWorkout = await Workout.findOne({ userId: req.session.USER.id })
-  let currentDay = new Date()
-  const yesterday = new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate() - 2);
-  const week = new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate() - 8);
-  // let month = new Date(currentDay.getTime() - 40 * 24 * 60 * 60 * 1000);
-  const month = new Date(currentDay.getFullYear(), currentDay.getMonth() - 1, currentDay.getDate() - 1);
-
-  let newWorkoutDay = new Workout({
-    userId: testWorkout.userId,
-    workoutName: testWorkout.workoutName + " Day",
-    exercises: testWorkout.exercises,
-    expireTime: testWorkout.expireTime,
-    createdTime: yesterday
-  })
-
-  let newWorkoutWeek = new Workout({
-    userId: testWorkout.userId,
-    workoutName: testWorkout.workoutName + " Week",
-    exercises: testWorkout.exercises,
-    expireTime: testWorkout.expireTime,
-    createdTime: week
-  })
-
-  let newWorkoutMonth = new Workout({
-    userId: testWorkout.userId,
-    workoutName: testWorkout.workoutName + " Month",
-    exercises: testWorkout.exercises,
-    expireTime: testWorkout.expireTime,
-    createdTime: month
-  })
-
-  await newWorkoutDay.save()
-  await newWorkoutWeek.save()
-  await newWorkoutMonth.save()
-
-  //console.log("Populating...")
-  res.redirect('./testPopulate')
-
-})
+  bodyParts = bodyParts.flat();
+  const bodyPartSet = new Set(bodyParts);
+  bodyParts = [...bodyPartSet];
+  return bodyParts;
+}
 
 
-// Get workout logs
+/**
+ * Renders the "workoutLogs" view with data in the response.
+ * The data contains the following:
+ * - the total duration of the logged workouts
+ * - the current user's logged workouts
+ * - the body parts that have been worked by the logged workouts
+ *
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
 workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
-  let userId = req.session.USER.id
-  let workouts
+  let userId = req.session.USER.id;
+  let workouts;
 
   if (req.session.FILTERED_WORKOUTS) {
-    workouts = req.session.FILTERED_WORKOUTS
-    delete req.session.FILTERED_WORKOUTS
+    workouts = req.session.FILTERED_WORKOUTS;
+    delete req.session.FILTERED_WORKOUTS;
   } else {
     workouts = await Workout.find({ userId: userId });
   }
 
-  let totalDuration = 0
-  workouts.forEach(workout => {
-    workout.exercises.forEach(exercise => {
-      totalDuration += exercise.duration
-    })
-  })
+  let totalDuration = 0;
+  workouts.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      totalDuration += exercise.duration;
+    });
+  });
 
-  let bodyParts = workouts.map(workout => {
-    return workout.exercises.map(exercise => {
-      return exercise.bodyPart
-    })
-  })
+  let bodyParts = getBodyParts(workouts);
 
-  bodyParts = bodyParts.flat()
-  const bodyPartSet = new Set(bodyParts);
-  bodyParts = [...bodyPartSet]
-
-  res.render("workoutLogs", {
+  res.render("logs/workoutLogs", {
     totalDuration: totalDuration,
     workouts: workouts,
-    bodyParts: bodyParts
+    bodyParts: bodyParts,
   });
 });
 
+
+/** 
+ * Handles the POST request to delete a workout to the user's logged workouts
+ * 
+ * @param {Express.Request} req - the request object representing the received request
+ * @param {Express.Response} res - the response object representing the server response
+ */
+workoutTrackingRouter.post("/deleteFromLogWorkouts", async (req, res) => {
+  const workoutId = req.body.deleteLogWorkout;
+  const userId = req.session.USER.id;
+
+  // Remove the workout from the logs
+  await Workout.deleteOne({ _id: workoutId, userId: userId });
+  res.redirect("./workoutLogs");
+});
+
+// Export the workoutTrackingRouter
 module.exports = workoutTrackingRouter;

@@ -8,10 +8,11 @@
   font-family: "Open Sans", sans-serif;
 }
 
-/* body {
-  min-height: 100vh;
-  background: #e3f2fd;
-} */
+.box {
+  width: 50%;
+  margin-left: 25%;
+  margin-right: 25%;
+}
 
 .coloredContainer {
   background: #e3f2fd;
@@ -69,6 +70,78 @@
   border-right: 1px solid #171b26;
 }
 
+.heart path {
+  transition: stroke 0.3s ease;
+}
+
+.heart:hover path {
+  stroke: #184B29; 
+}
+
+.utensils path {
+  transition: stroke 0.3s ease;
+}
+
+.utensils:hover path {
+  stroke: #184B29; 
+}
+
+.home path {
+  transition: stroke 0.3s ease;
+}
+
+.home:hover path {
+  stroke: #184B29; 
+}
+
+.bicycle path {
+  transition: stroke 0.3s ease;
+}
+
+.bicycle:hover path {
+  stroke: #184B29; 
+}
+
+.file path {
+  transition: stroke 0.3s ease;
+}
+
+.file:hover path {
+  stroke: #184B29;  
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  border-radius: 30px 30px 30px 30px;
+  padding: 10px;
+  width: 96%;
+  margin-left: 2%;
+  margin-bottom: 10px;
+  background-color: rgba(98, 126, 139, 0.8) ;
+}
+
+.top-nav {
+  background-color: rgba(98, 126, 139, 0.8) ;
+  border-radius: 30px 30px 30px 30px;
+  padding: 10px;
+
+ }
+
+ h1 {
+  color: white !important;
+  font-size: 40px !important;
+  margin-left: 40px !important;
+  margin-right: 40px !important;
+ }
+
+ #logo {
+  background-color: white;
+  border-radius: 100px;
+  width: 55px;
+  height: 55px;
+}
+
 @media screen and (max-width: 800px) {
   .wrapper {
     width: 90vmin;
@@ -87,5 +160,19 @@
   .controls i {
     padding: 15px 0;
     font-size: 1rem;
+  }
+
+  .play-board {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    background: #212837;
+    grid-template: repeat(30, 1fr) / repeat(30, 1fr);
+  }
+
+  .box {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 }

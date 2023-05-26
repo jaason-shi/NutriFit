@@ -1,3 +1,7 @@
+/**
+ * Favorite Workout model for Favorite Workouts collection access.
+ */
+
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -11,7 +15,7 @@ const favWorkoutSchema = new Schema({
       bodyPart: String,
     },
   ],
-  
+
 });
 
 const favWorkout = mongoose.model("FavoriteWorkout", favWorkoutSchema);

@@ -1,3 +1,8 @@
+/**
+ * Meal model for Meal collection access.
+ * This model is used for the user's logged meals.
+ */
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

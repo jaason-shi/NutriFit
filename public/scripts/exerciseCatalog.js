@@ -1,9 +1,14 @@
 /**
- * Script file for Exercise Catalog type pages
+ * Script file for Exercise Catalog type pages.
  */
 
-
+/**
+ * Adds an item to the user's workout logs.
+ * 
+ * @param {string} id - the id of the item to add
+ */
 function addItem(id) {
+    console.log(typeof id)
     var formType = $('#formType').val();
 
     if (formType === 'quickAddWorkout') {
@@ -18,14 +23,16 @@ function addItem(id) {
     }
 }
 
-const setup = () => {
-    // Search bar event listener
-    $('#searchBar').on('input', function () {
-        const searchQuery = $(this).val();
-        $.get('./searchExercise', { q: searchQuery }, function (data) {
-            $('#exerciseResults').empty();
-            data.forEach(item => {
-                $('#exerciseResults').append(`
+
+/**
+ * Populates page with data retrieved using a search query.
+ * 
+ * @param {Array<Object>} data - the array of exercises to populate the page with
+ */
+function populateExerciseResults(data) {
+    $('#exerciseResults').empty();
+    data.forEach(item => {
+        $('#exerciseResults').append(`
 
                 <div class="container m-0 p-0 border-bottom d-flex align-items-center">
                     <div class="d-inline align-self-center d-flex my-auto" style="width: 40px;">
@@ -51,10 +58,23 @@ const setup = () => {
                     </div>
                 </div>
                     `);
-            });
-        })
     });
 }
 
 
+/**
+ * Sets up the event listeners for the elements on the page.
+ */
+function setup() {
+    // Search bar event listener
+    $('#searchBar').on('input', function () {
+        const searchQuery = $(this).val();
+        $.get('./searchExercise', { q: searchQuery }, (data) => populateExerciseResults(data))
+    });
+}
+
+
+/**
+ * Adds event listeners only when document is fully loaded.
+ */
 $(document).ready(setup)
