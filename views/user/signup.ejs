@@ -35,5 +35,16 @@
         </div>
 
     </body>
+    <script>
+        /**
+         * Trims the input value of any whitespace.
+         */
+        var inputs = document.querySelectorAll('input');
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener('input', function(e) {
+                e.target.value = e.target.value.trim();
+            });
+        }
+    </script>
 
 </html>
