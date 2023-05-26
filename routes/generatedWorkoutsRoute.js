@@ -62,6 +62,7 @@ async function workoutGenerationQuery(duration, user) {
   return workoutParsed;
 }
 
+
 /**
  * Renders the "generatedMeals" view with data in the response.
  * The data contains the following:
@@ -99,6 +100,7 @@ generatedWorkoutsRouter.get("/", async (req, res) => {
   });
 });
 
+
 /**
  * Processes the API request and redirects to the appropriate page when completed.
  *
@@ -123,6 +125,7 @@ generatedWorkoutsRouter.get("/loadingData", async (req, res) => {
   }
 });
 
+
 /**
  * Renders the "quickAddWorkout" view in the response.
  *
@@ -132,6 +135,7 @@ generatedWorkoutsRouter.get("/loadingData", async (req, res) => {
 generatedWorkoutsRouter.get("/quickAddWorkout", async (req, res) => {
   res.render("generatedWorkouts/quickAddWorkout");
 });
+
 
 /**
  * Handles the POST request to quick add a workout.
@@ -171,6 +175,7 @@ generatedWorkoutsRouter.post("/quickAddWorkout", async (req, res) => {
   res.redirect("/workoutTracking/workoutLogs");
 });
 
+
 /**
  * Renders the "workoutFilters" view with data in the response.
  * The data includes the following:
@@ -193,6 +198,7 @@ generatedWorkoutsRouter.get("/workoutFilters", (req, res) => {
   });
 });
 
+
 /**
  * Renders the "exerciseCatalog" view with the type of catalog in the response.
  *
@@ -205,6 +211,7 @@ generatedWorkoutsRouter.get("/exerciseCatalog", (req, res) => {
     type: type,
   });
 });
+
 
 /**
  * Updates the user's exercise tag to include or exclude.
@@ -252,6 +259,7 @@ async function updateExerciseTag(type, user, userId, exerciseTag) {
   }
 }
 
+
 /**
  * Handles the POST request to modify the exercise tags included or excluded
  *
@@ -269,6 +277,7 @@ generatedWorkoutsRouter.post("/modifyExerciseTag", async (req, res) => {
   req.session.USER = updatedUser;
   res.redirect("./workoutFilters");
 });
+
 
 /**
  * Sends a JSON object in the response containing an array of objects that fit the search query.
@@ -291,6 +300,7 @@ generatedWorkoutsRouter.get("/searchExercise", async (req, res) => {
 
   res.json(parsedResponse);
 });
+
 
 /**
  * Adds an exercise to the user's included or excluded exercises.
@@ -335,6 +345,7 @@ async function addExerciseUser(type, userId, exerciseToAdd) {
   }
 }
 
+
 /**
  * Handles the POST request to add selected exercises to include or exclude
  *
@@ -357,6 +368,7 @@ generatedWorkoutsRouter.post("/selectExercise", async (req, res) => {
   req.session.USER = updatedUser;
   res.redirect("./workoutFilters");
 });
+
 
 /**
  * Deletes an exercise from the current user's included or excluded exercises
@@ -393,6 +405,7 @@ async function deleteExerciseUser(type, userId, exerciseToDelete) {
   }
 }
 
+
 /**
  * Handles the POST request to remove selected exercises to include or exclude
  *
@@ -413,6 +426,7 @@ generatedWorkoutsRouter.post("/deleteExercise", async (req, res) => {
   res.redirect("./workoutFilters");
 });
 
+
 /**
  * Handles the POST request for adding the generated workout to the current user's favorite workouts.
  *
@@ -420,8 +434,6 @@ generatedWorkoutsRouter.post("/deleteExercise", async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
-  console.log("session workout: ");
-  console.log(req.session.WORKOUT);
   // add the workout to the user's favorite workouts
   const workout = req.session.WORKOUT;
   const userId = req.session.USER.id;
@@ -437,6 +449,7 @@ generatedWorkoutsRouter.post("/favoriteWorkouts", async (req, res) => {
   await User.updateOne({ id: userId }, { $set: { duration: 10 } });
   res.redirect("/favoriteWorkouts");
 });
+
 
 /**
  * Handles the POST request to delete a workout from user's favorite workouts.
@@ -454,6 +467,7 @@ generatedWorkoutsRouter.post(
     res.redirect("/favoriteWorkouts");
   }
 );
+
 
 // Export the generateWorkoutsRouter
 module.exports = generatedWorkoutsRouter;

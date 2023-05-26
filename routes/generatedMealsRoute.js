@@ -36,6 +36,7 @@ const foodCategory = [
   { name: "Drinks,Alcohol, Beverages" },
 ];
 
+
 /**
  * Queries the GPT API to generate a meal based on user conditions.
  *
@@ -72,6 +73,7 @@ async function mealGenerationQuery(calories, user) {
   return mealParsed;
 }
 
+
 /**
  * Renders the "generatedMeals" view with data in the response.
  * The data contains the following:
@@ -105,6 +107,7 @@ generatedMealsRouter.get("/", async (req, res) => {
   });
 });
 
+
 /**
  * Processes the API request and redirects to the appropriate page when completed.
  *
@@ -129,6 +132,7 @@ generatedMealsRouter.get("/loadingData", async (req, res) => {
   }
 });
 
+
 /**
  * Renders the "mealFilters" view with data in the response.
  * The data contains the following:
@@ -152,6 +156,7 @@ generatedMealsRouter.get("/mealFilters", async (req, res) => {
   });
 });
 
+
 /**
  * Renders the "foodCatalog" view with the type of catalog in the response.
  *
@@ -165,6 +170,7 @@ generatedMealsRouter.get("/foodCatalog", (req, res) => {
   });
 });
 
+
 /**
  * Renders the "quickAddMeal" view in the response.
  *
@@ -174,6 +180,7 @@ generatedMealsRouter.get("/foodCatalog", (req, res) => {
 generatedMealsRouter.get("/quickAddMeal", (req, res) => {
   res.render("generatedMeals/quickAddMeal");
 });
+
 
 /**
  * Handles the POST request to quick add a meal.
@@ -212,6 +219,7 @@ generatedMealsRouter.post("/quickAddMeal", async (req, res) => {
   res.redirect("./quickAddMeal");
 });
 
+
 /**
  * Searches the database based on the request query criteria and sends an array of JSON in the response.
  *
@@ -232,6 +240,7 @@ generatedMealsRouter.get("/searchFood", async (req, res) => {
 
   res.json(parsedResponse);
 });
+
 
 /**
  * Adds the food to the current user's included or excluded foods list.
@@ -279,6 +288,7 @@ async function addFoodUser(type, itemId, userId) {
   }
 }
 
+
 /**
  * Handles the POST request to add food items to include or exclude.
  *
@@ -300,6 +310,7 @@ generatedMealsRouter.post("/selectFood", async (req, res) => {
   req.session.USER = updatedUser;
   res.redirect("./mealFilters");
 });
+
 
 /**
  * Updates the user's food tag to include or exclude.
@@ -341,6 +352,7 @@ async function updateFoodTag(type, userId, foodTag, user) {
   }
 }
 
+
 /**
  * Handles the POST request to modify the food tags included or excluded.
  *
@@ -359,6 +371,7 @@ generatedMealsRouter.post("/modifyFoodTag", async (req, res) => {
   req.session.USER = updatedUser;
   res.redirect("./mealFilters");
 });
+
 
 /**
  * Deletes the specified food item from included or excluded food items.
@@ -397,6 +410,7 @@ async function deleteFoodUser(type, userId, foodToDelete) {
   }
 }
 
+
 /**
  * Handles the POST request to delete a food item from a user's included or excluded food items.
  *
@@ -416,6 +430,7 @@ generatedMealsRouter.post("/deleteFood", async (req, res) => {
   res.redirect("./mealFilters");
 });
 
+
 /**
  * Handles the POST request to add a generated meal to user's favorite meals.
  *
@@ -423,8 +438,6 @@ generatedMealsRouter.post("/deleteFood", async (req, res) => {
  * @param {Express.Response} res - the response object representing the server response
  */
 generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
-  console.log("session meal: ");
-  console.log(req.session.MEAL);
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
   // ADD meal to FavoriteMeal collection
@@ -442,6 +455,7 @@ generatedMealsRouter.post("/favoriteMeals", async (req, res) => {
   res.redirect("/favoriteMeals");
 });
 
+
 /**
  * Handles the POST request to delete a meal from user's favorite meals.
  *
@@ -455,6 +469,7 @@ generatedMealsRouter.post("/deleteFromFavoriteMeals", async (req, res) => {
   await FavoriteMeal.deleteOne({ _id: mealId, userId: userId });
   res.redirect("/favoriteMeals");
 });
+
 
 // Export the generatedMealsRouter
 module.exports = generatedMealsRouter;

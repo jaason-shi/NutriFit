@@ -11,6 +11,7 @@ const Workout = require("../models/workoutModel");
 const FavoriteWorkout = require("../models/favWorkoutModel");
 const User = require("../models/userModel");
 
+
 /**
  * Sets the session workout to the correctly parsed workout object.
  * Depending on where the request came from, it is parsed and handled differently.
@@ -44,6 +45,7 @@ async function parseWorkoutSession(req) {
     req.session.WORKOUT = parsedWorkout;
   }
 }
+
 
 /**
  * Handles the POST request to add a workout to the current user's workout logs
@@ -84,6 +86,7 @@ workoutTrackingRouter.post("/workoutLogs", async (req, res) => {
   res.redirect("/workoutTracking/workoutLogs");
 });
 
+
 /**
  * Filters the current user's logged workouts by date.
  *
@@ -117,11 +120,10 @@ workoutTrackingRouter.get("/filterWorkouts", async (req, res) => {
     totalDuration += workout.totalDuration;
   });
 
-  console.log("***\nFILTERED\n***");
-  console.log(filteredWorkouts);
   req.session.FILTERED_WORKOUTS = filteredWorkouts;
   res.redirect("./workoutLogs");
 });
+
 
 /**
  * Gets the body parts worked from an array of workout objects with no duplicates.
@@ -141,6 +143,7 @@ function getBodyParts(workouts) {
   bodyParts = [...bodyPartSet];
   return bodyParts;
 }
+
 
 /**
  * Renders the "workoutLogs" view with data in the response.
@@ -178,6 +181,7 @@ workoutTrackingRouter.get("/workoutLogs", async (req, res) => {
     bodyParts: bodyParts,
   });
 });
+
 
 /** 
  * Handles the POST request to delete a workout to the user's logged workouts

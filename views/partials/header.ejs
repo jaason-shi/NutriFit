@@ -1,25 +1,27 @@
+<!-- Header -->
+
 <header class="p-2">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    
-    <nav class="navbar navbar-expand-lg top-nav">
-      <div class="container">
-        <div class="d-flex align-items-center">
-          <a class="navbar-brand" href="/">
-            <img class="img-fluid" id="logo" src="/images/logo-modified.png" alt="NutriFit Logo">
-          </a>
-          <h1 class="fw-bold d-inline ml-2" id="easterEgg">NutriFit</h1>
-        </div>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+  <nav class="navbar navbar-expand-lg top-nav">
+    <div class="container">
+      <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="/">
+          <img class="img-fluid" id="logo" src="/images/logo-modified.png" alt="NutriFit Logo">
+        </a>
+        <h1 class="fw-bold d-inline ml-2" id="easterEgg">NutriFit</h1>
       </div>
-    </nav>
-    <script>
-        let clickCount = 0;
-        const easterEggElement = document.getElementById("easterEgg");
-        easterEggElement.addEventListener("click", () => {
-            clickCount++;
-            if (clickCount === 3) {
-                window.location.href = "/snake";
-                clickCount = 0;
-            }
-        });
-    </script>
+    </div>
+  </nav>
+  <script>
+    let clickCount = 0;
+    const easterEggElement = document.getElementById("easterEgg");
+    easterEggElement.addEventListener("click", () => {
+      clickCount++;
+      if (clickCount === 3) {
+        window.location.href = "/snake";
+        clickCount = 0;
+      }
+    });
+  </script>
 </header>

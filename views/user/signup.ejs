@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- Meta Tag -->
 <%- include('../partials/meta') %>
 
-<body>
+    <body>
 
-    <div class="bg-body-tertiary" style="height: 100vh">
+        <div class="bg-body-tertiary" style="height: 100vh">
 
-        <!-- Header -->
-        <%- include('../partials/header') %>
+            <!-- Header -->
+            <%- include('../partials/header') %>
 
-            <div class="row w-100 m-0">
-                <div class="mx-auto col-lg-5 col-12">
+                <div class="row w-100 m-0">
+                    <div class="mx-auto col-lg-5 col-12">
 
-                    <div class="card mx-auto mt-5 p-3 w-75">
-                        <div class="card-body">
-                            <h2 class="mb-4">Sign up</h2>
+                        <div class="card mx-auto mt-5 p-3 w-75">
+                            <div class="card-body">
+                                <h2 class="mb-4">Sign up</h2>
 
-                            <form action="./signup" method="post">
-                                <input class="mb-3 w-100" name="id" type="text" placeholder="ID">
-                                <input class="mb-3 w-100" name="email" type="text" placeholder="Email">
-                                <input class="w-100 mb-4" name="password" type="password" placeholder="Password">
-                                <h6>Security Question</h6>
-                                <span>What is the name of your first pet?</span>
-                                <input class="w-100 mb-2 mt-2" name="answer" type="text" placeholder="Answer">
-                                <input class="btn rounded-pill btn-dark w-100" type="submit" value="Sign up">
-                            </form>
+                                <form action="./signup" method="post">
+                                    <input class="mb-3 w-100" name="id" type="text" placeholder="ID">
+                                    <input class="mb-3 w-100" name="email" type="text" placeholder="Email">
+                                    <input class="w-100 mb-4" name="password" type="password" placeholder="Password">
+                                    <h6>Security Question</h6>
+                                    <span>What is the name of your first pet?</span>
+                                    <input class="w-100 mb-2 mt-2" name="answer" type="text" placeholder="Answer">
+                                    <input class="btn rounded-pill btn-dark w-100" type="submit" value="Sign up">
+                                </form>
 
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-    </div>
+        </div>
 
-</body>
+    </body>
 
 </html>

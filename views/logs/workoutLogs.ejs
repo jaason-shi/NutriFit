@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- Meta Tag -->
 <%- include('../partials/meta') %>
 
     <body>
+        <!-- Header -->
         <%- include('../partials/header') %>
             <div class="container p-3" style="height: 100vh;">
-                <!-- Header -->
                 <div class="fs-3 fw-semibold d-flex mb-4">
                     <button class="btn btn-light">
                         <a href="/logs"><img src="/images/less-than.svg" alt=""></a>
@@ -16,6 +17,7 @@
                     </div>
                 </div>
 
+                <!-- Filter Section -->
                 <div class="container fs-4 fw-medium m-0 p-0 mb-1">
                     Filter By Last:
                 </div>
@@ -101,6 +103,7 @@
                                 </div>
                     </div>
                     <div style="height: 100px;"></div>
+                    <!-- Bottom Nav -->
                     <%- include('../partials/navbar') %>
                 </div>
     </body>

@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- Meta Tag -->
 <%- include('../partials/meta') %>
 
     <body>
-        <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
-            <!-- Header -->
+        <!-- Header -->
+        <%- include('../partials/header') %>
+            <div class="container p-3 overflow-auto" style="height: 100vh; margin-bottom: 10vh;">
+                <div class="fs-5 fw-semibold d-flex mb-4 align-items-center">
+                    <div>
+                        <a href="./mealFilters"><img src="/images/less-than.svg" alt=""></a>
+                    </div>
+                    <div class="ms-3">
+                        Select food to <%= type %>
+                    </div>
+                </div>
 
-            <div class="fs-5 fw-semibold d-flex mb-4 align-items-center">
-                <div>
-                    <a href="./mealFilters"><img src="/images/less-than.svg" alt=""></a>
+                <div class="container mb-2">
+                    <div class="fs-6 fw-medium my-1">
+                        Search
+                    </div>
+                    <div class="fs-6 mb-2">
+                        <form class=" mb-4" action="">
+                            <input name="calories" type="text" placeholder="Search for food..." class="w-100"
+                                id="searchBar">
+                        </form>
+                    </div>
+
+                    <div class="fs-6 fw-medium my-1">
+                        Food List
+                    </div>
+
+                    <div class="fs-6 fw-medium my-1" id="foodResults">
+                    </div>
+
                 </div>
-                <div class="ms-3">
-                    Select food to <%= type %>
-                </div>
+                <div style="height: 100px;"></div>
+                <!-- Bottom Nav -->
+                <%- include('../partials/navbar') %>
+
             </div>
 
-            <div class="container mb-2">
-                <div class="fs-6 fw-medium my-1">
-                    Search
-                </div>
-                <div class="fs-6 mb-2">
-                    <form class=" mb-4" action="">
-                        <input name="calories" type="text" placeholder="Search for food..." class="w-100"
-                            id="searchBar">
-                    </form>
-                </div>
-
-                <div class="fs-6 fw-medium my-1">
-                    Food List
-                </div>
-
-                <div class="fs-6 fw-medium my-1" id="foodResults">
-                </div>
-
-            </div>
-            <div style="height: 100px;"></div>
-            <%- include('../partials/navbar') %>
-
-        </div>
-
-        <!-- Bootstrap JS -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <!-- Personal JS -->
-        <script src="/scripts/foodCatalog.js"></script>
+            <!-- Bootstrap JS -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+            <!-- Personal JS -->
+            <script src="/scripts/foodCatalog.js"></script>
 
     </body>
 

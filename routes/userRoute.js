@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10
 const User = require('../models/userModel')
 
+
 /**
  * Set up form field validation to protect against DB query attacks.
  * The '$ : {} ()' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
@@ -169,10 +170,10 @@ async function checkAlreadyExists(req, id, email) {
  * Validates the user provided values.
  * 
  * @param {Express.Request} req - the request object representing the received request
- * @param {*} id - the ID to validate
- * @param {*} email - the email to validate
- * @param {*} password - the password to validate
- * @param {*} answer - the answer to validate
+ * @param {string} id - the ID to validate
+ * @param {string} email - the email to validate
+ * @param {string} password - the password to validate
+ * @param {string} answer - the answer to validate
  * @returns 
  */
 function validateValues(req, id, email, password, answer) {

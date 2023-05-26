@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- Meta Tag -->
 <%- include('../partials/meta') %>
 
     <body>
         <!-- Header -->
         <%- include('../partials/header.ejs')%>
-        <div class="container p-3" style="height: 100vh;">
+            <div class="container p-3" style="height: 100vh;">
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center align-items-center">
                         <img src="/images/profile-circle.svg" alt="" height="100">
@@ -25,7 +26,6 @@
 
                     </div>
                 </div>
-
                 <div class="container p-0 m-0 border-bottom" style="height: 6em">
                     <span class="fs-5">Password:</span> <br>
                     <span>
@@ -34,8 +34,6 @@
                             <% } %>
                     </span><br>
                 </div>
-
-
                 <div class="container p-0 m-0 border-bottom align-items-center" style="height: 4em">
                     <div class="row align-items-center h-100">
                         <div class="col-3 fs-5">
@@ -58,14 +56,10 @@
                     </span><br>
                 </div>
 
-
-
                 <div style="height: 100px;"></div>
+                <!-- Bottom Nav -->
                 <%- include('../partials/navbar') %>
-
-        </div>
-
-
+            </div>
     </body>
 
 </html>

@@ -51,6 +51,7 @@ mealTrackingRouter.get("/mealLogs", async (req, res) => {
   });
 });
 
+
 /**
  * Filters the current user's logged meals by date.
  *
@@ -61,10 +62,6 @@ mealTrackingRouter.get("/filterMeals", async (req, res) => {
   req.session.MEALS_LOGGED = await Meal.find({ userId: req.session.USER.id });
   const filterType = req.query.filterType;
   const today = new Date();
-
-  console.log("Today");
-  console.log(today);
-
   let startDate;
 
   // Which filter was picked
@@ -80,10 +77,10 @@ mealTrackingRouter.get("/filterMeals", async (req, res) => {
     return createdTime >= startDate;
   });
 
-  console.log(filteredMeals);
   req.session.FILTERED_MEALS = filteredMeals;
   res.redirect("./mealLogs");
 });
+
 
 /**
  * Sets the session meal to the correctly parsed meal object.
@@ -120,6 +117,7 @@ async function parseMealSession(req) {
   }
 }
 
+
 /**
  * Handles the POST request to add to the user's logged meals.
  *
@@ -141,7 +139,6 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
   // Add the meal to meal collection
   const meal = req.session.MEAL;
   const userId = req.session.USER.id;
-  console.log(userId);
   const mealLog = new Meal({
     userId: userId,
     mealName: meal[0].Food,
@@ -162,6 +159,7 @@ mealTrackingRouter.post("/mealLogs", async (req, res) => {
   res.redirect("/mealTracking/mealLogs");
 });
 
+
 /**
  * Handles the POST request to delete a meal from the user's logged meals.
  *  
@@ -176,6 +174,7 @@ mealTrackingRouter.post("/deleteFromLogMeals", async (req, res) => {
   await Meal.deleteOne({ _id: mealId, userId: userId });
   res.redirect("./mealLogs");
 });
+
 
 // Export the mealTrackingRouter
 module.exports = mealTrackingRouter;
