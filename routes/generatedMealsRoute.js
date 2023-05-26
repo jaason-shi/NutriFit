@@ -200,6 +200,7 @@ generatedMealsRouter.post("/quickAddMeal", async (req, res) => {
         Grams: foodToAdd.Grams,
       },
     ],
+    createdTime: new Date(date.getTime()),
     expireTime: new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000), // set the expiry time 30 days from now
   });
 
