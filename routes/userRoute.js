@@ -133,11 +133,11 @@ async function createNewUser(req, id, email, password, answer) {
         answer: answer,
     })
 
-    newUser.save().then(async () => {
-        req.session.USER = await User.findOne({ id: req.body.id })
-        req.session.AUTH = true;
-        req.session.ROLE = 'User'
-    })
+    await newUser.save()
+    console.log("User Created: " + req.body.id)
+    req.session.USER = await User.findOne({ id: req.body.id })
+    req.session.AUTH = true;
+    req.session.ROLE = 'User'
 }
 
 
@@ -214,7 +214,6 @@ userRouter.post('/signup', async (req, res) => {
         if (await checkAlreadyExists(req, id, email)) {
             return res.redirect('/alreadyExists')
         }
-
         await createNewUser(req, id, email, password, answer)
         res.redirect('/members')
     }

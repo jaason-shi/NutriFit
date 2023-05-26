@@ -319,7 +319,7 @@ app.get('/waitingApi', async (req, res) => {
       await User.updateOne({ id: user.id }, { $set: { duration: 10 } });
     }
   }
-  res.render('general/waitingApi', {
+  res.render('general/waitingAPI', {
     type: type
   })
 })
