@@ -24,7 +24,7 @@
                     <div class="fs-6 mb-2">
                         <form class=" mb-4" action="">
                             <input name="calories" type="number" placeholder="Please Enter" class="w-100"
-                                id="inputCalories" value="<%= primaryUser.calories %>">
+                                id="inputCalories" value="<%= primaryUser.calories %>" oninput="validateInput(this)">
                         </form>
                     </div>
 
@@ -199,6 +199,16 @@
                     let calories = document.getElementById("inputCalories").value;
                     let url = "/waitingApi?calories=" + calories + "&type=meal";
                     window.location.href = url;
+                }
+                
+
+                /**
+                 * Validates the input to ensure that it is a number.
+                 * @param {HTMLInputElement} input 
+                 */
+                function validateInput(input) {
+                    // Replace any non-digit character with an empty string
+                    input.value = input.value.replace(/[^0-9]/g, '');
                 }
             </script>
     </body>
