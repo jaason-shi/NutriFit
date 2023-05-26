@@ -322,9 +322,6 @@ app.get('/waitingApi', async (req, res) => {
   res.render('general/waitingApi', {
     type: type
   })
-
-
-
 })
 
 
