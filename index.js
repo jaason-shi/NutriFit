@@ -18,6 +18,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set("view engine", "ejs");
+app.set("views", "./views");
 app.use(express.static("public"));
 app.use(bodyParser.json());
 
@@ -71,10 +72,9 @@ const generatedWorkoutsRouter = require("./routes/generatedWorkoutsRoute");
 const workoutTrackingRouter = require("./routes/workoutTrackingRoute");
 const mealTrackingRouter = require("./routes/mealTrackingRoute");
 
-
 /**
  * Checks if the user is authenticated and redirects them if they are not based on the context of their arrival.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  * @param {Function} next - the function that passes control to the next middleware function or route handler
@@ -89,8 +89,7 @@ function checkAuth(req, res, next) {
     }
   }
   next();
-};
-
+}
 
 /**
  * Route handlers start
@@ -112,14 +111,13 @@ app.use("/workoutTracking", checkAuth, workoutTrackingRouter);
 // Meal Tracking route
 app.use("/mealTracking", checkAuth, mealTrackingRouter);
 
-/** 
+/**
  * Route handlers end
  */
 
-
 /**
  * Logs out the user by destroying the session and redirecting back to the home page.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -128,10 +126,9 @@ app.post("/logOut", (req, res) => {
   res.redirect("./");
 });
 
-
 /**
  * Renders the "authFail" view with User and referer in the response.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -142,10 +139,9 @@ app.get("/authFail", (req, res) => {
   });
 });
 
-
 /**
  * Renders the "members" view with User in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -155,10 +151,9 @@ app.get("/members", checkAuth, (req, res) => {
   });
 });
 
-
 /**
  * Renders the "userProfile" view with User in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -168,10 +163,9 @@ app.get("/userProfile", checkAuth, (req, res) => {
   });
 });
 
-
 /**
  * Renders the "logs" view in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -179,10 +173,9 @@ app.get("/logs", checkAuth, async (req, res) => {
   res.render("logs/logs");
 });
 
-
 /**
  * Renders the "exerciseLogs" view in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -190,10 +183,9 @@ app.get("/exerciseLogs", checkAuth, async (req, res) => {
   res.render("exerciseLogs");
 });
 
-
 /**
  * Renders the "favorites" view in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -201,10 +193,9 @@ app.get("/favorites", checkAuth, (req, res) => {
   res.render("favorites/favorites");
 });
 
-
 /**
  * Serves the "snake.html" file in the response.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -212,10 +203,9 @@ app.get("/snake", (req, res) => {
   res.sendFile("public/snake.html", { root: __dirname });
 });
 
-
 /**
  * Renders the "favoriteMeals" view with the user's favorite meals in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -242,10 +232,9 @@ app.get("/favoriteMeals", checkAuth, async (req, res) => {
   res.render("favorites/favoriteMeals", { meals: mealsParsed });
 });
 
-
 /**
  * Renders the "badAPiResponse" view in the response.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -253,10 +242,9 @@ app.get("/badApiResponse", (req, res) => {
   res.render("errors/badApiResponse");
 });
 
-
 /**
  * Renders the "favoriteWorkouts" view with the user's favorite workouts in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -283,51 +271,54 @@ app.get("/favoriteWorkouts", checkAuth, async (req, res) => {
   res.render("favorites/favoriteWorkouts", { workouts: workoutsParsed });
 });
 
-
 /**
  * Renders the "alreadyExists" view with the field that already exists in the response.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
 app.get("/alreadyExists", (req, res) => {
-  res.render("errors/alreadyExists", { match: req.session.MATCH })
-})
-
+  res.render("errors/alreadyExists", { match: req.session.MATCH });
+});
 
 /**
  * Renders the "waitingApi" view in the response and sets the calories of the current user.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
-app.get('/waitingApi', async (req, res) => {
+app.get("/waitingApi", async (req, res) => {
   let user = req.session.USER;
-  let type = req.query.type
-  console.log("data")
-  console.log(req.query)
+  let type = req.query.type;
+  console.log("data");
+  console.log(req.query);
   if (type === "meal") {
     if (req.query.calories != undefined) {
-      await User.updateOne({ id: user.id }, { $set: { calories: req.query.calories } });
+      await User.updateOne(
+        { id: user.id },
+        { $set: { calories: req.query.calories } }
+      );
     } else if (!req.session.USER.calories) {
       await User.updateOne({ id: user.id }, { $set: { calories: 500 } });
     }
   } else {
     if (req.query.duration != undefined) {
-      await User.updateOne({ id: user.id }, { $set: { duration: req.query.duration } });
+      await User.updateOne(
+        { id: user.id },
+        { $set: { duration: req.query.duration } }
+      );
     } else if (!req.session.USER.duration) {
       await User.updateOne({ id: user.id }, { $set: { duration: 10 } });
     }
   }
-  res.render('general/waitingAPI', {
-    type: type
-  })
-})
-
+  res.render("general/waitingAPI", {
+    type: type,
+  });
+});
 
 /**
  * Renders the "404" view with the user's favorite workouts in the response after checking if they are authenticated.
- * 
+ *
  * @param {Express.Request} req - the request object representing the received request
  * @param {Express.Response} res - the response object representing the server response
  */
@@ -335,10 +326,9 @@ app.get("*", (req, res) => {
   res.render("errors/404");
 });
 
-
 /**
  * Starts the server and listens on the specified port
- * 
+ *
  * @param {number} port - The port number to listen on.
  */
 app.listen(port, () => {
