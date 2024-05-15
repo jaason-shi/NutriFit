@@ -18,7 +18,6 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set("view engine", "ejs");
-app.set("views", "./views");
 app.use(express.static("public"));
 app.use(bodyParser.json());
 
